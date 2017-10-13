@@ -1,10 +1,13 @@
 # MSstatsTMT
 
-Before build/install, remember to updata .rd file by useing "devtlls::document()", also in Test.R file
+Before build/install, remember to updata .rd file by useing "devtools::document()", also in Test.R file
 
 #Build package
 
 Local build and install
-go to directory .../
+1. Go to directory where the package fold located
+2. Type: R CMD build MSstatsTMT (normally 
+3. 
+
 
 Github install
