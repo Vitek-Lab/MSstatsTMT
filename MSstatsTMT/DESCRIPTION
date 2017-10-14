@@ -1,11 +1,16 @@
 Package: MSstatsTMT
 Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
+Version: 0.1.1.0000
+Date: 2017-10-13
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
+License: Artistic-2.0
 Depends: R (>= 3.4.0)
-License: What license is it under?
+Imports: MASS, WRS2, affy, data.table, dplyr, tidyr, plyr, lme4, nlme, limma, daewr, GAD, multcomp, agricolae, pROC, ROTS 
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+biocViews: MassSpectrometry, Proteomics, Software
 Encoding: UTF-8
 LazyData: true
+URL: http://msstats.org
 RoxygenNote: 6.0.1
-Imports:MASS,WRS2,affy,data.table,dplyr,tidyr,lme4,nlme,daewr,GAD,multcomp,agricolae,pROC,ROTS,plyr,limma
