@@ -2,11 +2,12 @@ Package: MSstatsTMT
 Title: What the Package Does (one line, title case)
 Version: 0.1.1.0000
 Date: 2017-10-13
-Authors@R: Meena Choi, Ting Huang, Sicheng Hao
+Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Maintainer: Sicheng Hao <hao.sic@husky.neu.edu>
 Description: What the package does (one paragraph).
 License: Artistic-2.0
 Depends: R (>= 3.4.0)
-Imports: MASS, WRS2, affy, data.table, dplyr, tidyr, plyr, lme4, nlme, limma, daewr, GAD, multcomp, agricolae, pROC, ROTS 
+Imports: MASS, WRS2, affy, data.table, dplyr,tidyr, plyr, lme4, nlme, limma, daewr, GAD, multcomp, agricolae, pROC, ROTS 
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: MassSpectrometry, Proteomics, Software

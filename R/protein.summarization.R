@@ -6,7 +6,6 @@
 #' @examples TODO
 #' @import tidyr 
 #' @import data.table
-#' @import dplyr
 #' @export
 
 protein.summarization <- function(data, annotation, method){
