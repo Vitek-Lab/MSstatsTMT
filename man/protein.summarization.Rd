@@ -18,5 +18,6 @@ The sum of \code{x} and \code{y}.//TODO
 Summarize PSM level data to protein level
 }
 \examples{
-TODO
+LogSum.abun <- MSstatsTMT::protein.summarization(MSstatsTMT::test.data, MSstatsTMT::annotation.data,  "LogSum")
+print(head(LogSum.abun))
 }

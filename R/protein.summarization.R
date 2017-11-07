@@ -1,82 +1,64 @@
 #' Summarize PSM level data to protein level
-#' 
+#'
 #' @param data PSM level data, which has columns Protein, PSM, Subject, Run, Channel, IonIntensity
 #' @param method summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"
 #' @return The sum of \code{x} and \code{y}.//TODO
-#' @examples TODO
-#' @import tidyr 
+#' @examples LogSum.abun <- MSstatsTMT::protein.summarization(MSstatsTMT::test.data, MSstatsTMT::annotation.data,  "LogSum")
+#' print(head(LogSum.abun))
+#' @import tidyr
 #' @import data.table
+#' @import MASS
+#' @import matrixStats
+#' @import dplyr
+#' @import tidyr
+#' @import affy
 #' @export
 
 protein.summarization <- function(data, annotation, method){
-  # Get the protein list, subjects and runs
-  proteins <- unique(data$Protein)
-  subjects <- unique(data$Subject)
-  runs <- unique(data$Run)
-  
-  # Store the estimated protein abundance
-  protein.abundance <- matrix(rep(NA, length(subjects)*length(proteins)), ncol = length(subjects))
-  colnames(protein.abundance) <- subjects
-  # For each protein and each run, do the summarization individually
-  for(i in 1:length(proteins)) {
-    message("Protein: ", i)
-    for(j in 1:length(runs)){
-      sub_data <- data %>% filter(Protein == proteins[i] & Run == runs[j])
-      if(nrow(sub_data) != 0){
-        nfea <- length(unique(sub_data$PSM))
-        # Change the long format to wide format
-        sub_data_wide <- sub_data %>% dplyr::select(IonIntensity, PSM, Subject) %>% spread(Subject, IonIntensity)
-        rownames(sub_data_wide) <- sub_data_wide[,1]
-        sub_data_wide <- sub_data_wide[,-1]
-        # Number of negative values
-        index <- which(apply(sub_data_wide, 1, function(col) any(col < 0)))
-        if(length(index) != 0){
-          # MC - 20170808 : replace negative values with zero.
-          sub_data_wide[!is.na(sub_data_wide) & sub_data_wide < 0 ] <- 0
-          message('* replace negatives with zero')
-          # end MC- 20170808
-        }
-        
-        if(nrow(sub_data_wide) != 0){
-          if(nrow(sub_data_wide) == 1){ # Only one PSM for the protein
-            protein.abundance[i, colnames(sub_data_wide)] <- as.matrix(sub_data_wide)
-          } else{
-            if(method == "LogSum"){
-              #Sum
-              # MC- 20170808 : change to log2 (sum of intensity)
-              protein.abundance[i, colnames(sub_data_wide)] <- log2(colSums(2^sub_data_wide, na.rm = TRUE))
-            }
-            if(method == "Median"){
-              #Median
-              protein.abundance[i, colnames(sub_data_wide)] <- colMedians(as.matrix(sub_data_wide, na.rm = TRUE))
-            }
-            if(method == "Biweight"){
-              #Biweight
-              protein.abundance[i, colnames(sub_data_wide)] <- log2(generateExprVal.method.mas(as.matrix(2^sub_data_wide))$exprs)
-            }
-            if(method == "MedianPolish"){
-              #median polish
-              meddata  <-  medpolish(as.matrix(sub_data_wide), na.rm=TRUE,trace.iter = FALSE)
-              tmpresult <- meddata$overall + meddata$col
-              protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
-            }
-            if(method == "Huber"){
-              #Huber
-              protein.abundance[i, colnames(sub_data_wide)] <- unlist(apply(as.matrix(sub_data_wide), 2, function(x) huber(x, k = 1.345)$mu))
-            }
-          }
-        }
-      }
+  #check input
+    #data
+    if(is.null(data$Run)){
+        message("Please make sure the data has a colume called 'Run'!")
     }
-  }
-  rownames(protein.abundance) <- proteins
-  # Get the group information for each subject
-  # Make the data long format and add the group information to protein level data frame
-  res <- as.data.frame(protein.abundance)
-  res$Protein <- rownames(res)
-  res <- res %>% gather(Subject, Abundance, -Protein) # Change to long format
-  res <- res %>% separate(Subject, c("Run", "Channel"), sep= "\\.", remove = FALSE) # Get the Channel and Run information from Subject
-  res <- left_join(res, annotation)
-  return(res)
+    if(is.null(data$Channel)){
+        message("Please make sure input data has a colume called 'Channel'!")
+    }
+    if(is.null(data$Protein)){
+        message("Please make sure input data has a colume called 'Protein'!")
+    }
+    if(is.null(data$PSM)){
+        message("Please make sure input data has a colume called 'PSM'!")
+    }
+    if(is.null(data$IonIntensity)){
+        message("Please make sure input data has a colume called 'IonIntensity'!")
+    }
+    if(is.null(data$Subject)){
+        message("Please make sure input data has a colume called 'Subject'!")
+    }
+    if(!all.equal(length(data$Run),length(data$Channel),length(data$Protein),length(data$PSM),length(data$IonIntensity),length(data$Subject))){
+        message("Please make sure all columes have same length")
+    }
+    if(!is.numeric(test.data$IonIntensity)){
+        message("Please make sure 'IonIntensity' is numeric!")
+    }
+    #annotation
+    if(is.null(annotation$Run)){
+        message("Please make sure input annotation data has a colume called 'Run'!")
+    }
+    if(is.null(annotation$Channel)){
+        message("Please make sure input annotation data has a colume called 'Channel'!")
+    }
+    if(is.null(annotation$Group)){
+        message("Please make sure input annotation data has a colume called 'Group'!")
+    }
+    if(!all.equal(length(annotation$Run),length(annotation$Channel),length(annotation$Group))){
+        message("Please make sure all columes have same length")
+    }
+    #method
+    method.list<-c("LogSum", "Median", "Biweight", "MedianPolish", "Huber")
+    if(sum(method==method.list)!=1){
+        message(" 'Method' must be one of the following, 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'LogSum' ")
+    }
+  return(protein.summarization.function(data,annotation,method))
 }
 

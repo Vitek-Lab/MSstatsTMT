@@ -1,7 +1,7 @@
 Package: MSstatsTMT
 Title: What the Package Does (one line, title case)
-Version: 0.1.1.0000
-Date: 2017-10-13
+Version: 0.1.1.0001
+Date: 2017-11-06
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
 Maintainer: Sicheng Hao <hao.sic@husky.neu.edu>
 Description: What the package does (one paragraph).

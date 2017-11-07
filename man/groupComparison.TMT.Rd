@@ -4,7 +4,7 @@
 \alias{groupComparison.TMT}
 \title{Summarize PSM level data to protein level}
 \usage{
-groupComparison.TMT(data, annotation, model)
+groupComparison.TMT(data, model = "proposed")
 }
 \arguments{
 \item{data}{data: protein level data, which has columns Protein, Group, Subject, Run, Channel, IonIntensity}
@@ -18,5 +18,5 @@ The sum of \code{x} and \code{y}.//TODO
 Summarize PSM level data to protein level
 }
 \examples{
-//TODO
+TODO
 }
