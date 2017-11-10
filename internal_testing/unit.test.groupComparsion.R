@@ -3,10 +3,7 @@
 dir<-"/Users/haosicheng/Desktop/MSstatsTMT/internal_testing/data"
 setwd(dir)
 library(MSstatsTMT)
-# library(limma)
-# library(nlme)
-# library(dplyr)
-# library(lme4)
+library(dplyr)
 
 load("LogSum.abun.rda")
 data.long <- LogSum.abun %>% filter(Group != "Norm")

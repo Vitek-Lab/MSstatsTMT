@@ -4,10 +4,6 @@
 #' @param model Possible options: "proposed", "lima", "t"
 #' @return The sum of \code{x} and \code{y}.//TODO
 #' @examples TODO
-#' @import dplyr
-#' @import limma
-#' @import nlme
-#' @import lme4
 #' @export
 
 

@@ -1,5 +1,5 @@
 
-
+#'@export
 run.summarization<-function(sub_data){
   if(nrow(sub_data) != 0){
     nfea <- length(unique(sub_data$PSM))
@@ -24,7 +24,7 @@ protein.summarization.function<- function(data, annotation, method){
   proteins <- unique(data$Protein)
   subjects <- unique(data$Subject)
   runs <- unique(data$Run)
-  
+
   # Store the estimated protein abundance
   protein.abundance <- matrix(rep(NA, length(subjects)*length(proteins)), ncol = length(subjects))
   colnames(protein.abundance) <- subjects
@@ -67,10 +67,10 @@ protein.summarization.function<- function(data, annotation, method){
         }
       }
     }#end of else
-      
-      
+
+
     }#end of second for loop
-    
+
   }#end of first for loop
   rownames(protein.abundance) <- proteins
   # Get the group information for each subject
@@ -89,7 +89,7 @@ protein.summarization.function.old <- function(data, annotation, method){
   proteins <- unique(data$Protein)
   subjects <- unique(data$Subject)
   runs <- unique(data$Run)
-  
+
   # Store the estimated protein abundance
   protein.abundance <- matrix(rep(NA, length(subjects)*length(proteins)), ncol = length(subjects))
   colnames(protein.abundance) <- subjects
@@ -112,7 +112,7 @@ protein.summarization.function.old <- function(data, annotation, method){
           message('* replace negatives with zero')
           # end MC- 20170808
         }
-        
+
         if(nrow(sub_data_wide) != 0){
           if(nrow(sub_data_wide) == 1){ # Only one PSM for the protein
             protein.abundance[i, colnames(sub_data_wide)] <- as.matrix(sub_data_wide)
@@ -143,10 +143,10 @@ protein.summarization.function.old <- function(data, annotation, method){
           }
         }
       }
-      
+
     }#end of second for loop
-    
-    
+
+
   }#end of first for loop
   rownames(protein.abundance) <- proteins
   # Get the group information for each subject

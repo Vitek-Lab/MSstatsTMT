@@ -4,18 +4,13 @@ dir<-"/Users/haosicheng/Desktop/MSstatsTMT/internal_testing/data"
 setwd(dir)
 
 library(MSstatsTMT)
-library(dplyr)
-library(matrixStats)
-library(MASS)
-library(dplyr)
-library(tidyr)
-library(affy)
+
 
 #TRUE to set baseline FALSE to test if the results changed
 set.baseline<-FALSE
 
 if(set.baseline){
-    test.data<-MSstatsTMT::test.data
+    test.data<-MSstatsTMT::input.data
     sample<-TRUE    ##make sample = FALSE if you want to test the whole dataset, might take a while
 
     if(sample){
@@ -30,7 +25,7 @@ if(set.baseline){
     }
 
     # summarizaiton
-    annotation <- MSstatsTMT::annotation.data
+    annotation <- MSstatsTMT::annotation
     annotation$Run <- as.character(annotation$Run)
     LogSum.abun <- protein.summarization(test.data, annotation,  "LogSum")
     Median.abun <- protein.summarization(test.data, annotation,  "Median")
@@ -43,7 +38,7 @@ if(set.baseline){
     save(MedianPolish.abun,file = "MedianPolish.abun.rda")
     save(Huber.abun,file = "Huber.abun.rda")
 } else{
-    test.data<-MSstatsTMT::test.data
+    test.data<-MSstatsTMT::input.data
     sample<-TRUE    ##make sample = FALSE if you want to test the whole dataset, might take a while
 
     if(sample){
@@ -58,7 +53,7 @@ if(set.baseline){
     }
 
     # summarizaiton
-    annotation <- MSstatsTMT::annotation.data
+    annotation <- MSstatsTMT::annotation
     annotation$Run <- as.character(annotation$Run)
     LogSum.abun.test <- protein.summarization(test.data, annotation,  "LogSum")
     Median.abun.test <- protein.summarization(test.data, annotation,  "Median")

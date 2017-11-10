@@ -1,6 +1,7 @@
 
 
 #' @export
+#' @import lme4
 proposed.model <-function(data, adj.method = "BH") {
   data$Protein <- as.character(data$Protein) # make sure protein names are character
   proteins <- unique(data$Protein) # proteins
@@ -15,9 +16,9 @@ proposed.model <-function(data, adj.method = "BH") {
     sub_data <- data[Protein == proteins[i]] # data for protein i
     if(length(unique(na.omit(sub_data)$Run)) > 1 & length(unique(na.omit(sub_data)$Group)) > 1){
       fit.fixed <-lm(Abundance ~ 1 + Run + Group + Group:Run, data=sub_data) # train linear model
-      fit.mixed <-lmer(Abundance ~ 1 + (1|Run) + Group + (1|Group:Run), data=sub_data)
+      fit.mixed <-lme4::lmer(Abundance ~ 1 + (1|Run) + Group + (1|Group:Run), data=sub_data)
       # Get estimated fold change from mixed model
-      coeff <- fixed.effects(fit.mixed)
+      coeff <- nlme::fixed.effects(fit.mixed)
       coeff[-1] <- coeff[-1] + coeff[1]
       # Find the group name for baseline
       names(coeff) <- gsub("Group", "", names(coeff))
@@ -68,6 +69,8 @@ proposed.model <-function(data, adj.method = "BH") {
 }
 
 #' @export
+#' @import limma
+#' @import data.table
 ebayes.limma <- function(data, adj.method = "BH"){
   data.mat <- data[,c("Protein", "Subject", "Abundance")]
   data.mat <- data.mat %>% tidyr::spread(Subject, Abundance) # long to wide
@@ -106,7 +109,7 @@ ebayes.limma <- function(data, adj.method = "BH"){
       resList[[paste(groups[j], groups[k],sep="-")]] <- data.frame(Protein = proteins, log2FC = log2FC, pvalue = pvalue, SE = SE, DF = DF)
     }
   }
-  res <- rbindlist(resList, use.names=TRUE, idcol = "Comparison")
+  res <- data.table::rbindlist(resList, use.names=TRUE, idcol = "Comparison")
   res$adjusted.pvalue <- p.adjust(res$pvalue, adj.method)
   res$Comparison <- gsub("v", "", res$Comparison)
   return(res)

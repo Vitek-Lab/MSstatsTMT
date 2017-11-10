@@ -5,7 +5,6 @@ dir<-"/Users/haosicheng/Desktop/MSstatsTMT"
 setwd(dir)
 
 #write .rd fils before build package
-library(dplyr)
 library(devtools)
 library(roxygen2)
 devtools::document()
@@ -13,18 +12,10 @@ devtools::document()
 
 #######################sample testing#####################
 library(MSstatsTMT)
-data<-MSstatsTMT::test.data
-# spiked-in proteins
-UPS.Proteins<-as.vector(as.matrix(unique(data%>%filter(grepl("ups",Protein))%>%dplyr::select(Protein))))
-# background proteins
-BACK.Proteins<-as.vector(as.matrix(unique(data%>%filter(!grepl("ups",Protein))%>%dplyr::select(Protein))))
-
-# a small subset data for testing
-subset.protein <- c(UPS.Proteins[c(1:5)], BACK.Proteins[c(1:5)])
-subset.data <- data%>%filter(Protein %in% subset.protein)
+data<-MSstatsTMT::input.data
 
 # summarizaiton
-annotation <- MSstatsTMT::annotation.data
+annotation <- MSstatsTMT::annotation
 annotation$Run <- as.character(annotation$Run)
 
 #LogSum

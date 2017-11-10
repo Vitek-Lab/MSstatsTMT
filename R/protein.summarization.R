@@ -5,13 +5,6 @@
 #' @return The sum of \code{x} and \code{y}.//TODO
 #' @examples LogSum.abun <- MSstatsTMT::protein.summarization(MSstatsTMT::test.data, MSstatsTMT::annotation.data,  "LogSum")
 #' print(head(LogSum.abun))
-#' @import tidyr
-#' @import data.table
-#' @import MASS
-#' @import matrixStats
-#' @import dplyr
-#' @import tidyr
-#' @import affy
 #' @export
 
 protein.summarization <- function(data, annotation, method){
@@ -38,7 +31,7 @@ protein.summarization <- function(data, annotation, method){
     if(!all.equal(length(data$Run),length(data$Channel),length(data$Protein),length(data$PSM),length(data$IonIntensity),length(data$Subject))){
         message("Please make sure all columes have same length")
     }
-    if(!is.numeric(test.data$IonIntensity)){
+    if(!is.numeric(data$IonIntensity)){
         message("Please make sure 'IonIntensity' is numeric!")
     }
     #annotation
