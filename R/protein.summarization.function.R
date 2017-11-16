@@ -15,6 +15,9 @@ run.summarization<-function(sub_data){
       message('* replace negatives with zero')
       # end MC- 20170808
     }
+  } else{
+      #TH: report error
+      message('* data has zero rows!')
   }
   return(sub_data_wide)
 }
