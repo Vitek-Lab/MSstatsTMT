@@ -1,7 +1,6 @@
 
-
+#' @importFrom nlme fixed.effects
 #' @export
-#' @import lme4
 proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
     data$Protein <- as.character(data$Protein) # make sure protein names are character
     proteins <- unique(data$Protein) # proteins
@@ -109,9 +108,9 @@ proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
     return(res)
 }
 
-#' @export
 #' @import limma
 #' @import data.table
+#'
 ebayes.limma <- function(data, cont.matrix = "pairwise", adj.method = "BH"){
     data.mat <- data[,c("Protein", "Subject", "Abundance")]
     data.mat <- data.mat %>% spread(Subject, Abundance) # long to wide
@@ -175,8 +174,7 @@ ebayes.limma <- function(data, cont.matrix = "pairwise", adj.method = "BH"){
     res$Comparison <- gsub("group", "", res$Comparison)
     return(res)
 }
-
-#' @export
+#'@export
 protein.ttest <- function (data, cont.matrix = "pairwise", adj.method = "BH"){
     data$Protein <- as.character(data$Protein) # make sure protein names are character
     proteins <- unique(data$Protein) # proteins

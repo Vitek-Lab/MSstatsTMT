@@ -2,21 +2,18 @@
 % Please edit documentation in R/groupComparsion.TMT.R
 \name{groupComparison.TMT}
 \alias{groupComparison.TMT}
-\title{Summarize PSM level data to protein level}
+\title{Group comparison on protein-level data}
 \usage{
 groupComparison.TMT(data, model = "proposed")
 }
 \arguments{
 \item{data}{data: protein level data, which has columns Protein, Group, Subject, Run, Channel, IonIntensity}
 
-\item{model}{Possible options: "proposed", "lima", "t"}
+\item{model}{Possible options: "proposed", "limma", "t"}
 }
 \value{
 The sum of \code{x} and \code{y}.//TODO
 }
 \description{
-Summarize PSM level data to protein level
-}
-\examples{
-TODO
+Group comparison on protein-level data
 }

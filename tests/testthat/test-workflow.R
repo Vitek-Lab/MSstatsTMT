@@ -1,6 +1,8 @@
 require(MSstatsTMT)
 require(testthat)
 require(tidyr)
+require(dplyr)
+
 
 #input
 Protein<-rep("O00299",60)
@@ -54,6 +56,7 @@ test_that("Expect protein abundence to be equal",{
 })
 
 test_that("Expect summarization to be equal",{
+    abun<-MSstatsTMT::protein.summarization(t.data,annotation,method="LogSum")
     summary<-MSstatsTMT::groupComparison.TMT(abun)
     summary$pvalue<-round(summary$pvalue,digits = 3)
     expect_summary$pvalue<-round(expect_summary$pvalue,digits = 3)

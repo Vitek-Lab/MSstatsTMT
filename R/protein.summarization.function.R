@@ -1,5 +1,4 @@
 
-#'@export
 run.summarization<-function(sub_data){
   if(nrow(sub_data) != 0){
     nfea <- length(unique(sub_data$PSM))
