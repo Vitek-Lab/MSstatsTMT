@@ -172,6 +172,7 @@ ebayes.limma <- function(data, cont.matrix = "pairwise", adj.method = "BH"){
     res <- rbindlist(resList, use.names=TRUE, idcol = "Comparison")
     res$adjusted.pvalue <- p.adjust(res$pvalue, adj.method)
     res$Comparison <- gsub("group", "", res$Comparison)
+    res<-res[,c(1,2,3,5,6,4,7)]
     return(res)
 }
 #'@export
