@@ -100,11 +100,12 @@ proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
             }
         }
     }
-    colnames(res) <- c("Protein", "Comparison", "log2FC",  "SE", "DF","pvalue")
+    colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF")
     res <- as.data.frame(res)
     res$log2FC <- as.numeric(as.character(res$log2FC))
     res$pvalue <- as.numeric(as.character(res$pvalue))
     res$adjusted.pvalue <- p.adjust(res$pvalue, adj.method)
+    res<-res[,c(1,2,3,5,6,4,7)]
     return(res)
 }
 
@@ -172,7 +173,7 @@ ebayes.limma <- function(data, cont.matrix = "pairwise", adj.method = "BH"){
     res <- rbindlist(resList, use.names=TRUE, idcol = "Comparison")
     res$adjusted.pvalue <- p.adjust(res$pvalue, adj.method)
     res$Comparison <- gsub("group", "", res$Comparison)
-    res<-res[,c(1,2,3,5,6,4,7)]
+    res<-res[,c(2,1,3,5,6,4,7)]
     return(res)
 }
 #'@export
@@ -234,11 +235,12 @@ protein.ttest <- function (data, cont.matrix = "pairwise", adj.method = "BH"){
             }
         }
     }
-    colnames(res) <- c("Protein", "Comparison", "log2FC", "SE", "DF","pvalue")
+    colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF")
     res <- as.data.frame(res)
     res <- res[res$Comparison!=0,] # remove the tests which can't be done
     res$log2FC <- as.numeric(as.character(res$log2FC))
     res$pvalue <- as.numeric(as.character(res$pvalue))
     res$adjusted.pvalue <- p.adjust(res$pvalue, adj.method)
+    res<-res[,c(1,2,3,5,6,4,7)]
     return(res)
 }
