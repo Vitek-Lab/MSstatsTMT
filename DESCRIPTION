@@ -10,7 +10,7 @@ Maintainer: Sicheng Hao <hao.sic@husky.neu.edu>
 Description: What the package does (one paragraph).
 License: Artistic-2.0
 Depends: R (>= 3.4.0),nlme, MASS,limma,lme4,data.table,dplyr,tidyr,plyr
-Imports: WRS2, affy,daewr, GAD, multcomp, agricolae, pROC, ROTS 
+Imports: WRS2, affy,daewr, GAD, multcomp, agricolae
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: MassSpectrometry, Proteomics, Software
