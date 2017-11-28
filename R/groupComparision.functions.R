@@ -110,7 +110,7 @@ proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
 
 #' @import limma
 #' @import data.table
-#'
+#' @export
 ebayes.limma <- function(data, cont.matrix = "pairwise", adj.method = "BH"){
     data.mat <- data[,c("Protein", "Subject", "Abundance")]
     data.mat <- data.mat %>% spread(Subject, Abundance) # long to wide

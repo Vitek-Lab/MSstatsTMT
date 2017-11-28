@@ -36,7 +36,7 @@ protein.summarization.function<- function(data, annotation, method){
     message("Protein: ", i)
     for(j in 1:length(runs)){
       sub_data <- data %>% filter(Protein == proteins[i] & Run == runs[j])
-      sub_data_wide<-try(run.summarization(sub_data))
+      sub_data_wide<-try(run.summarization(sub_data),silent = TRUE)
       if (class(sub_data_wide) == "try-error"){
         warning("There is a error in Protein",i," Run",j)
       } else {
