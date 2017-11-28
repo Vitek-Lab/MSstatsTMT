@@ -12,12 +12,11 @@ protein.summarization(data, annotation, method)
 \item{method}{summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"}
 }
 \value{
-The sum of \code{x} and \code{y}.//TODO
+Protein Abundance
 }
 \description{
 Summarize PSM level data to protein level
 }
 \examples{
-LogSum.abun <- MSstatsTMT::protein.summarization(MSstatsTMT::test.data, MSstatsTMT::annotation.data,  "LogSum")
-print(head(LogSum.abun))
+LogSum.abun <- protein.summarization(input.data,annotation,  "LogSum")
 }

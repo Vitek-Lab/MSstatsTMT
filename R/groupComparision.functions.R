@@ -100,7 +100,7 @@ proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
             }
         }
     }
-    colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF")
+    colnames(res) <- c("Protein", "Comparison", "log2FC",  "SE", "DF","pvalue")
     res <- as.data.frame(res)
     res$log2FC <- as.numeric(as.character(res$log2FC))
     res$pvalue <- as.numeric(as.character(res$pvalue))
@@ -233,7 +233,7 @@ protein.ttest <- function (data, cont.matrix = "pairwise", adj.method = "BH"){
             }
         }
     }
-    colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF")
+    colnames(res) <- c("Protein", "Comparison", "log2FC", "SE", "DF","pvalue")
     res <- as.data.frame(res)
     res <- res[res$Comparison!=0,] # remove the tests which can't be done
     res$log2FC <- as.numeric(as.character(res$log2FC))

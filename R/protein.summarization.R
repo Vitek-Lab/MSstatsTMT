@@ -2,9 +2,8 @@
 #'
 #' @param data PSM level data, which has columns Protein, PSM, Subject, Run, Channel, IonIntensity
 #' @param method summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"
-#' @return The sum of \code{x} and \code{y}.//TODO
-#' @examples LogSum.abun <- MSstatsTMT::protein.summarization(MSstatsTMT::test.data, MSstatsTMT::annotation.data,  "LogSum")
-#' print(head(LogSum.abun))
+#' @return Protein Abundance
+#' @examples LogSum.abun <- protein.summarization(input.data,annotation,  "LogSum")
 #' @export
 
 protein.summarization <- function(data, annotation, method){

@@ -1,4 +1,5 @@
 
+#'@export
 run.summarization<-function(sub_data){
   if(nrow(sub_data) != 0){
     nfea <- length(unique(sub_data$PSM))
@@ -34,6 +35,7 @@ protein.summarization.function<- function(data, annotation, method){
   for(i in 1:length(proteins)) {
     message("Protein: ", i)
     for(j in 1:length(runs)){
+        print(j)
       sub_data <- data %>% filter(Protein == proteins[i] & Run == runs[j])
       sub_data_wide<-try(run.summarization(sub_data))
       if (class(sub_data_wide) == "try-error"){
