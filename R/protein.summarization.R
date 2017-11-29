@@ -7,7 +7,25 @@
 #' @export
 
 protein.summarization <- function(data, annotation, method){
-  #check input
+    #check input
+
+    #################
+    ## MC, 20171128 : start
+    ## can you make sure to check all together and report the list of missing information?
+    ## With current version, it seems that it will stop with one by one.
+
+   # required.annotation <- c('Run', 'BioReplicate', 'Condition')
+
+   # if ( !all(required.annotation %in% colnames(annotation)) ) {
+
+   #     missedAnnotation <- which(!(required.annotation %in% colnames(annotation)))
+
+   #     stop(paste("**", paste(required.annotation[missedAnnotation], collapse = ", "), "is not provided in Annotation. Please check the annotation."))
+   # }
+    ## MC, 20171128 : start
+    #################
+
+
     #data
     if(is.null(data$Run)){
         stop("Please make sure the data has a colume called 'Run'!")
@@ -51,6 +69,6 @@ protein.summarization <- function(data, annotation, method){
     if(sum(method==method.list)!=1){
         stop(" 'Method' must be one of the following, 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'LogSum' ")
     }
-  return(protein.summarization.function(data,annotation,method))
+    return(protein.summarization.function(data,annotation,method))
 }
 
