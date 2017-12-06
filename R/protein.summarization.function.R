@@ -1,7 +1,7 @@
 
 #'@export
 run.summarization<-function(sub_data){
-  if(nrow(sub_data) != 0){
+
     nfea <- length(unique(sub_data$PSM))
     # Change the long format to wide format
     sub_data_wide <- sub_data %>% dplyr::select(IonIntensity, PSM, Subject) %>% spread(Subject, IonIntensity)
@@ -15,10 +15,6 @@ run.summarization<-function(sub_data){
       message('* replace negatives with zero')
       # end MC- 20170808
     }
-  } else{
-      #TH: report error
-      message('* data has zero rows!')
-  }
   return(sub_data_wide)
 }
 
@@ -36,14 +32,15 @@ protein.summarization.function<- function(data, annotation, method){
     message("Protein: ", i)
     for(j in 1:length(runs)){
       sub_data <- data %>% filter(Protein == proteins[i] & Run == runs[j])
-      sub_data_wide<-try(run.summarization(sub_data),silent = TRUE)
-      if (class(sub_data_wide) == "try-error"){
-        warning("There is a error in Protein",i," Run",j)
-      } else {
-      if(nrow(sub_data_wide) != 0){
-        if(nrow(sub_data_wide) == 1){ # Only one PSM for the protein
-          protein.abundance[i, colnames(sub_data_wide)] <- as.matrix(sub_data_wide)
-        } else{
+      if(nrow(sub_data) != 0){
+        sub_data_wide<-try(run.summarization(sub_data),silent = TRUE)
+         if (class(sub_data_wide) == "try-error"){
+         warning("There is a error in Protein",proteins[i]," Run",j)
+        } else {
+            if(nrow(sub_data_wide) != 0){
+                 if(nrow(sub_data_wide) == 1){ # Only one PSM for the protein
+                 protein.abundance[i, colnames(sub_data_wide)] <- as.matrix(sub_data_wide)
+                 } else{
           if(method == "LogSum"){
             #Sum
             # MC- 20170808 : change to log2 (sum of intensity)
@@ -70,7 +67,7 @@ protein.summarization.function<- function(data, annotation, method){
         }
       }
     }#end of else
-
+}
 
     }#end of second for loop
 
