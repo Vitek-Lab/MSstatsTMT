@@ -4,7 +4,7 @@
 \alias{protein.summarization}
 \title{Summarize PSM level data to protein level}
 \usage{
-protein.summarization(data, annotation, method)
+protein.summarization(data, method)
 }
 \arguments{
 \item{data}{PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity}

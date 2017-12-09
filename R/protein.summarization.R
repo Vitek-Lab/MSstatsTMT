@@ -6,7 +6,7 @@
 #' @examples MedianPolish.abun <- protein.summarization(data, annotation,  "MedianPolish")
 #' @export
 
-protein.summarization <- function(data, annotation, method){
+protein.summarization <- function(data, method){
     #check input
 
     #################
@@ -66,6 +66,6 @@ protein.summarization <- function(data, annotation, method){
     if(sum(method==method.list)!=1){
         stop(" 'Method' must be one of the following, 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'LogSum' ")
     }
-    return(protein.summarization.function.old(data,annotation,method))
+    return(protein.summarization.function.old(data, method))
 }
 

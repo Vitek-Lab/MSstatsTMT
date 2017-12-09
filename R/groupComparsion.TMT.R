@@ -3,7 +3,6 @@
 #' @param data data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity
 #' @param model Possible options: "proposed", "limma", "t"
 #' @return The sum of \code{x} and \code{y}.//TODO
-#' @examples
 #' @export
 groupComparison.TMT<-function(data,model = "proposed"){
 

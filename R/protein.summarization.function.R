@@ -18,7 +18,14 @@ run.summarization<-function(sub_data){
   return(sub_data_wide)
 }
 
-protein.summarization.function<- function(data, annotation, method){
+#' @import data.table
+#' @import affy
+protein.summarization.function<- function(data, method){
+  data <- as.data.table(data)
+  # Record the group information
+  annotation <- unique(data[ ,.(Run, Channel, Subject, Group, BiologicalMixture)])
+  data <- data[,.(Protein, PSM, log2Intensity, Run, Channel, Subject)]
+
   # Get the protein list, subjects and runs
   proteins <- unique(data$Protein)
   subjects <- unique(data$Subject)
@@ -27,6 +34,7 @@ protein.summarization.function<- function(data, annotation, method){
   # Store the estimated protein abundance
   protein.abundance <- matrix(rep(NA, length(subjects)*length(proteins)), ncol = length(subjects))
   colnames(protein.abundance) <- subjects
+
   # For each protein and each run, do the summarization individually
   for(i in 1:length(proteins)) {
     message("Protein: ", i)
@@ -155,7 +163,8 @@ protein.summarization.function.old <- function(data, annotation, method){
   res <- as.data.frame(protein.abundance)
   res$Protein <- rownames(res)
   res <- res %>% gather(Subject, Abundance, -Protein) # Change to long format
-  res <- res %>% separate(Subject, c("Run", "Channel"), sep= "\\.", remove = FALSE) # Get the Channel and Run information from Subject
+  res$Subject <- as.character(res$Subject)
+  annotation$Subject <- as.character(annotation$Subject)
   res <- left_join(res, annotation)
   return(res)
 }
