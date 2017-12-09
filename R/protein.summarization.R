@@ -1,9 +1,9 @@
 #' Summarize PSM level data to protein level
 #'
-#' @param data PSM level data, which has columns Protein, PSM, Subject, Run, Channel, IonIntensity
+#' @param data PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity
 #' @param method summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"
 #' @return Protein Abundance
-#' @examples LogSum.abun <- protein.summarization(input.data,annotation,  "LogSum")
+#' @examples MedianPolish.abun <- protein.summarization(data, annotation,  "MedianPolish")
 #' @export
 
 protein.summarization <- function(data, annotation, method){
@@ -39,17 +39,14 @@ protein.summarization <- function(data, annotation, method){
     if(is.null(data$PSM)){
         stop("Please make sure input data has a colume called 'PSM'!")
     }
-    if(is.null(data$IonIntensity)){
-        stop("Please make sure input data has a colume called 'IonIntensity'!")
+    if(is.null(data$log2Intensity)){
+        stop("Please make sure input data has a colume called 'log2Intensity'!")
     }
-    if(is.null(data$Subject)){
-        stop("Please make sure input data has a colume called 'Subject'!")
-    }
-    if(!all.equal(length(data$Run),length(data$Channel),length(data$Protein),length(data$PSM),length(data$IonIntensity),length(data$Subject))){
+    if(!all.equal(length(data$Run),length(data$Channel),length(data$Protein),length(data$PSM),length(data$log2Intensity),length(data$Subject))){
         stop("Please make sure all columes have same length")
     }
-    if(!is.numeric(data$IonIntensity)){
-        stop("Please make sure 'IonIntensity' is numeric!")
+    if(!is.numeric(data$log2Intensity)){
+        stop("Please make sure 'log2Intensity' is numeric!")
     }
     #annotation
     if(is.null(annotation$Run)){
@@ -69,6 +66,6 @@ protein.summarization <- function(data, annotation, method){
     if(sum(method==method.list)!=1){
         stop(" 'Method' must be one of the following, 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'LogSum' ")
     }
-    return(protein.summarization.function(data,annotation,method))
+    return(protein.summarization.function.old(data,annotation,method))
 }
 

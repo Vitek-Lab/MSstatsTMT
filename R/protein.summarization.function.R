@@ -4,7 +4,7 @@ run.summarization<-function(sub_data){
 
     nfea <- length(unique(sub_data$PSM))
     # Change the long format to wide format
-    sub_data_wide <- sub_data %>% dplyr::select(IonIntensity, PSM, Subject) %>% spread(Subject, IonIntensity)
+    sub_data_wide <- sub_data %>% dplyr::select(log2Intensity, PSM, Subject) %>% spread(Subject, log2Intensity)
     rownames(sub_data_wide) <- sub_data_wide[,1]
     sub_data_wide <- sub_data_wide[,-1]
     # Number of negative values
@@ -86,6 +86,7 @@ protein.summarization.function<- function(data, annotation, method){
 
 protein.summarization.function.old <- function(data, annotation, method){
   # Get the protein list, subjects and runs
+    data<-unite(data,Subject,Run,Channel,sep = ".",remove = FALSE)
   proteins <- unique(data$Protein)
   subjects <- unique(data$Subject)
   runs <- unique(data$Run)
@@ -101,7 +102,7 @@ protein.summarization.function.old <- function(data, annotation, method){
       if(nrow(sub_data) != 0){
         nfea <- length(unique(sub_data$PSM))
         # Change the long format to wide format
-        sub_data_wide <- sub_data %>% dplyr::select(IonIntensity, PSM, Subject) %>% spread(Subject, IonIntensity)
+        sub_data_wide <- sub_data %>% dplyr::select(log2Intensity, PSM, Subject) %>% spread(Subject, log2Intensity)
         rownames(sub_data_wide) <- sub_data_wide[,1]
         sub_data_wide <- sub_data_wide[,-1]
         # Number of negative values

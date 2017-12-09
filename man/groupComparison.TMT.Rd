@@ -7,7 +7,7 @@
 groupComparison.TMT(data, model = "proposed")
 }
 \arguments{
-\item{data}{data: protein level data, which has columns Protein, Group, Subject, Run, Channel, IonIntensity}
+\item{data}{data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity}
 
 \item{model}{Possible options: "proposed", "limma", "t"}
 }

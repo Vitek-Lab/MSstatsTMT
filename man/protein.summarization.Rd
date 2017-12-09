@@ -7,7 +7,7 @@
 protein.summarization(data, annotation, method)
 }
 \arguments{
-\item{data}{PSM level data, which has columns Protein, PSM, Subject, Run, Channel, IonIntensity}
+\item{data}{PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity}
 
 \item{method}{summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"}
 }
@@ -18,5 +18,5 @@ Protein Abundance
 Summarize PSM level data to protein level
 }
 \examples{
-LogSum.abun <- protein.summarization(input.data,annotation,  "LogSum")
+MedianPolish.abun <- protein.summarization(data, annotation,  "MedianPolish")
 }

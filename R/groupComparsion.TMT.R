@@ -1,6 +1,6 @@
 #' Group comparison on protein-level data
 #'
-#' @param data data: protein level data, which has columns Protein, Group, Subject, Run, Channel, IonIntensity
+#' @param data data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity
 #' @param model Possible options: "proposed", "limma", "t"
 #' @return The sum of \code{x} and \code{y}.//TODO
 #' @examples
@@ -20,7 +20,7 @@ groupComparison.TMT<-function(data,model = "proposed"){
 }
 
 # Proposed inference model
-# data: protein level data, which has columns Protein, Group, Subject, Run, Channel, IonIntensity
+# data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity
 # adj.method: adjusted method for multiple comparison
 
 # Limma inference model
@@ -29,6 +29,6 @@ groupComparison.TMT<-function(data,model = "proposed"){
 # adj.method: adjusted method for multiple comparison
 
 # t test
-# data: protein level data, which has columns Protein, Group, Subject, Run, Channel, IonIntensity
+# data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity
 # adj.method: adjusted method for multiple comparison
 
