@@ -1,0 +1,3 @@
+load("/Users/tinghuang/Documents/GitHub/MSstatsTMT/data/input.data.rda")
+data
+input.data
