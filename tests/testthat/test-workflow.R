@@ -31,18 +31,16 @@ Protein<-rep("O00299",30)
 Run<-append(append(rep(1,10),rep(2,10)),rep(3,10))
 Channel<-rep(c("X126","X127_N","X127_C","X128_N","X128_C","X129_N","X129_C","X130_N","X130_C","X131"),3)
 BiologicalMixture<-rep("Mixture1",30)
-expect_abun<-data.frame(Protein=Protein,Subject1=Run,Subject2=Channel,Run=Run,Channel=Channel)
+expect_abun<-data.frame(Protein=Protein,Subject1=Run,Subject2=Channel,Run=Run,Channel=Channel,BiologicalMixture=BiologicalMixture)
 expect_abun<-unite(expect_abun,"Subject",Subject1,Subject2,sep = ".")
 Abundance<-c(17.70140,18.66948,18.69997,12.05648,13.69478,14.07349,17.83270,18.62921,18.70998,12.6021,13.69867,13.95880,17.74278,18.76073,18.71018,12.30520,13.85366,14.11159,17.75310,18.43467,18.76245,12.00305,13.87759,13.75524,17.68182,18.67637,18.52033,12.11305,13.87654,14.25298)
 Group<-rep(c("Norm","0.667","0.125","0.5","1","0.125","0.5","1","0.667","Norm"),3)
 expect_abun$Abundance<-Abundance
-
-expect_abun$Protein<-as.character(expect_abun$Protein)
-expect_abun$Run<-as.character(expect_abun$Run)
-expect_abun$Channel<-as.character(expect_abun$Channel)
-expect_abun$Run<-as.numeric(expect_abun$Run)
 expect_abun$Group<-Group
-expect_abun$Channel<-as.factor(expect_abun$Channel)
+expect_abun$Protein<-as.character(expect_abun$Protein)
+expect_abun<-expect_abun[,c(1,2,6,3,4,7,5)]
+
+
 
 
 
@@ -58,12 +56,12 @@ adjusted.pvalue<-rep(0.9968882,10)
 expect_summary<-data.frame(Protein=Protein,Comparison=Comparison,log2FC=log2FC,SE=as.factor(SE),DF=as.factor(DF),pvalue=pvalue,adjusted.pvalue=adjusted.pvalue)
 
 
-# test_that("Expect protein abundence to be equal",{
-#     abun<-MSstatsTMT::protein.summarization(t.data,method="LogSum")
-#     abun$Abundance<-round(abun$Abundance,digits = 3)
-#     expect_abun$Abundance<-round(expect_abun$Abundance,digits = 3)
-#     expect_equal(abun,expect_abun)
-# })
+test_that("Expect protein abundence to be equal",{
+    abun<-MSstatsTMT::protein.summarization(t.data,method="LogSum")
+    abun$Abundance<-round(abun$Abundance,digits = 3)
+    expect_abun$Abundance<-round(expect_abun$Abundance,digits = 3)
+    expect_equal(abun,expect_abun)
+})
 #Fix this after the model(groupComarison) is finalized
 # test_that("Expect summarization to be equal",{
 #     abun<-MSstatsTMT::protein.summarization(t.data,method="LogSum")
