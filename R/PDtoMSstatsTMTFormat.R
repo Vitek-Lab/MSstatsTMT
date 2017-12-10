@@ -1,5 +1,5 @@
 #' Converter for Proteome discoverer output
-#' @import reshape2
+#' @importFrom reshape2 melt
 #' @export
 #' @param input output from Proteome discoverer : PSM sheet
 #' @return annotation data frame which contains column Run, Channel, Group, BiologicalRepliate. BiologicalRepliate indicates whether there is technical replicates or fractions.

@@ -66,6 +66,6 @@ protein.summarization <- function(data, method){
     if(sum(method==method.list)!=1){
         stop(" 'Method' must be one of the following, 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'LogSum' ")
     }
-    return(protein.summarization.function.old(data, method))
+    return(protein.summarization.function(data, method))
 }
 
