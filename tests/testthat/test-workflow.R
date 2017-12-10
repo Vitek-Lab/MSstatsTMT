@@ -2,7 +2,7 @@ require(MSstatsTMT)
 require(testthat)
 require(tidyr)
 require(dplyr)
-#format testing
+#format testing for raw data
 
 
 
@@ -55,6 +55,10 @@ DF<-rep(8,10)
 adjusted.pvalue<-rep(0.9968882,10)
 expect_summary<-data.frame(Protein=Protein,Comparison=Comparison,log2FC=log2FC,SE=as.factor(SE),DF=as.factor(DF),pvalue=pvalue,adjusted.pvalue=adjusted.pvalue)
 
+
+test_that("Expect raw data to be equal"),{
+
+}
 
 test_that("Expect protein abundence to be equal",{
     abun<-MSstatsTMT::protein.summarization(t.data,method="LogSum")
