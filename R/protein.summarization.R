@@ -3,8 +3,12 @@
 #' @param data PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity
 #' @param method summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"
 #' @return Protein Abundance
-#' @examples MedianPolish.abun <- protein.summarization(data, annotation,  "MedianPolish")
 #' @export
+#' @examples
+#' head(input.data)
+#' str(input.data)
+#' MedianPolish.abun <- protein.summarization(input.data, "MedianPolish")
+#' head(MedianPolish.abun)
 
 protein.summarization <- function(data, method){
     #check input

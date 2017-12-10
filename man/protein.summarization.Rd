@@ -18,5 +18,8 @@ Protein Abundance
 Summarize PSM level data to protein level
 }
 \examples{
-MedianPolish.abun <- protein.summarization(data, annotation,  "MedianPolish")
+head(input.data)
+str(input.data)
+MedianPolish.abun <- protein.summarization(input.data, "MedianPolish")
+head(MedianPolish.abun)
 }

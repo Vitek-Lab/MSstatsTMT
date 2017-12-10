@@ -29,7 +29,7 @@ The variables are as follows:
 \itemize{
   \item Protein
   \item PSM
-  \item IonIntensity(should be log2Intensity)
+  \item log2Intensity
   \item Run
   \item Channel
   \item Subject
