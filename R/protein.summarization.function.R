@@ -1,7 +1,7 @@
 
 #' @import data.table
 #' @import affy
-protein.summarization.function <- function(data, method){
+protein.summarization.function<- function(data, method){
     data <- as.data.table(data)
     # Record the group information
     annotation <- unique(data[ ,.(Run, Channel, Subject, Group, BiologicalMixture)])
@@ -53,7 +53,7 @@ protein.summarization.function <- function(data, method){
               }
               if(method == "MedianPolish"){
                 #median polish
-                meddata  <-  medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
+                meddata  <-  medpolish(as.matrix(sub_data_wide), na.rm=TRUE,trace.iter = FALSE)
                 tmpresult <- meddata$overall + meddata$col
                 protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
               }
