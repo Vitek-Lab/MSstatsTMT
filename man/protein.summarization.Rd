@@ -2,26 +2,24 @@
 % Please edit documentation in R/protein.summarization.R
 \name{protein.summarization}
 \alias{protein.summarization}
-\title{Summarize PSM level data to protein level}
+\title{Summarizing PSM level quantification to protein level quantification}
 \usage{
 protein.summarization(data, method = "MedianPolish", normalization = TRUE)
 }
 \arguments{
-\item{data}{PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity}
+\item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, BiolobicalMixture, Run, Channel, Group, Subject, log2Intensity}
 
-\item{method}{summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"}
+\item{method}{Five different summarization methods to protein-level can be performed : "MedianPolish"(default), "Huber", "LogSum", "Median", "Biweight".}
 
-\item{normalization}{If TRUE, do normalization after protein summarization. Normalization are based on the channels which have group 'Norm'.}
-}
-\value{
-Protein Abundance
+\item{normalization}{Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by 'Norm' in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.}
 }
 \description{
-Summarize PSM level data to protein level
+Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
+Then, normalization between MS runs using normalization channels will be implemented.
 }
 \examples{
 head(required.input)
 str(required.input)
-MedianPolish.abun <- protein.summarization(required.input, method="MedianPolish")
-head(MedianPolish.abun)
+quant.byprotein <- protein.summarization(required.input, method="MedianPolish", normalization=TRUE)
+head(quant.byprotein)
 }

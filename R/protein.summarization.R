@@ -1,15 +1,17 @@
-#' Summarize PSM level data to protein level
+#' Summarizing PSM level quantification to protein level quantification
 #'
-#' @param data PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity
-#' @param method summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"
-#' @param normalization If TRUE, do normalization after protein summarization. Normalization are based on the channels which have group 'Norm'.
-#' @return Protein Abundance
+#' Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
+#' Then, normalization between MS runs using normalization channels will be implemented.
+#'
 #' @export
+#' @param data Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, BiolobicalMixture, Run, Channel, Group, Subject, log2Intensity
+#' @param method Five different summarization methods to protein-level can be performed : "MedianPolish"(default), "Huber", "LogSum", "Median", "Biweight".
+#' @param normalization Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by 'Norm' in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.
 #' @examples
 #' head(required.input)
 #' str(required.input)
-#' MedianPolish.abun <- protein.summarization(required.input, method="MedianPolish")
-#' head(MedianPolish.abun)
+#' quant.byprotein <- protein.summarization(required.input, method="MedianPolish", normalization=TRUE)
+#' head(quant.byprotein)
 
 protein.summarization <- function(data,
                                   method = 'MedianPolish',

@@ -4,11 +4,11 @@
 #' Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
 #'
 #' @export
-#' @param data name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.
-#' @param contrast.matrix comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
-#' @param model Three different statistical approached are provided : "proposed", "limma", "ttest". "proposed" is the default.
+#' @param data Name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.
+#' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
+#' @param model Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.
 #' @examples
-#' quant.byprotein <- protein.summarization(required.input, method = "MedianPolish")
+#' quant.byprotein <- protein.summarization(required.input, method = "MedianPolish", normalization=TRUE)
 #' test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
 
 
