@@ -10,7 +10,7 @@ protein.normalization <-function(data) {
     for(i in 1:length(proteins)) {
         message("Protein: ", i)
         sub_data <- data[Protein == proteins[i]] # data for protein i
-        norm.channel <- sub_data[Channel %in% channel]
+        norm.channel <- sub_data[Group == "Norm"]
         if(length(channel) > 1){
             norm.channel = norm.channel[, .(Abundance = mean(Abundance, na.rm = T)), by = .(Protein, Run)]
         }
@@ -43,7 +43,7 @@ peptide.normalization <-function(data) {
             message("PSM: ", i)
         }
         sub_data <- u[PSM == PSMs[i]] # data for protein i
-        norm.channel <- sub_data[Group %in% channel]
+        norm.channel <- sub_data[Group == "Norm"]
         if(length(channel) > 1){
             norm.channel = norm.channel[, .(Abundance = mean(Abundance, na.rm = T)), by = .(Protein, Run)]
         }
