@@ -1,15 +1,30 @@
-#' Group comparison on protein-level data
+#' Finding differentially abundant proteins across conditions in TMT experiment
 #'
-#' @param data data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity
-#' @param model Possible options: "proposed", "limma", "t"
-#' @return Result of groupComparison
+#' Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment.
+#' Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
+#'
 #' @export
-#' @examle
-#' quant.byprotein <- protein.summarization(required.input, "MedianPolish")
+#' @param data name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.
+#' @param contrast.matrix comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
+#' @param model Three different statistical approached are provided : "proposed", "limma", "ttest". "proposed" is the default.
+#' @examples
+#' quant.byprotein <- protein.summarization(required.input, method = "MedianPolish")
 #' test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
 
+
 groupComparison.TMT <- function(data,
-                                model = "proposed"){
+                                contrast.matrix = 'pairwise',
+                                model = 'proposed'){
+
+    ### check input data
+    required.info <- c('Protein', 'Subject', 'Abundance', 'Run', 'Channel', 'Group', 'BiologicalMixture')
+
+    if ( !all(required.info %in% colnames(data)) ) {
+
+        missedAnnotation <- which(!(required.info %in% colnames(data)))
+        stop(paste("Please check the required input. ** columns :", required.info[missedAnnotation], ", are missed.", collapse = ", "))
+
+    }
 
     ### check the option for model
     model.list <- c("ttest", "limma", "proposed")

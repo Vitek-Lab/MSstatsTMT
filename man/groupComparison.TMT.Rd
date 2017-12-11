@@ -2,18 +2,22 @@
 % Please edit documentation in R/groupComparsion.TMT.R
 \name{groupComparison.TMT}
 \alias{groupComparison.TMT}
-\title{Group comparison on protein-level data}
+\title{Finding differentially abundant proteins across conditions in TMT experiment}
 \usage{
-groupComparison.TMT(data, model = "proposed")
+groupComparison.TMT(data, contrast.matrix = "pairwise", model = "proposed")
 }
 \arguments{
-\item{data}{data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity}
+\item{data}{name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.}
 
-\item{model}{Possible options: "proposed", "limma", "t"}
-}
-\value{
-Result of groupComparison
+\item{contrast.matrix}{comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.}
+
+\item{model}{Three different statistical approached are provided : "proposed", "limma", "ttest". "proposed" is the default.}
 }
 \description{
-Group comparison on protein-level data
+Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment.
+Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
+}
+\examples{
+quant.byprotein <- protein.summarization(required.input, method = "MedianPolish")
+test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
 }

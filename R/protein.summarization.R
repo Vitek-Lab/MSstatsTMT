@@ -15,7 +15,6 @@ protein.summarization <- function(data,
                                   method = 'MedianPolish',
                                   normalization = TRUE){
     ### check input
-
     required.info <- c('Protein', 'PSM', 'Channel', 'Subject', 'Run', 'BiologicalMixture', 'Group', 'log2Intensity')
 
     if ( !all(required.info %in% colnames(data)) ) {
