@@ -3,19 +3,30 @@
 \docType{data}
 \name{raw.input}
 \alias{raw.input}
-\title{Raw input}
-\format{A data frame with 1928 rows and 51 variables}
+\title{Example of output from Proteome Discoverer for TMT10 experiments.}
+\format{A data frame with 1928 rows and 51 variables.}
 \usage{
 raw.input
 }
 \description{
-A dataset containing the raw input
+Example of Proteome discover PSM sheet. It is the input for PDtoMSstatsTMTFormat function, with annotation file.
+It includes peak intensities for 10 proteins among 15 MS runs with TMT10.
 The variables are as follows:
 }
 \details{
 \itemize{
   \item Master.Protein.Accessions
   \item Protein.Accessions
+  \item Annotated.Sequence
+  \item Charge
+  \item Ions.Score
+  \item Spectrum.File
+  \item Quan.Info
+  \item Channels : X126, ... X131
 }
+}
+\examples{
+head(raw.input)
+
 }
 \keyword{datasets}

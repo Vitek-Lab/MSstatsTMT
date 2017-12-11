@@ -3,36 +3,26 @@
 \docType{data}
 \name{annotation}
 \alias{annotation}
-\alias{annotation}
-\title{Annotation of example data}
-\format{A data frame with 30 rows and 4 variables}
+\title{Example of annotation file for raw.input}
+\format{A data frame with 30 rows and 5 variables.}
 \usage{
-annotation
-
 annotation
 }
 \description{
-A dataset containing the annotation of example data
-The variables are as follows:
-
-Result after formating
+Annotation of example data, raw.input, in this package. It should be prepared by users.
 The variables are as follows:
 }
 \details{
 \itemize{
-  \item Run
-  \item Channel
-  \item Group
-  \item BiologicalMixture
+  \item Run : MS run ID
+  \item Channel : Labeling ID
+  \item Group : Condition (ex. Healthy, Cancer, Time0)
+  \item BiologicalMixture : Mixture ID
+  \item Subject : Unique ID for biological subject
 }
+}
+\examples{
+head(annotation)
 
-\itemize{
-  \item Protein
-  \item PSM
-  \item log2Intensity
-  \item Run
-  \item Channel
-  \item Subject
-}
 }
 \keyword{datasets}
