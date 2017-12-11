@@ -16,6 +16,30 @@
 protein.summarization <- function(data,
                                   method = 'MedianPolish',
                                   normalization = TRUE){
+
+    ## save process output in each step
+    allfiles <- list.files()
+
+    num <- 0
+    filenaming <- "msstatstmt"
+    finalfile <- "msstatstmt.log"
+
+    while(is.element(finalfile,allfiles)) {
+        num <- num+1
+        finalfile <- paste(paste(filenaming,num,sep="-"),".log",sep="")
+    }
+
+    session <- sessionInfo()
+    sink("sessionInfo.txt")
+    print(session)
+    sink()
+
+    processout <- as.matrix(read.table("sessionInfo.txt", header=TRUE, sep="\t"))
+    write.table(processout, file=finalfile, row.names=FALSE)
+
+    processout <- rbind(processout, as.matrix(c(" "," ","MSstatsTMT - protein.summarization function"," "),ncol=1))
+
+
     ### check input
     required.info <- c('Protein', 'PSM', 'Channel', 'Subject', 'Run', 'BiologicalMixture', 'Group', 'log2Intensity')
 
@@ -32,6 +56,12 @@ protein.summarization <- function(data,
     if(sum(method==method.list)!=1){
         stop(" 'method' must be one of the following : 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'MedianPolish'. ")
     }
+
+    ### report which options are used.
+    processout <- rbind(processout, c(paste("Method for protein summarization :", method)))
+    processout <- rbind(processout, c(paste("Normalization between MS runs :", normalization)))
+
+    write.table(processout, file=finalfile, row.names=FALSE)
 
     return(protein.summarization.function(data, method, normalization))
 }

@@ -18,6 +18,33 @@ groupComparison.TMT <- function(data,
                                 remove_norm_channel = TRUE,
                                 model = 'proposed'){
 
+    ## save process output in each step
+    allfiles <- list.files()
+    filenaming <- "msstatstmt"
+
+    if (length(grep(filenaming, allfiles)) == 0) {
+
+        finalfile <- "msstatstmt.log"
+        processout <- NULL
+
+    } else {
+
+        num <- 0
+        finalfile <- "msstatstmt.log"
+
+        while(is.element(finalfile, allfiles)) {
+            num <- num + 1
+            lastfilename <- finalfile ## in order to rea
+            finalfile <- paste(paste(filenaming, num, sep="-"), ".log", sep="")
+        }
+
+        finalfile <- lastfilename
+        processout <- as.matrix(read.table(finalfile, header=TRUE, sep="\t"))
+    }
+
+    processout <- rbind(processout, as.matrix(c(" ", " ", "MSstatsTMT - groupComparison.TMT function"," "), ncol=1))
+
+
     ### check input data
     required.info <- c('Protein', 'Subject', 'Abundance', 'Run', 'Channel', 'Group', 'BiologicalMixture')
 
@@ -34,6 +61,13 @@ groupComparison.TMT <- function(data,
     if( sum(model == model.list) != 1 ){
         stop(" 'model' must be one of the following : 'proposed', 'limma', 'ttest'. Default is 'proposed'. ")
     }
+
+    ### report which options are used.
+    processout <- rbind(processout, c(paste("Remove 'Norm' channels before inference:", remove_norm_channel)))
+    processout <- rbind(processout, c(paste("Model for inference :", model)))
+
+    write.table(processout, file=finalfile, row.names=FALSE)
+
 
     ### remove 'Norm' column
     if( remove_norm_channel & is.element('Norm', unique(data$Group)) ){
