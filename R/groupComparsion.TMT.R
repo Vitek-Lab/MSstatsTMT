@@ -6,6 +6,7 @@
 #' @export
 #' @param data Name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.
 #' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
+#' @param remove_norm_channel TRUE(default) removes 'Norm' channels for inference step.
 #' @param model Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.
 #' @examples
 #' quant.byprotein <- protein.summarization(required.input, method = "MedianPolish", normalization=TRUE)
@@ -14,6 +15,7 @@
 
 groupComparison.TMT <- function(data,
                                 contrast.matrix = 'pairwise',
+                                remove_norm_channel = TRUE,
                                 model = 'proposed'){
 
     ### check input data
@@ -33,13 +35,27 @@ groupComparison.TMT <- function(data,
         stop(" 'model' must be one of the following : 'proposed', 'limma', 'ttest'. Default is 'proposed'. ")
     }
 
+    ### remove 'Norm' column
+    if( remove_norm_channel & is.element('Norm', unique(data$Group)) ){
+        data <- data %>% filter(Group != "Norm")
+        data$Group <- factor(data$Group)
+    }
+
+    ### Inference
     if(model == "proposed"){
-        result <- MSstatsTMT::proposed.model(data)
+        result <- MSstatsTMT::proposed.model(data, contrast.matrix)
     } else if(model == "ttest"){
+        if( is.matrix(contrast.matrix) ){ ## maybe better way later
+            message("** For t-test, all pairwise comparisons will be reported.")
+        }
         result <- MSstatsTMT::protein.ttest(data)
     } else if(model == "limma"){
-        result <- MSstatsTMT::ebayes.limma(data)
+        result <- MSstatsTMT::ebayes.limma(data, contrast.matrix)
     }
+
+    ### check column name in order to use groupComparisonPlot from MSstats
+    colnames(result)[colnames(result) == 'Comparison'] <- 'Label'
+    colnames(result)[colnames(result) == 'adjusted.pvalue'] <- 'adj.pvalue'
 
     return(result)
 }
