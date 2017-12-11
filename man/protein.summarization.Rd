@@ -4,7 +4,7 @@
 \alias{protein.summarization}
 \title{Summarize PSM level data to protein level}
 \usage{
-protein.summarization(data, method)
+protein.summarization(data, method = "MedianPolish")
 }
 \arguments{
 \item{data}{PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity}
@@ -18,8 +18,8 @@ Protein Abundance
 Summarize PSM level data to protein level
 }
 \examples{
-head(input.data)
-str(input.data)
-MedianPolish.abun <- protein.summarization(input.data, "MedianPolish")
+head(required.input)
+str(required.input)
+MedianPolish.abun <- protein.summarization(required.input, "MedianPolish")
 head(MedianPolish.abun)
 }

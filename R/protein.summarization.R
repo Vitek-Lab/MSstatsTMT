@@ -30,6 +30,6 @@ protein.summarization <- function(data,
         stop(" 'method' must be one of the following : 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'MedianPolish'. ")
     }
 
-    return(protein.summarization.function(data, method))
+    return(protein.summarization.implementation(data, method))
 }
 

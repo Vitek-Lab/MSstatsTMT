@@ -1,14 +1,16 @@
 
 #' @import data.table
 #' @import affy
-protein.summarization.function <- function(data, method){
+
+protein.summarization.implementation <- function(data, method){
+
     data <- as.data.table(data)
     # Record the group information
-    annotation <- unique(data[ ,.(Run, Channel, Subject, Group, BiologicalMixture)])
-    data <- data[,.(Protein, PSM, log2Intensity, Run, Channel, Subject)]
+    annotation <- unique(data[ , c('Run', 'Channel', 'Subject', 'Group', 'BiologicalMixture')])
+    data <- data[, c('Protein', 'PSM', 'log2Intensity', 'Run', 'Channel', 'Subject')]
 
     proteins <- unique(data$Protein)
-    num.protein<-length(proteins)
+    num.protein <- length(proteins)
     subjects <- unique(data$Subject)
     runs <- unique(data$Run)
     # Store the estimated protein abundance

@@ -4,7 +4,7 @@
 #' @param model Possible options: "proposed", "limma", "t"
 #' @return Result of groupComparison
 #' @export
-#' @examle
+#' @examples
 #' quant.byprotein <- protein.summarization(required.input, "MedianPolish")
 #' test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
 

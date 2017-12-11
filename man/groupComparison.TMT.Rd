@@ -17,3 +17,7 @@ Result of groupComparison
 \description{
 Group comparison on protein-level data
 }
+\examples{
+quant.byprotein <- protein.summarization(required.input, "MedianPolish")
+test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
+}
