@@ -5,21 +5,28 @@
 #' @return Result of groupComparison
 #' @export
 #' @examle
-#' MedianPolish.abun <- protein.summarization(input.data, "MedianPolish")
-#' proposed.res <- groupComparison.TMT(MedianPolish.abun,model = "proposed")
+#' quant.byprotein <- protein.summarization(required.input, "MedianPolish")
+#' test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
 
-groupComparison.TMT<-function(data,model = "proposed"){
+groupComparison.TMT <- function(data,
+                                model = "proposed"){
 
-  if(model == "proposed"){
-    result<-MSstatsTMT::proposed.model(data)
-  } else if(model == "t"){
-    result<-MSstatsTMT::protein.ttest(data)
-  } else if(model == "limma"){
-    result<-MSstatsTMT::ebayes.limma(data)
-  } else {
-      stop("Please enter a model name, options are 'proposed','t' and 'limma' (default is 'proposed')")
-  }
-  return(result)
+    ### check the option for model
+    model.list <- c("ttest", "limma", "proposed")
+
+    if( sum(model == model.list) != 1 ){
+        stop(" 'model' must be one of the following : 'proposed', 'limma', 'ttest'. Default is 'proposed'. ")
+    }
+
+    if(model == "proposed"){
+        result <- MSstatsTMT::proposed.model(data)
+    } else if(model == "ttest"){
+        result <- MSstatsTMT::protein.ttest(data)
+    } else if(model == "limma"){
+        result <- MSstatsTMT::ebayes.limma(data)
+    }
+
+    return(result)
 }
 
 # Proposed inference model
