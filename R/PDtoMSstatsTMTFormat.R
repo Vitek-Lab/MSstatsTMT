@@ -2,9 +2,11 @@
 #' @importFrom reshape2 melt
 #' @export
 #' @param input output from Proteome discoverer : PSM sheet
-#' @return annotation data frame which contains column Run, Channel, Group, BiologicalRepliate. BiologicalRepliate indicates whether there is technical replicates or fractions.
+#' @param annotation data frame which contains column Run, Channel, Group, BiologicalMixture. BiologicalMixture indicates which runs are techinical runs or fractions of the same biological mixture.
+#' @param Fraction Indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.
 PDtoMSstatsTMTFormat <- function(input,
                                  annotation,
+                                 Fraction = FALSE,
                                  useNumProteinsColumn=TRUE,
                                  useUniquePeptide=TRUE,
                                  summaryforMultipleRows=max,
@@ -255,5 +257,48 @@ PDtoMSstatsTMTFormat <- function(input,
             message(paste("** ", length(removepro), ' proteins, which have only one feature in a protein, are removed among ', lengthtotalprotein, ' proteins.', sep=""))
         }
     }
+    
+    ##############################
+    ###  8. combine fractions within each mixture
+    ##############################
+    
+    if(Fraction){
+      input <- combine.fractions(input)
+      message('Fractions belonging to same mixture have been combined.')
+    }
+    
     return(input)
+}
+
+
+# Remove the peptide ions overlapped among multiple fractions of same biological mixture
+# data: PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity, BiologicalMixture
+combine.fractions <- function(data){
+  mixtures <- unique(data$BiologicalMixture)
+  data <- as.data.table(data)
+  data$Run <- as.character(data$Run)
+  all.data <- list()
+  for(i in 1: length(mixtures)){
+    sub_data <- data[BiologicalMixture == mixtures[i]]
+    sub_data <- sub_data[!is.na(log2Intensity)]
+    sub_data$fea <- paste(sub_data$PSM, sub_data$Protein, sep="_")
+    sub_data$fea <- factor(sub_data$fea)
+    
+    ## count how many fractions are assigned for each peptide ion
+    structure <- aggregate(Run ~., data=unique(sub_data[,.(fea, Run)]), length)
+    remove_peptide_ion <- structure[structure$Run > 1, ]
+    
+    ## remove the peptide ions which are shared by multiple fractions
+    if( sum(remove_peptide_ion$Run > 1) != 0 ){
+      sub_data <- sub_data[!fea %in% remove_peptide_ion$fea ]
+      message('** Peptides, that are shared by more than one fraction of mixture ', mixtures[i],', are removed.')
+      
+    }
+    sub_data_shared_pep_rm <- sub_data[,  fea:= NULL]
+    all.data[[i]] <- as.data.table(sub_data_shared_pep_rm)
+  }
+  data.shared.pep.rm <- rbindlist(all.data)
+  data.shared.pep.rm$Run <- data.shared.pep.rm$BiologicalMixture
+  data.shared.pep.rm$Subject <- paste(data.shared.pep.rm$Run, data.shared.pep.rm$Channel, sep=".")
+  return(data.shared.pep.rm)
 }

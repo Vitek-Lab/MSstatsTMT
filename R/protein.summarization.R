@@ -2,6 +2,7 @@
 #'
 #' @param data PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity
 #' @param method summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"
+#' @param normalization If TRUE, do normalization after protein summarization. Normalization are based on the channels which have group 'Norm'.
 #' @return Protein Abundance
 #' @export
 #' @examples
@@ -11,7 +12,8 @@
 #' head(MedianPolish.abun)
 
 protein.summarization <- function(data,
-                                  method = 'MedianPolish'){
+                                  method = 'MedianPolish',
+                                  normalization = TRUE){
     ### check input
 
     required.info <- c('Protein', 'PSM', 'Channel', 'Subject', 'Run', 'BiologicalMixture', 'Group', 'log2Intensity')
@@ -30,6 +32,6 @@ protein.summarization <- function(data,
         stop(" 'method' must be one of the following : 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'MedianPolish'. ")
     }
 
-    return(protein.summarization.function(data, method))
+    return(protein.summarization.function(data, method, normalization))
 }
 

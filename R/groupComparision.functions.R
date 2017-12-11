@@ -9,16 +9,15 @@ proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
     res <- matrix(rep(0, 6*length(proteins)*ncomp), ncol = 6) # store the inference results
     data <- as.data.table(data) # make suree the input data is with data table format
     count = 0
-    num.proteins<-length(proteins)
     # do inference for each protein individually
     for(i in 1:length(proteins)) {
+        message("Protein: ", i)
         sub_data <- data[Protein == proteins[i]] # data for protein i
-        message(paste("Testing a comparison for protein ",proteins[i], "(", i, " of ", num.proteins, ")"))
-
+        sub_data <- na.omit(sub_data)
         tag <- FALSE; # Indicate whether there are enough measurements to train the linear model
-        if(length(unique(na.omit(sub_data)$Run)) > 1 & length(unique(na.omit(sub_data)$Group)) > 1){
-            fit.fixed <-lm(Abundance ~ 1 + Run + Group + Group:Run, data=sub_data) # train linear model
-            fit.mixed <-lmer(Abundance ~ 1 + (1|Run) + Group + (1|Group:Run), data=sub_data)
+        fit.mixed <- try(lmer(Abundance ~ 1 + (1|BiologicalMixture) + Group, data=sub_data), TRUE)
+        if(!inherits(fit.mixed, "try-error")){
+            fit.fixed <-lm(Abundance ~ 1 + BiologicalMixture + Group, data=sub_data) # train linear model
             # Get estimated fold change from mixed model
             coeff <- fixed.effects(fit.mixed)
             coeff[-1] <- coeff[-1] + coeff[1]
@@ -27,13 +26,14 @@ proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
             names(coeff)[1] <- setdiff(as.character(groups), names(coeff))
             # Estimate the group variance from fixed model
             av <- anova(fit.fixed)
-            MSE <- av$"Mean Sq"[3]
+            varcomp <- as.data.frame(VarCorr(fit.mixed))
+            MSE <- varcomp[varcomp$grp=="Residual", "vcov"]
             df <- av$Df[3]
 
         } else {
             # if there is only one run in the data, then train one-way anova
-            if(length(unique(na.omit(sub_data)$Run)) == 1 & length(unique(na.omit(sub_data)$Group)) > 1){
-                fit.fixed <-lm(Abundance ~ Group, data=sub_data) # train linear model
+            fit.fixed <- try(lm(Abundance ~ Group, data=sub_data), TRUE)
+            if(!inherits(fit.fixed, "try-error")){
                 # Get estimated fold change from mixed model
                 coeff <- coef(fit.fixed)
                 coeff[-1] <- coeff[-1] + coeff[1]
@@ -48,6 +48,7 @@ proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
                 tag <- TRUE;
             }
         }
+
         if(cont.matrix == "pairwise"){ # Pairwise comparison
             for(j in 1:(length(groups)-1)){
                 for(k in (j+1):length(groups)){
