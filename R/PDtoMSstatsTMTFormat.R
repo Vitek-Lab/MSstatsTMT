@@ -1,8 +1,23 @@
-#' Converter for Proteome discoverer output
+#' Generate MSstatsTMT required input format for Proteome discoverer output
+#'
+#' Convert Proteome discoverer output into the required input format for MSstatsTMT.
+#'
 #' @importFrom reshape2 melt
 #' @export
-#' @param input output from Proteome discoverer : PSM sheet
-#' @return annotation data frame which contains column Run, Channel, Group, BiologicalRepliate. BiologicalRepliate indicates whether there is technical replicates or fractions.
+#' @param input data name of Proteome discover PSM output. Read PSM sheet.
+#' @param annotation data frame which contains column Run, Channel, Group, Subject, BiologicalMixture.
+#' @param useNumProteinsColumn TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.
+#' @param useUniquePeptide TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
+#' @param summaryforMultipleRows max(default) or sum - when there are multiple measurements for certain feature and certain run, use highest or sum of multiple intensities.
+#' @param removePSM_withMissingValue_withinRun TRUE(default) will remove PSM with any missing value within each Run.
+#' @param removeProtein_with1Peptide TRUE(default) will remove the proteins which have only 1 peptide and charge.
+#' @param which.proteinid Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead.
+#' @return input for protein.summarization function
+#' @examples
+#' head(raw.input)
+#' head(annotation)
+#' required.input <- PDtoMSstatsTMTFormat(raw.input, annotation)
+#' head(required.input)
 
 PDtoMSstatsTMTFormat <- function(input,
                                  annotation,

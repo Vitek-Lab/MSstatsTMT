@@ -2,7 +2,7 @@
 % Please edit documentation in R/PDtoMSstatsTMTFormat.R
 \name{PDtoMSstatsTMTFormat}
 \alias{PDtoMSstatsTMTFormat}
-\title{Converter for Proteome discoverer output}
+\title{Generate MSstatsTMT required input format for Proteome discoverer output}
 \usage{
 PDtoMSstatsTMTFormat(input, annotation, useNumProteinsColumn = TRUE,
   useUniquePeptide = TRUE, summaryforMultipleRows = max,
@@ -11,11 +11,31 @@ PDtoMSstatsTMTFormat(input, annotation, useNumProteinsColumn = TRUE,
   which.proteinid = "Protein.Accessions")
 }
 \arguments{
-\item{input}{output from Proteome discoverer : PSM sheet}
+\item{input}{data name of Proteome discover PSM output. Read PSM sheet.}
+
+\item{annotation}{data frame which contains column Run, Channel, Group, Subject, BiologicalMixture.}
+
+\item{useNumProteinsColumn}{TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.}
+
+\item{useUniquePeptide}{TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.}
+
+\item{summaryforMultipleRows}{max(default) or sum - when there are multiple measurements for certain feature and certain run, use highest or sum of multiple intensities.}
+
+\item{removePSM_withMissingValue_withinRun}{TRUE(default) will remove PSM with any missing value within each Run.}
+
+\item{removeProtein_with1Peptide}{TRUE(default) will remove the proteins which have only 1 peptide and charge.}
+
+\item{which.proteinid}{Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead.}
 }
 \value{
-annotation data frame which contains column Run, Channel, Group, BiologicalRepliate. BiologicalRepliate indicates whether there is technical replicates or fractions.
+input for protein.summarization function
 }
 \description{
-Converter for Proteome discoverer output
+Convert Proteome discoverer output into the required input format for MSstatsTMT.
+}
+\examples{
+head(raw.input)
+head(annotation)
+required.input <- PDtoMSstatsTMTFormat(raw.input, annotation)
+head(required.input)
 }
