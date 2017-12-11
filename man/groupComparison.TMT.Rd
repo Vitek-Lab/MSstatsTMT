@@ -12,7 +12,7 @@ groupComparison.TMT(data, model = "proposed")
 \item{model}{Possible options: "proposed", "limma", "t"}
 }
 \value{
-The sum of \code{x} and \code{y}.//TODO
+Result of groupComparison
 }
 \description{
 Group comparison on protein-level data

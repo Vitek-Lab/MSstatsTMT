@@ -8,15 +8,15 @@ protein.summarization.function<- function(data, method){
     data <- data[,.(Protein, PSM, log2Intensity, Run, Channel, Subject)]
 
     proteins <- unique(data$Protein)
+    num.protein<-length(proteins)
     subjects <- unique(data$Subject)
     runs <- unique(data$Run)
-
     # Store the estimated protein abundance
     protein.abundance <- matrix(rep(NA, length(subjects)*length(proteins)), ncol = length(subjects))
     colnames(protein.abundance) <- subjects
     # For each protein and each run, do the summarization individually
     for(i in 1:length(proteins)) {
-      message("Protein: ", i)
+      message(paste("Protein ",proteins[i] , "(", i, " of ", num.protein, ")"))
       for(j in 1:length(runs)){
         sub_data <- data %>% filter(Protein == proteins[i] & Run == runs[j])
         if(nrow(sub_data) != 0){

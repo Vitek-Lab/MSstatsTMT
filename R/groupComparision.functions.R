@@ -9,10 +9,12 @@ proposed.model <-function(data, cont.matrix = "pairwise", adj.method = "BH") {
     res <- matrix(rep(0, 6*length(proteins)*ncomp), ncol = 6) # store the inference results
     data <- as.data.table(data) # make suree the input data is with data table format
     count = 0
+    num.proteins<-length(proteins)
     # do inference for each protein individually
     for(i in 1:length(proteins)) {
-        message("Protein: ", i)
         sub_data <- data[Protein == proteins[i]] # data for protein i
+        message(paste("Testing a comparison for protein ",proteins[i], "(", i, " of ", num.proteins, ")"))
+
         tag <- FALSE; # Indicate whether there are enough measurements to train the linear model
         if(length(unique(na.omit(sub_data)$Run)) > 1 & length(unique(na.omit(sub_data)$Group)) > 1){
             fit.fixed <-lm(Abundance ~ 1 + Run + Group + Group:Run, data=sub_data) # train linear model
@@ -185,10 +187,14 @@ protein.ttest <- function (data, cont.matrix = "pairwise", adj.method = "BH"){
     res <- matrix(rep(0, 6*length(proteins)*ncomp), ncol = 6) # store the inference results
     data <- as.data.table(data) # make suree the input data is with data table format
     count <- 0
+    num.protein<-length(unique(data$Protein))
     # Do inference for each protein individually
     for(i in 1:length(proteins)){
+
         sub <- data[Protein==proteins[i]]
         sub <- na.omit(sub) # remvoe na rows
+        message(paste("Testing a comparison for protein ",proteins[i] , "(", i, " of ", num.protein, ")"))
+
         if(nrow(sub) > 0){
             if(cont.matrix == "pairwise"){ # pairwise comparison
                 for(j in 1:(length(groups)-1)){
