@@ -3,6 +3,7 @@
 #' @export
 #' @param input output from Proteome discoverer : PSM sheet
 #' @return annotation data frame which contains column Run, Channel, Group, BiologicalRepliate. BiologicalRepliate indicates whether there is technical replicates or fractions.
+
 PDtoMSstatsTMTFormat <- function(input,
                                  annotation,
                                  useNumProteinsColumn=TRUE,
@@ -12,6 +13,18 @@ PDtoMSstatsTMTFormat <- function(input,
                                  removeProtein_with1Peptide=FALSE,
                                  which.proteinid = 'Protein.Accessions'){
 
+
+    ################################################
+    ## 0. check input for annotation
+    ################################################
+    required.annotation <- c("Run", "Channel", "Group", "BiologicalMixture", "Subject")
+
+    if ( !all(required.annotation %in% colnames(annotation)) ) {
+
+        missedAnnotation <- which(!(required.annotation %in% colnames(annotation)))
+        stop(paste("Please check the required column in the annotation file. ** columns :", paste(required.annotation[missedAnnotation], collapse = ", "), " are missed."))
+
+    }
 
     ################################################
     ## 1. which protein id : Protein Accessions vs Master Protein Accesisions
@@ -25,7 +38,6 @@ PDtoMSstatsTMTFormat <- function(input,
     } else if (which.proteinid == 'Master.Protein.Accessions'){
         which.pro <- 'Master.Protein.Accessions'
     }
-
 
     if( is.null(which.pro) ){
         stop('** Please select which columns should be used for protein ids, among two options (Protein.Accessions, Master.Protein.Accessions).')
@@ -59,7 +71,8 @@ PDtoMSstatsTMTFormat <- function(input,
     ################################################
 
     channels <- as.character(unique(annotation$Channel))
-    input <- input[, which(colnames(input) %in% c(which.pro, which.NumProteins, 'Annotated.Sequence', 'Charge',
+    input <- input[, which(colnames(input) %in% c(which.pro, which.NumProteins,
+                                                  'Annotated.Sequence', 'Charge',
                                                   'Ions.Score', 'Spectrum.File', 'Quan.Info',
                                                   channels))]
 
@@ -72,7 +85,6 @@ PDtoMSstatsTMTFormat <- function(input,
     colnames(input)[colnames(input) == 'Annotated.Sequence'] <- 'PeptideSequence'
     colnames(input)[colnames(input) == 'Spectrum.File'] <- 'Run'
 
-
     ################################################
     ## 3. remove peptides which are used in more than one protein
     ## we assume to use unique peptide
@@ -83,7 +95,7 @@ PDtoMSstatsTMTFormat <- function(input,
         ## remove rows with #proteins is not 1
         input <- input[input$numProtein == '1', ]
 
-        message('** Rows with #Proteins, which are not equal to 1, are removed.')
+        message('** Shared PSMs (assigned in multiple proteins) are removed.')
 
     }
 
@@ -124,56 +136,61 @@ PDtoMSstatsTMTFormat <- function(input,
     fea.multimeas <- count2[count2$Freq > 1, ]
 
     ## separate input by multiple measurements vs one measurement
-    fea.multimeas$issue <- paste(fea.multimeas$fea2, fea.multimeas$Run, sep="_")
-    input$issue <- paste(input$fea2, input$Run, sep="_")
+    if(nrow(fea.multimeas) > 0){ ## if there is any feature issued.
+        fea.multimeas$issue <- paste(fea.multimeas$fea2, fea.multimeas$Run, sep="_")
+        input$issue <- paste(input$fea2, input$Run, sep="_")
 
-    ## keep rows with no issue
-    input.no <- input[-which(input$issue %in% unique(fea.multimeas$issue)), ]
+        ## keep rows with no issue
+        input.no <- input[-which(input$issue %in% unique(fea.multimeas$issue)), ]
 
-    ## keep selected rows among issued rows
-    keepinfo.select <- NULL
-    for(i in 1:length(unique(fea.multimeas$fea2))){
-        sub <- input[input$fea2 == unique(fea.multimeas$fea2)[i], ]
-        subfea <- fea.multimeas[fea.multimeas$fea2 == unique(fea.multimeas$fea2)[i], ]
+        ## keep selected rows among issued rows
+        keepinfo.select <- NULL
+        for(i in 1:length(unique(fea.multimeas$fea2))){
+            sub <- input[input$fea2 == unique(fea.multimeas$fea2)[i], ]
+            subfea <- fea.multimeas[fea.multimeas$fea2 == unique(fea.multimeas$fea2)[i], ]
 
-        for(j in 1:length(unique(subfea$Run))){
-            subsub <- sub[sub$Run == unique(subfea$Run)[j], ]
-            subsub$multi <- seq(1, nrow(subsub))
+            for(j in 1:length(unique(subfea$Run))){
+                subsub <- sub[sub$Run == unique(subfea$Run)[j], ]
+                subsub$multi <- seq(1, nrow(subsub))
 
-            if( nrow(subsub) < 2 ) next()
-            ## decision1 : first use the rows which has most number of measurement
-            ## count the number of measurement per row
-            subsub$nmean <- apply(subsub[, channels], 1, function(x) sum(!is.na(x)))
-            subsub2 <- subsub[subsub$nmea == max(subsub$nmea), ] ## which.max choose only one row
+                if( nrow(subsub) < 2 ) next()
+                ## decision1 : first use the rows which has most number of measurement
+                ## count the number of measurement per row
+                subsub$nmean <- apply(subsub[, channels], 1, function(x) sum(!is.na(x)))
+                subsub2 <- subsub[subsub$nmea == max(subsub$nmea), ] ## which.max choose only one row
 
-            if( nrow(subsub2) < 2 ){
-                keepinfo.select <- rbind(keepinfo.select,
-                                         subsub2)
-            } else {
-                ## decision2 : keep the row with higher identification score
-                subsub3 <- subsub2[subsub2$Ions.Score == max(subsub2$Ions.Score), ] ## which.max choose only one row
-                if(nrow(subsub3) < 2){
-                    keepinfo.select <- rbind(keepinfo.select, subsub3)
-                } else{
-                    ## decision3 : ## maximum or sum up abundances among intensities for identical features within one run
-                    subsub3$totalmea <- apply(subsub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = T))
-                    subsub4 <- subsub3[subsub3$totalmea == max(subsub3$totalmea), ]
-                    subsub4 <- subsub4[, which(colnames(keepinfo.select) != "totalmea")]
-                    keepinfo.select <- rbind(keepinfo.select, subsub4)
-                    rm(subsub4)
+                if( nrow(subsub2) < 2 ){
+                    keepinfo.select <- rbind(keepinfo.select,
+                                             subsub2)
+                } else {
+                    ## decision2 : keep the row with higher identification score
+                    subsub3 <- subsub2[subsub2$Ions.Score == max(subsub2$Ions.Score), ] ## which.max choose only one row
+                    if(nrow(subsub3) < 2){
+                        keepinfo.select <- rbind(keepinfo.select, subsub3)
+                    } else{
+                        ## decision3 : ## maximum or sum up abundances among intensities for identical features within one run
+                        subsub3$totalmea <- apply(subsub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = T))
+                        subsub4 <- subsub3[subsub3$totalmea == max(subsub3$totalmea), ]
+                        subsub4 <- subsub4[, which(colnames(keepinfo.select) != "totalmea")]
+                        keepinfo.select <- rbind(keepinfo.select, subsub4)
+                        rm(subsub4)
+                    }
+                    rm(subsub3)
+
                 }
-                rm(subsub3)
-
+                rm(subsub2)
             }
-            rm(subsub2)
-            # print(paste('j=', j, sep=""))
         }
-        print(paste('i=', i, sep=""))
-    }
-    keepinfo.select <- keepinfo.select[, -which(colnames(keepinfo.select) %in% c('multi', 'nmean'))]
-    input.new <- rbind(input.no, keepinfo.select)
+        keepinfo.select <- keepinfo.select[, -which(colnames(keepinfo.select) %in% c('multi', 'nmean'))]
+        input.new <- rbind(input.no, keepinfo.select)
 
-    input.new <- input.new[, -which(colnames(input.new) %in% c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue'))]
+        input.new <- input.new[, -which(colnames(input.new) %in% c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue'))]
+
+        message('** Multiple measurements in a feature and a run are summarized by summaryforMultipleRows.')
+
+    } else {
+        input.new <- input[, -which(colnames(input) %in% c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue'))]
+    }
 
     # make long format
     input.long <- reshape2::melt(input.new, id=c('ProteinName',
@@ -181,8 +198,6 @@ PDtoMSstatsTMTFormat <- function(input,
                                        'Run'),
                        variable.name = "Channel",
                        value.name = "Intensity")
-
-    message('** Multiple measurements in a feature and a run are summarized by summaryforMultipleRows.')
 
     input <- input.long
     rm(input.long)
@@ -196,24 +211,19 @@ PDtoMSstatsTMTFormat <- function(input,
 
     if ( nrow(noruninfo) > 0 ) {
         for(i in 1:nrow(noruninfo)){
-            message( paste('** Annotation for Run ', noruninfo[i, "Run"], " Channel ", noruninfo[i, "Channel"], ' are needed)' ))
+            message( paste0('** Annotation for Run : ', noruninfo[i, "Run"], ", Channel : ", noruninfo[i, "Channel"], " are missed.") )
         }
-        stop('Please add them to annotation file.')
+        stop('** Please add them to annotation file.')
     }
 
     input.final <- data.frame(Protein = input$ProteinName,
                               PSM = paste(input$PeptideSequence, input$Charge, sep="_"),
-                              log2Intensity = log2(input$Intensity),
-                              Channel = as.factor(input$Channel),
-                              Subject = paste(input$Run, input$Channel, sep="."),
-                              Run = input$Run,
                               BiologicalMixture = input$BiologicalMixture,
-                              Group = input$Group)
-
-    #if( any(is.element(colnames(input), 'Fraction')) ) {
-    #input.final <- data.frame(input.final,
-    #Fraction = input$Fraction)
-    #}
+                              Run = input$Run,
+                              Channel = as.factor(input$Channel),
+                              Group = input$Group,
+                              Subject = input$Subject,
+                              log2Intensity = log2(input$Intensity))
 
     input <- input.final
     rm(input.final)
@@ -255,5 +265,6 @@ PDtoMSstatsTMTFormat <- function(input,
             message(paste("** ", length(removepro), ' proteins, which have only one feature in a protein, are removed among ', lengthtotalprotein, ' proteins.', sep=""))
         }
     }
+
     return(input)
 }
