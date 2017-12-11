@@ -4,9 +4,9 @@
 \alias{PDtoMSstatsTMTFormat}
 \title{Generate MSstatsTMT required input format for Proteome discoverer output}
 \usage{
-PDtoMSstatsTMTFormat(input, annotation, useNumProteinsColumn = TRUE,
-  useUniquePeptide = TRUE, summaryforMultipleRows = max,
-  removePSM_withMissingValue_withinRun = TRUE,
+PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
+  useNumProteinsColumn = TRUE, useUniquePeptide = TRUE,
+  summaryforMultipleRows = max, removePSM_withMissingValue_withinRun = TRUE,
   removeProtein_with1Peptide = FALSE,
   which.proteinid = "Protein.Accessions")
 }
@@ -14,6 +14,8 @@ PDtoMSstatsTMTFormat(input, annotation, useNumProteinsColumn = TRUE,
 \item{input}{data name of Proteome discover PSM output. Read PSM sheet.}
 
 \item{annotation}{data frame which contains column Run, Channel, Group, Subject, BiologicalMixture.}
+
+\item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.}
 
 \item{useNumProteinsColumn}{TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.}
 

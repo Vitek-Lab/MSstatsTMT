@@ -8,7 +8,7 @@
 #' @examples
 #' head(required.input)
 #' str(required.input)
-#' MedianPolish.abun <- protein.summarization(required.input, "MedianPolish")
+#' MedianPolish.abun <- protein.summarization(required.input, method="MedianPolish")
 #' head(MedianPolish.abun)
 
 protein.summarization <- function(data,

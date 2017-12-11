@@ -4,12 +4,14 @@
 \alias{protein.summarization}
 \title{Summarize PSM level data to protein level}
 \usage{
-protein.summarization(data, method = "MedianPolish")
+protein.summarization(data, method = "MedianPolish", normalization = TRUE)
 }
 \arguments{
 \item{data}{PSM level data, which has columns Protein, PSM, Subject, Run, Channel, log2Intensity}
 
 \item{method}{summarization methods. Possible options: "LogSum", "Median", "Biweight", "MedianPolish", "Huber"}
+
+\item{normalization}{If TRUE, do normalization after protein summarization. Normalization are based on the channels which have group 'Norm'.}
 }
 \value{
 Protein Abundance
@@ -20,6 +22,6 @@ Summarize PSM level data to protein level
 \examples{
 head(required.input)
 str(required.input)
-MedianPolish.abun <- protein.summarization(required.input, "MedianPolish")
+MedianPolish.abun <- protein.summarization(required.input, method="MedianPolish")
 head(MedianPolish.abun)
 }
