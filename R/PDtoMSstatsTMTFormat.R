@@ -58,10 +58,10 @@ PDtoMSstatsTMTFormat <- function(input,
     ## 2. get subset of columns
     ################################################
 
+    channels <- as.character(unique(annotation$Channel))
     input <- input[, which(colnames(input) %in% c(which.pro, which.NumProteins, 'Annotated.Sequence', 'Charge',
                                                   'Ions.Score', 'Spectrum.File', 'Quan.Info',
-                                                  'X126','X127_N', 'X127_C','X128_N', 'X128_C',
-                                                  'X129_N', 'X129_C','X130_N', 'X130_C', "X131"))]
+                                                  channels))]
 
     colnames(input)[colnames(input) == 'Protein.Group.Accessions'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Protein.Accessions'] <- 'ProteinName'
@@ -143,7 +143,7 @@ PDtoMSstatsTMTFormat <- function(input,
             if( nrow(subsub) < 2 ) next()
             ## decision1 : first use the rows which has most number of measurement
             ## count the number of measurement per row
-            subsub$nmean <- apply(subsub[, c('X126','X127_N', 'X127_C','X128_N', 'X128_C', 'X129_N', 'X129_C','X130_N', 'X130_C', "X131")], 1, function(x) sum(!is.na(x)))
+            subsub$nmean <- apply(subsub[, channels], 1, function(x) sum(!is.na(x)))
             subsub2 <- subsub[subsub$nmea == max(subsub$nmea), ] ## which.max choose only one row
 
             if( nrow(subsub2) < 2 ){
@@ -156,7 +156,7 @@ PDtoMSstatsTMTFormat <- function(input,
                     keepinfo.select <- rbind(keepinfo.select, subsub3)
                 } else{
                     ## decision3 : ## maximum or sum up abundances among intensities for identical features within one run
-                    subsub3$totalmea <- apply(subsub3[, c('X126','X127_N', 'X127_C','X128_N', 'X128_C', 'X129_N', 'X129_C','X130_N', 'X130_C', "X131")], 1, function(x) summaryforMultipleRows(x, na.rm = T))
+                    subsub3$totalmea <- apply(subsub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = T))
                     subsub4 <- subsub3[subsub3$totalmea == max(subsub3$totalmea), ]
                     subsub4 <- subsub4[, which(colnames(keepinfo.select) != "totalmea")]
                     keepinfo.select <- rbind(keepinfo.select, subsub4)
