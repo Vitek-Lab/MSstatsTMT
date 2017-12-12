@@ -27,10 +27,9 @@ proposed.model <- function(data,
         contrast.pairwise <- FALSE
     }
 
+    groups <- as.character(unique(data$Group)) # groups
     ## set up matrix for result
     if( contrast.pairwise ){
-
-        groups <- as.character(unique(data$Group)) # groups
         ncomp <- length(groups)*(length(groups)-1)/2 # Number of comparison
 
     } else {
@@ -126,6 +125,7 @@ proposed.model <- function(data,
                 res[count, 2] <- row.names(contrast.matrix)[j] # comparison
                 if(!tag){
                     group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n = sum(!is.na(Abundance))) # size of each group
+                    group_df$Group <- as.character(group_df$Group)
                     variance <- s2.post*sum((1/group_df$n)*((contrast.matrix[j,group_df$Group])^2)) # variance of diff
                     FC <- sum(coeff*(contrast.matrix[j,names(coeff)])) # fold change
                     res[count, 3] <- FC
@@ -246,10 +246,10 @@ protein.ttest <- function (data,
         contrast.pairwise <- FALSE
     }
 
+
+    groups <- as.character(unique(data$Group)) # groups
     ## set up matrix for result
     if( contrast.pairwise ){
-
-        groups <- as.character(unique(data$Group)) # groups
         ncomp <- length(groups)*(length(groups)-1)/2 # Number of comparison
 
     } else {

@@ -19,7 +19,8 @@ groupComparison.TMT <- function(data,
                                 contrast.matrix = 'pairwise',
                                 remove_norm_channel = TRUE,
                                 model = 'proposed',
-                                moderated = TRUE){
+                                moderated = TRUE,
+                                adj.method = "BH"){
 
     ## save process output in each step
     allfiles <- list.files()
