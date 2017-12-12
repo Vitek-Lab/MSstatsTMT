@@ -8,6 +8,8 @@
 #' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 #' @param remove_norm_channel TRUE(default) removes 'Norm' channels for inference step.
 #' @param model Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.
+#' @param moderated Only for model = 'proposed'. If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.
+#' @param adj.method adjusted method for multiple comparison. "BH" is default.
 #' @examples
 #' quant.byprotein <- protein.summarization(required.input, method = "MedianPolish", normalization=TRUE)
 #' test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
@@ -16,7 +18,8 @@
 groupComparison.TMT <- function(data,
                                 contrast.matrix = 'pairwise',
                                 remove_norm_channel = TRUE,
-                                model = 'proposed'){
+                                model = 'proposed',
+                                moderated = TRUE){
 
     ## save process output in each step
     allfiles <- list.files()
@@ -77,14 +80,14 @@ groupComparison.TMT <- function(data,
 
     ### Inference
     if(model == "proposed"){
-        result <- proposed.model(data, contrast.matrix)
+        result <- proposed.model(data, moderated, contrast.matrix, adj.method)
     } else if(model == "ttest"){
-        if( is.matrix(contrast.matrix) ){ ## maybe better way later
-            message("** For t-test, all pairwise comparisons will be reported.")
-        }
-        result <- protein.ttest(data)
+        #if( is.matrix(contrast.matrix) ){ ## maybe better way later
+            #message("** For t-test, all pairwise comparisons will be reported.")
+        #}
+        result <- protein.ttest(data, contrast.matrix, adj.method)
     } else if(model == "limma"){
-        result <- ebayes.limma(data, contrast.matrix)
+        result <- ebayes.limma(data, contrast.matrix, adj.method)
     }
 
     ### check column name in order to use groupComparisonPlot from MSstats

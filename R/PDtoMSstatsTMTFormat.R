@@ -326,7 +326,7 @@ combine.fractions <- function(data){
     }
     data.shared.pep.rm <- rbindlist(all.data)
     data.shared.pep.rm$Run <- data.shared.pep.rm$BiologicalMixture
-    data.shared.pep.rm$Subject <- paste(data.shared.pep.rm$Run, data.shared.pep.rm$Channel, sep=".")
-
+    # The fractions have been combined.
+    data.shared.pep.rm$BiologicalMixture <- "Single"
     return(data.shared.pep.rm)
 }

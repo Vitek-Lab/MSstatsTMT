@@ -86,7 +86,7 @@ protein.summarization.function <- function(data, method, normalization){
     ## remove runchannel column
     res <- res[, -which(colnames(res) %in% 'runchannel')]
 
-    if(normalization){ # Do normalization based on group 'Norm'
+    if(normalization & length(runs) > 1){ # Do normalization based on group 'Norm'
       res <- protein.normalization(res)
     }
 
