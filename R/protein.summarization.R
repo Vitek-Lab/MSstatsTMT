@@ -4,6 +4,7 @@
 #' Then, normalization between MS runs using normalization channels will be implemented.
 #'
 #' @export
+#' @importFrom utils read.table sessionInfo write.table
 #' @param data Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, BiolobicalMixture, Run, Channel, Group, Subject, log2Intensity
 #' @param method Five different summarization methods to protein-level can be performed : "MedianPolish"(default), "Huber", "LogSum", "Median", "Biweight".
 #' @param normalization Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by 'Norm' in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.

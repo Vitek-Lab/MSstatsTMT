@@ -1,6 +1,7 @@
-
+#' @import lme4
 #' @importFrom nlme fixed.effects
-#' @export
+#' @importFrom stats aggregate anova coef lm median medpolish model.matrix na.omit p.adjust pt t.test xtabs
+#' @keywords internal
 proposed.model <- function(data,
                            contrast.matrix = "pairwise",
                            adj.method = "BH") {
@@ -140,7 +141,7 @@ proposed.model <- function(data,
 
 #' @import limma
 #' @import data.table
-#' @export
+#' @keywords internal
 ebayes.limma <- function(data,
                          contrast.matrix = "pairwise",
                          adj.method = "BH"){
@@ -216,8 +217,7 @@ ebayes.limma <- function(data,
 }
 
 
-
-#'@export
+#' @keywords internal
 protein.ttest <- function (data,
                            adj.method = "BH"){
     data$Protein <- as.character(data$Protein) # make sure protein names are character

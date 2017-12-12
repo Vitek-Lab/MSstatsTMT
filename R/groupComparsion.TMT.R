@@ -77,14 +77,14 @@ groupComparison.TMT <- function(data,
 
     ### Inference
     if(model == "proposed"){
-        result <- MSstatsTMT::proposed.model(data, contrast.matrix)
+        result <- proposed.model(data, contrast.matrix)
     } else if(model == "ttest"){
         if( is.matrix(contrast.matrix) ){ ## maybe better way later
             message("** For t-test, all pairwise comparisons will be reported.")
         }
-        result <- MSstatsTMT::protein.ttest(data)
+        result <- protein.ttest(data)
     } else if(model == "limma"){
-        result <- MSstatsTMT::ebayes.limma(data, contrast.matrix)
+        result <- ebayes.limma(data, contrast.matrix)
     }
 
     ### check column name in order to use groupComparisonPlot from MSstats

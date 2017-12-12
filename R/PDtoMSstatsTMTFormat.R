@@ -2,8 +2,8 @@
 #'
 #' Convert Proteome discoverer output into the required input format for MSstatsTMT.
 #'
-#' @importFrom reshape2 melt
 #' @export
+#' @importFrom reshape2 melt
 #' @param input data name of Proteome discover PSM output. Read PSM sheet.
 #' @param annotation data frame which contains column Run, Channel, Group, Subject, BiologicalMixture.
 #' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.

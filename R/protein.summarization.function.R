@@ -1,7 +1,5 @@
-
-#' @import data.table
-#' @import affy
-
+#' @import dplyr
+#' @import tidyr
 protein.summarization.function <- function(data, method, normalization){
     data <- as.data.table(data)
     # make new column: combination of run and channel
