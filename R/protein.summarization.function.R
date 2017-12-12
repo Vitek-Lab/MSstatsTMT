@@ -1,5 +1,10 @@
-#' @import dplyr
-#' @import tidyr
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr %>%
+#' @importFrom dplyr left_join
+#' @importFrom tidyr gather
+#' @importFrom tidyr spread
+#' @importFrom stats medpolish
 protein.summarization.function <- function(data, method, normalization){
     data <- as.data.table(data)
     # make new column: combination of run and channel
@@ -29,7 +34,7 @@ protein.summarization.function <- function(data, method, normalization){
             if(nrow(sub_data) != 0){
                 nfea <- length(unique(sub_data$PSM))
                 # Change the long format to wide format
-                sub_data_wide <- sub_data %>% dplyr::select(log2Intensity, PSM, runchannel) %>% spread(runchannel, log2Intensity)
+                sub_data_wide <- sub_data %>% dplyr::select(log2Intensity, PSM, runchannel) %>% tidyr::spread(runchannel, log2Intensity)
                 rownames(sub_data_wide) <- sub_data_wide[,1]
                 sub_data_wide <- sub_data_wide[,-1]
 
@@ -58,7 +63,7 @@ protein.summarization.function <- function(data, method, normalization){
                         }
                         if(method == "MedianPolish"){
                             #median polish
-                            meddata  <-  medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
+                            meddata  <-  stats::medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
                             tmpresult <- meddata$overall + meddata$col
                             protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
                         }
@@ -122,8 +127,8 @@ protein.normalization <- function(data) {
             sub_data <- data[Protein == proteins[i]] # data for protein i
             sub_data <- na.omit(sub_data)
             norm.channel <- sub_data[Group == "Norm"]
-            norm.channel = norm.channel[, .(Abundance = mean(Abundance, na.rm = T)), by = .(Protein, Run)]
-            norm.channel$diff <- median(norm.channel$Abundance, na.rm = T) - norm.channel$Abundance
+            norm.channel = norm.channel[, .(Abundance = mean(Abundance, na.rm = TRUE)), by = .(Protein, Run)]
+            norm.channel$diff <- median(norm.channel$Abundance, na.rm = TRUE) - norm.channel$Abundance
             setkey(sub_data, Run)
             setkey(norm.channel, Run)
             norm.sub_data <- merge(sub_data, norm.channel[,.(Run, diff)], all.x=TRUE)

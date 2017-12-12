@@ -13,9 +13,11 @@ log2Intensity<-c(16.67548,17.64749,17.60403,10.61325,12.47996,13.16848,16.76335,
 Channel<-rep(c("X126","X127_N","X127_C","X128_N","X128_C","X129_N","X129_C","X130_N","X130_C","X131"),6)
 Run<-rep(append(append(rep(1,10),rep(2,10)),rep(3,10)),2)
 BiologicalMixture<-rep("Mixture1",60)
-t.data<-data.frame(Protein=as.factor(Protein),PSM=as.factor(PSM),log2Intensity=log2Intensity,Channel=Channel,Run=Run,BiologicalMixture=BiologicalMixture)
+Group<-rep(c("Norm","0.667","0.125","0.5","1","0.125","0.5","1","0.667","Norm"),6)
+t.data<-data.frame(Protein=as.factor(Protein),PSM=as.factor(PSM),log2Intensity=log2Intensity,Channel=Channel,Run=Run,BiologicalMixture=BiologicalMixture,Group = Group)
 t.data<-unite(t.data,"Subject",Run,Channel,sep = ".")
 t.data$Channel<-as.factor(Channel)
+
 t.data$Run<-Run
 
 #annotation
@@ -31,18 +33,14 @@ Protein<-rep("O00299",30)
 Run<-append(append(rep(1,10),rep(2,10)),rep(3,10))
 Channel<-rep(c("X126","X127_N","X127_C","X128_N","X128_C","X129_N","X129_C","X130_N","X130_C","X131"),3)
 BiologicalMixture<-rep("Mixture1",30)
-expect_abun<-data.frame(Protein=Protein,Subject1=Run,Subject2=Channel,Run=Run,Channel=Channel,BiologicalMixture=BiologicalMixture)
-expect_abun<-unite(expect_abun,"Subject",Subject1,Subject2,sep = ".")
-Abundance<-c(17.70140,18.66948,18.69997,12.05648,13.69478,14.07349,17.83270,18.62921,18.70998,12.6021,13.69867,13.95880,17.74278,18.76073,18.71018,12.30520,13.85366,14.11159,17.75310,18.43467,18.76245,12.00305,13.87759,13.75524,17.68182,18.67637,18.52033,12.11305,13.87654,14.25298)
 Group<-rep(c("Norm","0.667","0.125","0.5","1","0.125","0.5","1","0.667","Norm"),3)
+expect_abun<-data.frame(Protein=Protein,Subject1=Run,Subject2=Channel,Run=Run,Channel=Channel,BiologicalMixture=BiologicalMixture,Group = Group)
+expect_abun<-unite(expect_abun,"Subject",Subject1,Subject2,sep = ".")
+Abundance<-c(18.61628,19.58435,19.61485,12.97136,14.60965,14.98837,18.74757,19.54408,19.62485,13.51706,13.69867,13.95880,17.74278,18.76073,18.71018,12.30520,13.85366,14.11159,17.75310,18.43467,18.32140,11.56200,13.43654,13.31419,17.24078,18.23532,18.07928,11.67201,13.43549,13.81194)
 expect_abun$Abundance<-Abundance
-expect_abun$Group<-Group
 expect_abun$Protein<-as.character(expect_abun$Protein)
-expect_abun<-expect_abun[,c(1,2,6,3,4,7,5)]
-
-
-
-
+expect_abun<-expect_abun[,c(3,1,7,4,2,6,5)]
+expect_abun<-data.table::as.data.table(expect_abun)
 
 
 #expect_summary
@@ -56,16 +54,18 @@ adjusted.pvalue<-rep(0.9968882,10)
 expect_summary<-data.frame(Protein=Protein,Comparison=Comparison,log2FC=log2FC,SE=as.factor(SE),DF=as.factor(DF),pvalue=pvalue,adjusted.pvalue=adjusted.pvalue)
 
 
-test_that("Expect raw data to be equal"),{
-
-}
+# test_that("Expect raw data to be equal"),{
+#
+# }
 
 test_that("Expect protein abundence to be equal",{
     abun<-MSstatsTMT::protein.summarization(t.data,method="LogSum")
     abun$Abundance<-round(abun$Abundance,digits = 3)
     expect_abun$Abundance<-round(expect_abun$Abundance,digits = 3)
+
     expect_equal(abun,expect_abun)
 })
+
 #Fix this after the model(groupComarison) is finalized
 # test_that("Expect summarization to be equal",{
 #     abun<-MSstatsTMT::protein.summarization(t.data,method="LogSum")

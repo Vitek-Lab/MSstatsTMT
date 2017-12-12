@@ -4,6 +4,7 @@
 #'
 #' @export
 #' @importFrom reshape2 melt
+#' @importFrom data.table as.data.table
 #' @param input data name of Proteome discover PSM output. Read PSM sheet.
 #' @param annotation data frame which contains column Run, Channel, Group, Subject, BiologicalMixture.
 #' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.
@@ -186,7 +187,7 @@ PDtoMSstatsTMTFormat <- function(input,
                         keepinfo.select <- rbind(keepinfo.select, subsub3)
                     } else{
                         ## decision3 : ## maximum or sum up abundances among intensities for identical features within one run
-                        subsub3$totalmea <- apply(subsub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = T))
+                        subsub3$totalmea <- apply(subsub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
                         subsub4 <- subsub3[subsub3$totalmea == max(subsub3$totalmea), ]
                         subsub4 <- subsub4[, which(colnames(keepinfo.select) != "totalmea")]
                         keepinfo.select <- rbind(keepinfo.select, subsub4)
@@ -210,7 +211,7 @@ PDtoMSstatsTMTFormat <- function(input,
     }
 
     # make long format
-    input.long <- reshape2::melt(input.new, id=c('ProteinName',
+    input.long <- melt(input.new, id=c('ProteinName',
                                        'PeptideSequence','Charge',
                                        'Run'),
                        variable.name = "Channel",
