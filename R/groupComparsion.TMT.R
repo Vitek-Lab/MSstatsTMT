@@ -7,18 +7,19 @@
 #' @param data Name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.
 #' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 #' @param remove_norm_channel TRUE(default) removes 'Norm' channels for inference step.
-#' @param model Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.
 #' @param moderated Only for model = 'proposed'. If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.
 #' @param adj.method adjusted method for multiple comparison. "BH" is default.
+#' @return data.frame with result of inference
 #' @examples
-#' quant.byprotein <- protein.summarization(required.input, method = "MedianPolish", normalization=TRUE)
-#' test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
+#' quant.byprotein <- protein.summarization(required.input,
+#'                                          method = "MedianPolish",
+#'                                          normalization=TRUE)
+#' test.byproposed <- groupComparison.TMT(quant.byprotein)
 
 
 groupComparison.TMT <- function(data,
                                 contrast.matrix = 'pairwise',
                                 remove_norm_channel = TRUE,
-                                model = 'proposed',
                                 moderated = TRUE,
                                 adj.method = "BH"){
 
@@ -59,19 +60,11 @@ groupComparison.TMT <- function(data,
 
     }
 
-    ### check the option for model
-    model.list <- c("ttest", "limma", "proposed")
-
-    if( sum(model == model.list) != 1 ){
-        stop(" 'model' must be one of the following : 'proposed', 'limma', 'ttest'. Default is 'proposed'. ")
-    }
-
     ### report which options are used.
     processout <- rbind(processout, c(paste("Remove 'Norm' channels before inference:", remove_norm_channel)))
-    processout <- rbind(processout, c(paste("Model for inference :", model)))
+    processout <- rbind(processout, c(paste("Moderated t-stat :", moderated)))
 
     write.table(processout, file=finalfile, row.names=FALSE)
-
 
     ### remove 'Norm' column
     if( remove_norm_channel & is.element('Norm', unique(data$Group)) ){
@@ -80,16 +73,7 @@ groupComparison.TMT <- function(data,
     }
 
     ### Inference
-    if(model == "proposed"){
-        result <- proposed.model(data, moderated, contrast.matrix, adj.method)
-    } else if(model == "ttest"){
-        #if( is.matrix(contrast.matrix) ){ ## maybe better way later
-            #message("** For t-test, all pairwise comparisons will be reported.")
-        #}
-        result <- protein.ttest(data, contrast.matrix, adj.method)
-    } else if(model == "limma"){
-        result <- ebayes.limma(data, contrast.matrix, adj.method)
-    }
+    result <- proposed.model(data, moderated, contrast.matrix, adj.method)
 
     ### check column name in order to use groupComparisonPlot from MSstats
     colnames(result)[colnames(result) == 'Comparison'] <- 'Label'
@@ -102,12 +86,4 @@ groupComparison.TMT <- function(data,
 # data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity
 # adj.method: adjusted method for multiple comparison
 
-# Limma inference model
-# data: protein level data matrix, whose columns are subjects and rows are proteins.
-# label: vector with group information, whose columns are subjects and rows are proteins.
-# adj.method: adjusted method for multiple comparison
-
-# t test
-# data: protein level data, which has columns Protein, Group, Subject, Run, Channel, log2Intensity
-# adj.method: adjusted method for multiple comparison
 

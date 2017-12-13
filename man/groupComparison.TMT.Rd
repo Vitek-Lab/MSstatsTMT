@@ -5,7 +5,7 @@
 \title{Finding differentially abundant proteins across conditions in TMT experiment}
 \usage{
 groupComparison.TMT(data, contrast.matrix = "pairwise",
-  remove_norm_channel = TRUE, model = "proposed")
+  remove_norm_channel = TRUE, moderated = TRUE, adj.method = "BH")
 }
 \arguments{
 \item{data}{Name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.}
@@ -14,13 +14,20 @@ groupComparison.TMT(data, contrast.matrix = "pairwise",
 
 \item{remove_norm_channel}{TRUE(default) removes 'Norm' channels for inference step.}
 
-\item{model}{Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.}
+\item{moderated}{Only for model = 'proposed'. If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.}
+
+\item{adj.method}{adjusted method for multiple comparison. "BH" is default.}
+}
+\value{
+data.frame with result of inference
 }
 \description{
 Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment.
 Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
 }
 \examples{
-quant.byprotein <- protein.summarization(required.input, method = "MedianPolish", normalization=TRUE)
-test.byproposed <- groupComparison.TMT(quant.byprotein, model = "proposed")
+quant.byprotein <- protein.summarization(required.input,
+                                         method = "MedianPolish",
+                                         normalization=TRUE)
+test.byproposed <- groupComparison.TMT(quant.byprotein)
 }

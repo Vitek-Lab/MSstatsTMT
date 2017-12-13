@@ -4,7 +4,7 @@
 #'
 #' @export
 #' @importFrom reshape2 melt
-#' @importFrom data.table as.data.table
+#' @importFrom data.table as.data.table setkey rbindlist
 #' @param input data name of Proteome discover PSM output. Read PSM sheet.
 #' @param annotation data frame which contains column Run, Channel, Group, Subject, BiologicalMixture.
 #' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.
@@ -22,14 +22,14 @@
 #' head(required.input)
 
 PDtoMSstatsTMTFormat <- function(input,
-                                 annotation,
-                                 fraction = FALSE,
-                                 useNumProteinsColumn=TRUE,
-                                 useUniquePeptide=TRUE,
-                                 summaryforMultipleRows=max,
-                                 removePSM_withMissingValue_withinRun = TRUE,
-                                 removeProtein_with1Peptide=FALSE,
-                                 which.proteinid = 'Protein.Accessions'){
+                                annotation,
+                                fraction = FALSE,
+                                useNumProteinsColumn=TRUE,
+                                useUniquePeptide=TRUE,
+                                summaryforMultipleRows=max,
+                                removePSM_withMissingValue_withinRun = TRUE,
+                                removeProtein_with1Peptide=FALSE,
+                                which.proteinid = 'Protein.Accessions'){
 
 
     ################################################
@@ -90,9 +90,9 @@ PDtoMSstatsTMTFormat <- function(input,
 
     channels <- as.character(unique(annotation$Channel))
     input <- input[, which(colnames(input) %in% c(which.pro, which.NumProteins,
-                                                  'Annotated.Sequence', 'Charge',
-                                                  'Ions.Score', 'Spectrum.File', 'Quan.Info',
-                                                  channels))]
+                                                'Annotated.Sequence', 'Charge',
+                                                'Ions.Score', 'Spectrum.File', 'Quan.Info',
+                                                channels))]
 
     colnames(input)[colnames(input) == 'Protein.Group.Accessions'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Protein.Accessions'] <- 'ProteinName'
@@ -179,7 +179,7 @@ PDtoMSstatsTMTFormat <- function(input,
 
                 if( nrow(subsub2) < 2 ){
                     keepinfo.select <- rbind(keepinfo.select,
-                                             subsub2)
+                                            subsub2)
                 } else {
                     ## decision2 : keep the row with higher identification score
                     subsub3 <- subsub2[subsub2$Ions.Score == max(subsub2$Ions.Score), ] ## which.max choose only one row
@@ -214,8 +214,8 @@ PDtoMSstatsTMTFormat <- function(input,
     input.long <- melt(input.new, id=c('ProteinName',
                                        'PeptideSequence','Charge',
                                        'Run'),
-                       variable.name = "Channel",
-                       value.name = "Intensity")
+                    variable.name = "Channel",
+                    value.name = "Intensity")
 
     input <- input.long
     rm(input.long)
@@ -235,13 +235,13 @@ PDtoMSstatsTMTFormat <- function(input,
     }
 
     input.final <- data.frame(Protein = input$ProteinName,
-                              PSM = paste(input$PeptideSequence, input$Charge, sep="_"),
-                              BiologicalMixture = input$BiologicalMixture,
-                              Run = input$Run,
-                              Channel = as.factor(input$Channel),
-                              Group = input$Group,
-                              Subject = input$Subject,
-                              log2Intensity = log2(input$Intensity))
+                            PSM = paste(input$PeptideSequence, input$Charge, sep="_"),
+                            BiologicalMixture = input$BiologicalMixture,
+                            Run = input$Run,
+                            Channel = as.factor(input$Channel),
+                            Group = input$Group,
+                            Subject = input$Subject,
+                            log2Intensity = log2(input$Intensity))
 
     input <- input.final
     rm(input.final)

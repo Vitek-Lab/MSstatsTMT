@@ -13,6 +13,9 @@ protein.summarization(data, method = "MedianPolish", normalization = TRUE)
 
 \item{normalization}{Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by 'Norm' in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.}
 }
+\value{
+data.frame with protein-level summarization for each run and channel
+}
 \description{
 Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
 Then, normalization between MS runs using normalization channels will be implemented.
@@ -20,6 +23,8 @@ Then, normalization between MS runs using normalization channels will be impleme
 \examples{
 head(required.input)
 str(required.input)
-quant.byprotein <- protein.summarization(required.input, method="MedianPolish", normalization=TRUE)
+quant.byprotein <- protein.summarization(required.input,
+                                         method="MedianPolish",
+                                         normalization=TRUE)
 head(quant.byprotein)
 }

@@ -8,15 +8,18 @@
 #' @param data Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, BiolobicalMixture, Run, Channel, Group, Subject, log2Intensity
 #' @param method Five different summarization methods to protein-level can be performed : "MedianPolish"(default), "Huber", "LogSum", "Median", "Biweight".
 #' @param normalization Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by 'Norm' in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.
+#' @return data.frame with protein-level summarization for each run and channel
 #' @examples
 #' head(required.input)
 #' str(required.input)
-#' quant.byprotein <- protein.summarization(required.input, method="MedianPolish", normalization=TRUE)
+#' quant.byprotein <- protein.summarization(required.input,
+#'                                          method="MedianPolish",
+#'                                          normalization=TRUE)
 #' head(quant.byprotein)
 
 protein.summarization <- function(data,
-                                  method = 'MedianPolish',
-                                  normalization = TRUE){
+                                method = 'MedianPolish',
+                                normalization = TRUE){
 
     ## save process output in each step
     allfiles <- list.files()

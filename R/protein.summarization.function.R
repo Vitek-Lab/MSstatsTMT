@@ -5,6 +5,7 @@
 #' @importFrom tidyr gather
 #' @importFrom tidyr spread
 #' @importFrom stats medpolish
+#' @importFrom matrixStats colMedians
 protein.summarization.function <- function(data, method, normalization){
     data <- as.data.table(data)
     # make new column: combination of run and channel
