@@ -1,0 +1,99 @@
+---
+title: "MSstatsTMT : A package for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling"
+author: "Ting Huang (<thuang0703@gmail.com>), Meena Choi (<mnchoi67@gmail.com>), Sicheng Hao (<hao.sic@husky.neu.edu>)"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, echo=FALSE}
+library(MSstatsTMT)
+```
+
+
+This vignette summarizes the introduction and various options of all functionalities in MSstatsTMT. 
+
+- A set of tools for detecting differentially abundant peptides and proteins in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling.
+- 	The types of experiment that MSstatsTMT supports for metabolic labeling or iTRAQ experiments. LC-MS, SRM, DIA(SWATH) with label-free or labeled synthetic peptides can be analyzed with other R package, MSstats.
+
+
+## PDtoMSstatsTMTFormat
+
+Preprocess PSM data from Proteome Discoverer and convert into the required input format for MSstatsTMT.
+
+
+### Arguments
+
+* `input` : data name of Proteome discover PSM output. Read PSM sheet.
+* `annotation` : data frame which contains column `Run`, `Channel`, `Group`, `Subject`, `BiologicalMixture`.
+* `fraction` : indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.
+* `useNumProteinsColumn` : TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.
+* `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
+* `summaryforMultipleRows` : max(default) or sum - when there are multiple measurements for certain feature and certain run, use highest or sum of multiple intensities.
+* `removePSM_withMissingValue_withinRun` : TRUE(default) will remove PSM with any missing value within each Run.
+* `removeProtein_with1Peptide` : TRUE(default) will remove the proteins which have only 1 peptide and charge.
+* `which.proteinid` : Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead.
+
+
+### Example
+```{r}
+head(raw.input)
+head(annotation)
+required.input <- PDtoMSstatsTMTFormat(raw.input, annotation)
+head(required.input)
+```
+
+
+## protein.summarization
+
+Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
+Then, normalization between MS runs using normalization channels will be implemented.
+
+### Arguments
+
+* `data` : Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named `Protein`, `PSM`, `BiolobicalMixture`, `Run`, `Channel`, `Group`, `Subject`, `log2Intensity`.
+* `method` : Five different summarization methods to protein-level can be performed : `MedianPolish`(default), `Huber`, `LogSum`, `Median`, `Biweight`.
+* `normalization` : Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by 'Norm' in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.
+
+
+### Example
+```{r}
+head(required.input)
+str(required.input)
+quant.byprotein <- protein.summarization(required.input,
+                                         method="MedianPolish",
+                                         normalization=TRUE)
+head(quant.byprotein)
+```
+
+
+## groupComparison.TMT
+
+Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment. Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
+
+### Arguments
+
+* `data` : Name of the output of protein.summarization function. It should have columns named `Protein`, `BiologicalMixture`, `Run`, `Channel`, `Group`, `Subject`, `Abundance`.
+* `contrast.matrix` : Comparison between conditions of interests. 1) default is `pairwise`, which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
+* `remove_norm_channel` : TRUE(default) removes `Norm` channels for inference step.
+* `moderated` : Only for model = `proposed`. If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.
+* `adj.method` : adjusted method for multiple comparison. 'BH` is default.
+
+
+### Example
+```{r}
+quant.byprotein <- protein.summarization(required.input,
+                                         method = "MedianPolish",
+                                         normalization=TRUE)
+test.byproposed <- groupComparison.TMT(quant.byprotein)
+```

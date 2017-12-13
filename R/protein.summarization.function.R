@@ -6,6 +6,8 @@
 #' @importFrom tidyr spread
 #' @importFrom stats medpolish
 #' @importFrom matrixStats colMedians
+#' @importFrom MASS huber
+#' @importFrom affy generateExprVal.method.mas
 protein.summarization.function <- function(data, method, normalization){
     data <- as.data.table(data)
     # make new column: combination of run and channel
