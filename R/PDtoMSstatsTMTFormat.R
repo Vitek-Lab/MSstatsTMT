@@ -249,13 +249,15 @@ PDtoMSstatsTMTFormat <- function(input,
     ##############################
     ###  6. remove features which has missing measurements within each run
     ##############################
+    # number of channels in the dataset
+    n_channels <- length(channels)
     if(removePSM_withMissingValue_withinRun){
 
         ## it is the same across experiments. # measurement per feature.
         xtmp <- input[!is.na(input$log2Intensity), ]
         xtmp$eachRun <- paste(xtmp$PSM, xtmp$Run, sep="_")
         count_measure <- xtabs( ~eachRun, xtmp)
-        remove_feature_name <- count_measure[count_measure < 10]
+        remove_feature_name <- count_measure[count_measure < n_channels]
 
         if( length(remove_feature_name) > 0 ){
             xtmp <- xtmp[-which(xtmp$eachRun %in% names(remove_feature_name)), ]

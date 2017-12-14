@@ -1,6 +1,6 @@
 Package: MSstatsTMT
 Title: MSstatsTMT
-Version: 0.1.16
+Version: 0.1.17
 Date: 2017-12-11
 Authors@R: c(
 	person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut", "cre")),
