@@ -7,11 +7,11 @@
 protein.summarization(data, method = "MedianPolish", normalization = TRUE)
 }
 \arguments{
-\item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, BiolobicalMixture, Run, Channel, Group, Subject, log2Intensity}
+\item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, Mixture, Run, Channel, Condition, BioReplicate, Intensity}
 
 \item{method}{Five different summarization methods to protein-level can be performed : "MedianPolish"(default), "Huber", "LogSum", "Median", "Biweight".}
 
-\item{normalization}{Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by 'Norm' in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.}
+\item{normalization}{Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step.}
 }
 \value{
 data.frame with protein-level summarization for each run and channel

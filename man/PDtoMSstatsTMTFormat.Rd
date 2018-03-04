@@ -7,15 +7,15 @@
 PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
   useNumProteinsColumn = TRUE, useUniquePeptide = TRUE,
   summaryforMultipleRows = max, removePSM_withMissingValue_withinRun = TRUE,
-  removeProtein_with1Peptide = FALSE,
+  removeProtein_with1Feature = FALSE,
   which.proteinid = "Protein.Accessions")
 }
 \arguments{
 \item{input}{data name of Proteome discover PSM output. Read PSM sheet.}
 
-\item{annotation}{data frame which contains column Run, Channel, Group, Subject, BiologicalMixture.}
+\item{annotation}{data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.}
 
-\item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.}
+\item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.}
 
 \item{useNumProteinsColumn}{TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.}
 
@@ -25,7 +25,7 @@ PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
 
 \item{removePSM_withMissingValue_withinRun}{TRUE(default) will remove PSM with any missing value within each Run.}
 
-\item{removeProtein_with1Peptide}{TRUE(default) will remove the proteins which have only 1 peptide and charge.}
+\item{removeProtein_with1Feature}{TRUE(default) will remove the proteins which have only 1 peptide and charge.}
 
 \item{which.proteinid}{Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead.}
 }

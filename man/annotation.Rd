@@ -14,11 +14,11 @@ The variables are as follows:
 }
 \details{
 \itemize{
-  \item Run : MS run ID
-  \item Channel : Labeling ID
-  \item Group : Condition (ex. Healthy, Cancer, Time0)
-  \item BiologicalMixture : Mixture ID
-  \item Subject : Unique ID for biological subject
+  \item Run : MS run ID. It should be the same as Spectrum.File info in raw.input.
+  \item Channel : Labeling information (X126, ... X131)
+  \item Condition : Condition (ex. Healthy, Cancer, Time0)
+  \item Mixture : Mixture ID
+  \item BioReplicate : Unique ID for biological subject
 }
 }
 \examples{

@@ -4,7 +4,7 @@
 #' Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
 #'
 #' @export
-#' @param data Name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.
+#' @param data Name of the output of protein.summarization function. It should have columns named Protein, Mixture, Run, Channel, Condition, BioReplicate, Abundance.
 #' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 #' @param remove_norm_channel TRUE(default) removes 'Norm' channels for inference step.
 #' @param model Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.
@@ -39,7 +39,7 @@ groupComparison.TMT <- function(data,
         num <- 0
         finalfile <- "msstatstmt.log"
 
-        while(is.element(finalfile, allfiles)) {
+        while (is.element(finalfile, allfiles)) {
             num <- num + 1
             lastfilename <- finalfile ## in order to rea
             finalfile <- paste(paste(filenaming, num, sep="-"), ".log", sep="")
@@ -52,45 +52,51 @@ groupComparison.TMT <- function(data,
     processout <- rbind(processout, as.matrix(c(" ", " ", "MSstatsTMT - groupComparison.TMT function"," "), ncol=1))
 
 
-    ### check input data
-    required.info <- c('Protein', 'Subject', 'Abundance', 'Run', 'Channel', 'Group', 'BiologicalMixture')
+    ## check input data
+    required.info <- c('Protein', 'BioReplicate', 'Abundance', 'Run', 'Channel', 'Condition', 'Mixture')
 
-    if ( !all(required.info %in% colnames(data)) ) {
+    if (!all(required.info %in% colnames(data))) {
 
         missedAnnotation <- which(!(required.info %in% colnames(data)))
-        stop(paste("Please check the required input. ** columns :", required.info[missedAnnotation], ", are missed.", collapse = ", "))
+        stop(paste("Please check the required input. ** columns :",
+                   required.info[missedAnnotation],
+                   ", are missed.", collapse = ", "))
 
     }
 
-    ### check the option for model
+    ## change some column names as used in group comparison function
+    colnames(data)[colnames(data) == 'BioReplicate'] <- 'Subject'
+    colnames(data)[colnames(data) == 'Condition'] <- 'Group'
+
+    ## check the option for model
     model.list <- c("ttest", "limma", "proposed")
 
-    if( sum(model == model.list) != 1 ){
+    if (sum(model == model.list) != 1) {
         stop(" 'model' must be one of the following : 'proposed', 'limma', 'ttest'. Default is 'proposed'. ")
     }
 
-    ### report which options are used.
+    ## report which options are used.
     processout <- rbind(processout, c(paste("Remove 'Norm' channels before inference:", remove_norm_channel)))
     processout <- rbind(processout, c(paste("Model for inference :", model)))
     processout <- rbind(processout, c(paste("Moderated t-stat :", moderated)))
 
     write.table(processout, file=finalfile, row.names=FALSE)
 
-    ### remove 'Norm' column
-    if( remove_norm_channel & is.element('Norm', unique(data$Group)) ){
+    ## remove 'Norm' column : It should not used for inference
+    if (remove_norm_channel & is.element('Norm', unique(data$Group))) {
         data <- data %>% filter(Group != "Norm")
         data$Group <- factor(data$Group)
     }
 
-    ### Inference
-    if(model == "proposed"){
+    ## Inference
+    if (model == "proposed") {
         result <- proposed.model(data, moderated, contrast.matrix, adj.method)
-    } else if(model == "ttest"){
+    } else if (model == "ttest") {
         #if( is.matrix(contrast.matrix) ){ ## maybe better way later
         #message("** For t-test, all pairwise comparisons will be reported.")
         #}
         result <- protein.ttest(data, contrast.matrix, adj.method)
-    } else if(model == "limma"){
+    } else if (model == "limma") {
         result <- ebayes.limma(data, contrast.matrix, adj.method)
     }
 

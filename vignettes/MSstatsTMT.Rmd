@@ -35,7 +35,7 @@ Preprocess PSM data from Proteome Discoverer and convert into the required input
 ### Arguments
 
 * `input` : data name of Proteome discover PSM output. Read PSM sheet.
-* `annotation` : data frame which contains column `Run`, `Channel`, `Group`, `Subject`, `BiologicalMixture`.
+* `annotation` : data frame which contains column `Run`, `Channel`, `Condition`, `BioReplicate`, `lMixture`.
 * `fraction` : indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.
 * `useNumProteinsColumn` : TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.
 * `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
@@ -61,7 +61,7 @@ Then, normalization between MS runs using normalization channels will be impleme
 
 ### Arguments
 
-* `data` : Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named `Protein`, `PSM`, `BiolobicalMixture`, `Run`, `Channel`, `Group`, `Subject`, `log2Intensity`.
+* `data` : Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named `Protein`, `PSM`, `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Intensity`.
 * `method` : Five different summarization methods to protein-level can be performed : `MedianPolish`(default), `Huber`, `LogSum`, `Median`, `Biweight`.
 * `normalization` : Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by 'Norm' in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.
 
@@ -83,7 +83,7 @@ Tests for significant changes in protein abundance across conditions based on a 
 
 ### Arguments
 
-* `data` : Name of the output of protein.summarization function. It should have columns named `Protein`, `BiologicalMixture`, `Run`, `Channel`, `Group`, `Subject`, `Abundance`.
+* `data` : Name of the output of protein.summarization function. It should have columns named `Protein`, `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Abundance`.
 * `contrast.matrix` : Comparison between conditions of interests. 1) default is `pairwise`, which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 * `remove_norm_channel` : TRUE(default) removes `Norm` channels for inference step.
 * `moderated` : Only for model = `proposed`. If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.

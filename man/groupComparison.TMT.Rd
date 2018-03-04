@@ -9,7 +9,7 @@ groupComparison.TMT(data, contrast.matrix = "pairwise",
   adj.method = "BH")
 }
 \arguments{
-\item{data}{Name of the output of protein.summarization function. It should have columns named Protein, BiologicalMixture, Run, Channel, Group, Subject, Abundance.}
+\item{data}{Name of the output of protein.summarization function. It should have columns named Protein, Mixture, Run, Channel, Condition, BioReplicate, Abundance.}
 
 \item{contrast.matrix}{Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.}
 

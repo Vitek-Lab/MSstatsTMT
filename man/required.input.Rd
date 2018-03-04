@@ -17,13 +17,15 @@ The variables are as follows:
 \details{
 \itemize{
   \item Protein : Protein ID
+  \item PeptideSequence : Peptide sequence
+  \item Charge : Ion charge
   \item PSM : combination of Peptide sequence and charge
-  \item log2Intensity : log 2 transformed intensity
-  \item Channel : Labeling ID
-  \item Subject : Unique ID for biological subject.
-  \item Run : MS run ID
-  \item BiologicalMixture : Mixture ID
-  \item Group : Condition (ex. Healthy, Cancer, Time0)
+  \item Channel : Labeling information (126, ... 131)
+  \item Condition : Condition (ex. Healthy, Cancer, Time0)
+  \item BioReplicate : Unique ID for biological subject.
+  \item Run : MS run ID. It should be the same as Spectrum.File info in raw.input.
+  \item Mixture : Mixture ID
+  \item Intensity : Intensity
 }
 }
 \examples{
