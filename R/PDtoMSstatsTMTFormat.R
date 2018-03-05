@@ -174,7 +174,6 @@ PDtoMSstatsTMTFormat <- function(input,
 
             for (j in 1:length(unique(subfea$Run))) {
                 subsub <- sub[sub$Run == unique(subfea$Run)[j], ]
-                subsub$multi <- seq(1, nrow(subsub))
 
                 if (nrow(subsub) < 2) {
                     next()
@@ -182,7 +181,7 @@ PDtoMSstatsTMTFormat <- function(input,
 
                 ## decision1 : first use the rows which has most number of measurement
                 ## count the number of measurement per row
-                subsub$nmean <- apply(subsub[, channels], 1, function(x) sum(!is.na(x)))
+                subsub$nmea <- apply(subsub[, channels], 1, function(x) sum(!is.na(x)))
                 subsub2 <- subsub[subsub$nmea == max(subsub$nmea), ] ## which.max choose only one row
 
                 if (nrow(subsub2) < 2) {
@@ -208,7 +207,7 @@ PDtoMSstatsTMTFormat <- function(input,
                 rm(subsub2)
             }
         }
-        keepinfo.select <- keepinfo.select[, -which(colnames(keepinfo.select) %in% c('multi', 'nmean'))]
+        keepinfo.select <- keepinfo.select[, -which(colnames(keepinfo.select) %in% c('nmea'))]
         input.new <- rbind(input.no, keepinfo.select)
 
         input.new <- input.new[, -which(colnames(input.new) %in%
