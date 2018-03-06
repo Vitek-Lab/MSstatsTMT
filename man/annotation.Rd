@@ -9,7 +9,8 @@
 annotation
 }
 \description{
-Annotation of example data, raw.input, in this package. It should be prepared by users.
+Annotation of example data, raw.input, in this package.
+It should be prepared by users.
 The variables are as follows:
 }
 \details{

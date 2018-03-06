@@ -27,9 +27,9 @@ protein.summarization.function <- function(data, method, normalization){
 
     ## Record the group information
     annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate', 'Condition', 'Mixture', 'runchannel')])
-    data <- data[, c('Protein', 'PSM', 'log2Intensity', 'Run', 'Channel', 'BioReplicate', 'runchannel')]
+    data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel', 'BioReplicate', 'runchannel')]
 
-    proteins <- unique(data$Protein)
+    proteins <- unique(data$ProteinName)
     num.protein <- length(proteins)
     runs <- unique(data$Run)
     runchannel.id <- unique(data$runchannel)
@@ -43,11 +43,11 @@ protein.summarization.function <- function(data, method, normalization){
         message(paste("Summarizing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
 
         for (j in 1:length(runs)) {
-            sub_data <- data %>% filter(Protein == proteins[i] & Run == runs[j])
+            sub_data <- data %>% filter(ProteinName == proteins[i] & Run == runs[j])
 
             if (nrow(sub_data) != 0) {
                 nfea <- length(unique(sub_data$PSM))
-                # Change the long format to wide format
+                ## Change the long format to wide format
                 sub_data_wide <- sub_data %>%
                     dplyr::select(log2Intensity, PSM, runchannel) %>%
                     tidyr::spread(runchannel, log2Intensity)
@@ -126,9 +126,9 @@ protein.summarization.function <- function(data, method, normalization){
 protein.normalization <- function(data) {
 
     ## check whethere there are 'Norm' info or not.
-    group.info <- unique(data$Group)
+    group.info <- unique(data$Condition)
 
-    ## if there is 'Norm' available in Group column,
+    ## if there is 'Norm' available in Condition column,
     if (is.element('Norm', group.info)) {
 
         data$Protein <- as.character(data$Protein) # make sure protein names are character
@@ -144,7 +144,7 @@ protein.normalization <- function(data) {
 
             sub_data <- data[Protein == proteins[i]] # data for protein i
             sub_data <- na.omit(sub_data)
-            norm.channel <- sub_data[Group == "Norm"]
+            norm.channel <- sub_data[Condition == "Norm"]
             norm.channel <- norm.channel[, .(Abundance = mean(Abundance, na.rm = TRUE)), by = .(Protein, Run)]
             norm.channel$diff <- median(norm.channel$Abundance, na.rm = TRUE) - norm.channel$Abundance
             setkey(sub_data, Run)
@@ -157,7 +157,8 @@ protein.normalization <- function(data) {
         norm.data <- rbindlist(norm.data)
 
     } else {
-        message("** 'Norm' information in Condition is required for normalization. Please check it. At this moment, normalization is not performed.")
+        message("** 'Norm' information in Condition is required for normalization.
+                Please check it. At this moment, normalization is not performed.")
         norm.data <- data
     }
 

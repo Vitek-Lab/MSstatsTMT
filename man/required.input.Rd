@@ -10,7 +10,8 @@ required.input
 }
 \description{
 It is formated from raw.input and annotation.
-It is the output of PDtoMSstatsTMTFormat function and the input for protein.summarization function.
+It is the output of PDtoMSstatsTMTFormat function
+and the input for protein.summarization function.
 It should includes the required columns as below.
 The variables are as follows:
 }

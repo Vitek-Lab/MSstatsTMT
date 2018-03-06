@@ -246,7 +246,7 @@ PDtoMSstatsTMTFormat <- function(input,
         stop('** Please add them to annotation file.')
     }
 
-    input.final <- data.frame("Protein" = input$ProteinName,
+    input.final <- data.frame("ProteinName" = input$ProteinName,
                             "PeptideSequence" = input$PeptideSequence,
                             "Charge" = input$Charge,
                             "PSM" = paste(input$PeptideSequence, input$Charge, sep="_"),
@@ -293,15 +293,15 @@ PDtoMSstatsTMTFormat <- function(input,
     if (removeProtein_with1Feature) {
 
         ## remove protein which has only one peptide
-        tmp <- unique(input[, c("Protein", 'PSM')])
-        tmp$Protein <- factor(tmp$Protein)
-        count <- xtabs( ~ Protein, data=tmp)
+        tmp <- unique(input[, c("ProteinName", 'PSM')])
+        tmp$Protein <- factor(tmp$ProteinName)
+        count <- xtabs( ~ ProteinName, data=tmp)
         lengthtotalprotein <- length(count)
 
         removepro <- names(count[count <= 1])
 
         if (length(removepro) > 0) {
-            input <- input[-which(input$Protein %in% removepro), ]
+            input <- input[-which(input$ProteinName %in% removepro), ]
             message(paste0("** ", length(removepro),
                           ' proteins, which have only one feature in a protein, are removed among ',
                           lengthtotalprotein, ' proteins.'))
@@ -335,7 +335,7 @@ combine.fractions <- function(data){
     for (i in 1: length(mixtures)) {
         sub_data <- data[Mixture == mixtures[i]]
         sub_data <- sub_data[!is.na(Intensity)]
-        sub_data$fea <- paste(sub_data$PSM, sub_data$Protein, sep="_")
+        sub_data$fea <- paste(sub_data$PSM, sub_data$ProteinName, sep="_")
         sub_data$fea <- factor(sub_data$fea)
 
         ## count how many fractions are assigned for each peptide ion

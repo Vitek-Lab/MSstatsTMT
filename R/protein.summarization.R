@@ -45,7 +45,7 @@ protein.summarization <- function(data,
 
 
     ## check input
-    required.info <- c('Protein', 'PSM', 'Channel', 'BioReplicate', 'Run', 'Mixture', 'Condition', 'Intensity')
+    required.info <- c('ProteinName', 'PSM', 'Channel', 'BioReplicate', 'Run', 'Mixture', 'Condition', 'Intensity')
 
     if (!all(required.info %in% colnames(data))) {
 

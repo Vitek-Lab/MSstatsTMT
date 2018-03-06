@@ -1,7 +1,8 @@
 
 #' Example of output from Proteome Discoverer for TMT10 experiments.
 #'
-#' Example of Proteome discover PSM sheet. It is the input for PDtoMSstatsTMTFormat function, with annotation file.
+#' Example of Proteome discover PSM sheet.
+#' It is the input for PDtoMSstatsTMTFormat function, with annotation file.
 #' It includes peak intensities for 10 proteins among 15 MS runs with TMT10.
 #' The variables are as follows:
 #'
@@ -24,7 +25,8 @@
 
 #' Example of annotation file for raw.input
 #'
-#' Annotation of example data, raw.input, in this package. It should be prepared by users.
+#' Annotation of example data, raw.input, in this package.
+#' It should be prepared by users.
 #' The variables are as follows:
 #'
 #' \itemize{
@@ -45,7 +47,8 @@
 #' Example of output from PDtoMSstatsTMTFormat function
 #'
 #' It is formated from raw.input and annotation.
-#' It is the output of PDtoMSstatsTMTFormat function and the input for protein.summarization function.
+#' It is the output of PDtoMSstatsTMTFormat function
+#' and the input for protein.summarization function.
 #' It should includes the required columns as below.
 #' The variables are as follows:
 #'

@@ -3,6 +3,7 @@
 #' Convert MaxQuant output into the required input format for MSstatsTMT.
 #'
 #' @export
+#' @importFrom dplyr summarise n
 #' @param evidence name of 'evidence.txt' data, which includes feature-level data.
 #' @param proteinGroups name of 'proteinGroups.txt' data.
 #' @param annotation data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.
@@ -360,7 +361,7 @@ MQtoMSstatsTMTFormat <- function(evidence,
         stop('** Please add them to annotation file.')
     }
 
-    input.final <- data.frame("Protein" = input$ProteinName,
+    input.final <- data.frame("ProteinName" = input$ProteinName,
                             "PeptideSequence" = input$PeptideSequence,
                             "Charge" = input$Charge,
                             "PSM" = paste(input$PeptideSequence, input$Charge, sep="_"),
@@ -402,15 +403,15 @@ MQtoMSstatsTMTFormat <- function(evidence,
     if (removeProtein_with1Feature) {
 
         ## remove protein which has only one peptide
-        tmp <- unique(input[, c("Protein", 'PSM')])
-        tmp$Protein <- factor(tmp$Protein)
-        count <- xtabs( ~ Protein, data=tmp)
+        tmp <- unique(input[, c("ProteinName", 'PSM')])
+        tmp$ProteinName <- factor(tmp$ProteinName)
+        count <- xtabs( ~ ProteinName, data=tmp)
         lengthtotalprotein <- length(count)
 
         removepro <- names(count[count <= 1])
 
         if (length(removepro) > 0) {
-            input <- input[-which(input$Protein %in% removepro), ]
+            input <- input[-which(input$ProteinName %in% removepro), ]
             message(paste0("** ", length(removepro),
                           ' proteins, which have only one feature in a protein, are removed among ',
                           lengthtotalprotein, ' proteins.'))

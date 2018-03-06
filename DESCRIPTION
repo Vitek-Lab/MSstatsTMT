@@ -10,7 +10,7 @@ Authors@R: c(
 Maintainer: Ting Huang <thuang0703@gmail.com>
 License: Artistic-2.0
 Depends: R (>= 3.4.0)
-Imports: limma, lme4, dplyr, tidyr, nlme, reshape2, data.table, matrixStats, stats, utils, MASS, affy
+Imports: limma, lme4, dplyr, tidyr, nlme, reshape2, data.table, matrixStats, stats, utils, MASS, affy, ggplot2, grDevices, graphics
 Suggests: BiocStyle, knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: MassSpectrometry, Proteomics, Software
