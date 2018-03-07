@@ -175,8 +175,11 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
     	tempGroupName <- unique(datafeature[, c("Condition", "xorder", "Run", "Channel")])
 
     	## count # per condition per Run
-    	groupline <- unique(datafeature[, c('Condition', 'Run')])
-    	groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
+    	#groupline <- unique(datafeature[, c('Condition', 'Run')])
+    	#groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
+    	groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis = n())
+    	groupline <- groupline %>% select(-xorder, -Channel)
+    	groupline <- groupline[!duplicated(groupline), ]
 
     	## make accumurated # as condition increase
     	groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis=cumsum(groupAxis))
@@ -547,7 +550,7 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
        	}
 
        	## check
-       	## unique(datafeature[datafeature$Run == '5', c('Channel', 'Condition', 'Run', 'xorder','group.channel')])
+       	## unique(datafeature[datafeature$Run == 'PAMI-176_Mouse_K-T', c('Channel', 'Condition', 'Run', 'xorder','group.channel')])
 
        	## need to make data.frame with same variables for condition name
        	datafeature$xorder <- as.numeric(datafeature$xorder)
@@ -555,8 +558,11 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
        	tempGroupName <- unique(datafeature[, c("Condition", "xorder", "Run", "Channel")])
 
        	## count # per condition per Run
-       	groupline <- unique(datafeature[, c('Condition', 'Run')])
-       	groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
+       	#groupline <- unique(datafeature[, c('Condition', 'Run')])
+       	#groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
+       	groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis = n())
+        groupline <- groupline %>% select(-xorder, -Channel)
+        groupline <- groupline[!duplicated(groupline), ]
 
        	## make accumurated # as condition increase
        	groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis=cumsum(groupAxis))
