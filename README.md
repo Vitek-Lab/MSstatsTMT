@@ -12,7 +12,7 @@ Local build and install
 
 Github install
 
-devtools::install_github(repo = "Vitek-Lab/MSstatsTMT",auth_token = "0c4ece2b7e9aab30c8b1941e319a2c97fb2eb94e")
+devtools::install_github(repo = "Vitek-Lab/MSstatsTMT",auth_token = "e746d301b801a834fb047d7a6be7a707a184fef2")
 
 
 Note: Please let Sicheng know if the token is not working, and he will fix it. Also, don't share the token.
