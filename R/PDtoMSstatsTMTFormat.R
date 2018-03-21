@@ -100,7 +100,7 @@ PDtoMSstatsTMTFormat <- function(input,
                                                 'Ions.Score', 'Spectrum.File', 'Quan.Info',
                                                 channels))]
 
-    colnames(input)[colnames(input) == 'Protein.Group.Accessions'] <- 'ProteinName'
+    colnames(input)[colnames(input) == 'Master.Protein.Accessions'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Protein.Accessions'] <- 'ProteinName'
 
     colnames(input)[colnames(input) == 'X..Proteins'] <- 'numProtein'

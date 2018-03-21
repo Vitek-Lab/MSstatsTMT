@@ -49,7 +49,7 @@ Preprocess PSM data from Proteome Discoverer and convert into the required input
 ```{r}
 head(raw.input)
 head(annotation)
-required.input <- PDtoMSstatsTMTFormat(raw.input, annotation)
+required.input <- PDtoMSstatsTMTFormat(raw.input, annotation, which.proteinid = "Master.Protein.Accessions")
 head(required.input)
 ```
 
@@ -95,5 +95,26 @@ Tests for significant changes in protein abundance across conditions based on a 
 quant.byprotein <- protein.summarization(required.input,
                                          method = "MedianPolish",
                                          normalization=TRUE)
+
+# Do all the pairwise comparison
 test.byproposed <- groupComparison.TMT(quant.byprotein)
+
+# Only compare condition 0.125 and 1 
+levels(quant.byprotein$Condition)
+# 'Norm' should be not considered in the contrast
+comparison<-matrix(c(-1,0,0,1),nrow=1)
+# Set the names of each row
+row.names(comparison)<-"1-0.125"
+# Set the column names
+colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
+test.contrast <- groupComparison.TMT(data = quant.byprotein, contrast.matrix = comparison)
+
+# Compare 0.125 and 1, 0.5 and 0.667
+comparison<-matrix(c(-1,0,0,1, 0,-1,1,0),nrow=2)
+# Set the names of each row
+row.names(comparison)<-c("1-0.125", "0.667-0.5")
+# Set the column names
+colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
+test.contrast <- groupComparison.TMT(data = quant.byprotein, contrast.matrix = comparison)
+
 ```
