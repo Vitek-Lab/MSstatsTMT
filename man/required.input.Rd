@@ -4,7 +4,7 @@
 \name{required.input}
 \alias{required.input}
 \title{Example of output from PDtoMSstatsTMTFormat function}
-\format{A data frame with 14740 rows and 8 variables.}
+\format{A data frame with 14740 rows and 9 variables.}
 \usage{
 required.input
 }
@@ -17,7 +17,7 @@ The variables are as follows:
 }
 \details{
 \itemize{
-  \item Protein : Protein ID
+  \item ProteinName : Protein ID
   \item PeptideSequence : Peptide sequence
   \item Charge : Ion charge
   \item PSM : combination of Peptide sequence and charge

@@ -1,6 +1,6 @@
 Package: MSstatsTMT
 Title: Protein Significance Analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling
-Version: 0.3.4
+Version: 0.3.5
 Date: 2018-03-20
 Description: Tools for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling.
 Authors@R: c(
