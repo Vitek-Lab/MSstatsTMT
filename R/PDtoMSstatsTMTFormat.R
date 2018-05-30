@@ -36,7 +36,7 @@ PDtoMSstatsTMTFormat <- function(input,
     ## 0. check input for annotation
     ################################################
     #required.annotation <- c("Run", "Channel", "Group", "BiologicalMixture", "Subject")
-    required.annotation <- c("Run", "Channel", "Condition", "BioReplicate")
+    required.annotation <- c("Run", "Channel", "Condition", "BioReplicate", "Mixture")
 
     if (!all(required.annotation %in% colnames(annotation))) {
 
@@ -94,6 +94,8 @@ PDtoMSstatsTMTFormat <- function(input,
     ## 2. get subset of columns
     ################################################
 
+    # make sure the input is data frame format
+    input <- as.data.frame(input)
     channels <- as.character(unique(annotation$Channel))
     input <- input[, which(colnames(input) %in% c(which.pro, which.NumProteins,
                                                 'Annotated.Sequence', 'Charge',
@@ -125,21 +127,24 @@ PDtoMSstatsTMTFormat <- function(input,
 
     if (useUniquePeptide) {
 
-        input <- input[input$Quan.Info == 'Unique', ]
+        # make sure Quan.Info has 'unique' value
+        if('Unique' %in% unique(input$Quan.Info)){
+            input <- input[input$Quan.Info == 'Unique', ]
 
-        ## double check
-        pepcount <- unique(input[, c("ProteinName", "PeptideSequence")])
-        pepcount$PeptideSequence <- factor(pepcount$PeptideSequence)
+            ## double check
+            pepcount <- unique(input[, c("ProteinName", "PeptideSequence")])
+            pepcount$PeptideSequence <- factor(pepcount$PeptideSequence)
 
-        ## count how many proteins are assigned for each peptide
-        structure <- aggregate(ProteinName ~., data=pepcount, length)
-        remove_peptide <- structure[structure$ProteinName != 1, ]
+            ## count how many proteins are assigned for each peptide
+            structure <- aggregate(ProteinName ~., data=pepcount, length)
+            remove_peptide <- structure[structure$ProteinName != 1, ]
 
-        ## remove the peptides which are used in more than one protein
-        if (sum(remove_peptide$ProteinName != 1) != 0) {
-            input <- input[-which(input$PeptideSequence %in% remove_peptide$PeptideSequence), ]
+            ## remove the peptides which are used in more than one protein
+            if (sum(remove_peptide$ProteinName != 1) != 0) {
+                input <- input[-which(input$PeptideSequence %in% remove_peptide$PeptideSequence), ]
 
-            message('** Peptides, that are used in more than one proteins, are removed.')
+                message('** Peptides, that are used in more than one proteins, are removed.')
+            }
         }
     }
 
@@ -189,8 +194,11 @@ PDtoMSstatsTMTFormat <- function(input,
                                             subsub2)
                 } else {
                     ## decision2 : keep the row with higher identification score
-                    subsub3 <- subsub2[subsub2$Ions.Score == max(subsub2$Ions.Score), ] ## which.max choose only one row
-
+                    if(sum(is.na(subsub2$Ions.Score)) == 0){ # make sure Ions.Score is available
+                        subsub3 <- subsub2[subsub2$Ions.Score == max(subsub2$Ions.Score), ] ## which.max choose only one row
+                    } else {
+                        subsub3 <- subsub2
+                    }
                     if (nrow(subsub3) < 2) {
                         keepinfo.select <- rbind(keepinfo.select, subsub3)
                     } else {
@@ -226,6 +234,8 @@ PDtoMSstatsTMTFormat <- function(input,
                     variable.name = "Channel",
                     value.name = "Intensity")
 
+    # make sure no dupliate rows
+    input.long <- unique(input.long)
     input <- input.long
     rm(input.long)
 
@@ -316,9 +326,10 @@ PDtoMSstatsTMTFormat <- function(input,
       input <- combine.fractions(input)
       ## change data.table to data.frame, in order to make the same class for input, without fraction
       input <- as.data.frame(input)
+      # make sure no dupliate rows
+      input <- unique(input)
       message('** Fractions belonging to same mixture have been combined.')
     }
-
     return(input)
 }
 

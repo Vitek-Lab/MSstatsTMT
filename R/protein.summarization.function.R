@@ -12,6 +12,8 @@
 protein.summarization.function <- function(data, method, normalization){
 
     data <- as.data.table(data)
+    ## make sure the protein ID is character
+    data$ProteinName <- as.character(data$ProteinName)
     ## make new column: combination of run and channel
     data$runchannel <- paste(data$Run, data$Channel, sep = '_')
 
