@@ -3,6 +3,8 @@
 #' Convert Proteome discoverer output into the required input format for MSstatsTMT.
 #'
 #' @export
+#' @import tidyr
+#' @import dplyr
 #' @importFrom reshape2 melt
 #' @importFrom data.table as.data.table setkey rbindlist
 #' @param input data name of Proteome discover PSM output. Read PSM sheet.
@@ -26,7 +28,7 @@ PDtoMSstatsTMTFormat <- function(input,
                                 fraction = FALSE,
                                 useNumProteinsColumn = TRUE,
                                 useUniquePeptide = TRUE,
-                                summaryforMultipleRows = max,
+                                summaryforMultipleRows = sum,
                                 removePSM_withMissingValue_withinRun = TRUE,
                                 removeProtein_with1Feature = FALSE,
                                 which.proteinid = 'Protein.Accessions'){
@@ -101,6 +103,9 @@ PDtoMSstatsTMTFormat <- function(input,
                                                 'Annotated.Sequence', 'Charge',
                                                 'Ions.Score', 'Spectrum.File', 'Quan.Info',
                                                 channels))]
+    tmp <- input[,channels]
+    missings <- apply(tmp, 1, function(x) sum(is.na(x)))
+    input <- input[missings != length(channels), ]
 
     colnames(input)[colnames(input) == 'Master.Protein.Accessions'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Protein.Accessions'] <- 'ProteinName'
@@ -194,7 +199,7 @@ PDtoMSstatsTMTFormat <- function(input,
                                             subsub2)
                 } else {
                     ## decision2 : keep the row with higher identification score
-                    if(sum(is.na(subsub2$Ions.Score)) == 0){ # make sure Ions.Score is available
+                    if("Ions.Score" %in% names(subsub2) & (sum(is.na(subsub2$Ions.Score)) == 0)){ # make sure Ions.Score is available
                         subsub3 <- subsub2[subsub2$Ions.Score == max(subsub2$Ions.Score), ] ## which.max choose only one row
                     } else {
                         subsub3 <- subsub2
@@ -205,7 +210,7 @@ PDtoMSstatsTMTFormat <- function(input,
                         ## decision3 : ## maximum or sum up abundances among intensities for identical features within one run
                         subsub3$totalmea <- apply(subsub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
                         subsub4 <- subsub3[subsub3$totalmea == max(subsub3$totalmea), ]
-                        subsub4 <- subsub4[, which(colnames(keepinfo.select) != "totalmea")]
+                        subsub4 <- subsub4[, which(colnames(subsub4) != "totalmea")]
                         keepinfo.select <- rbind(keepinfo.select, subsub4)
                         rm(subsub4)
                     }
@@ -235,9 +240,11 @@ PDtoMSstatsTMTFormat <- function(input,
                     value.name = "Intensity")
 
     # make sure no dupliate rows
+    input.long <- input.long[!is.na(input.long$Intensity), ]
     input.long <- unique(input.long)
     input <- input.long
     rm(input.long)
+    rm(input.new)
 
     ##############################
     ## 5. add annotation
@@ -333,37 +340,55 @@ PDtoMSstatsTMTFormat <- function(input,
     return(input)
 }
 
-
 ## Remove the peptide ions overlapped among multiple fractions of same biological mixture
 ## data: PSM level data, which has columns Protein, PSM, BioReplicate, Run, Channel, Intensity, Mixture
 combine.fractions <- function(data){
 
+    # combine fractions for each mixture
     mixtures <- unique(data$Mixture)
     data <- as.data.table(data)
     data$Run <- as.character(data$Run)
-    all.data <- list()
 
+    all.data <- list()
     for (i in 1: length(mixtures)) {
         sub_data <- data[Mixture == mixtures[i]]
         sub_data <- sub_data[!is.na(Intensity)]
         sub_data$fea <- paste(sub_data$PSM, sub_data$ProteinName, sep="_")
         sub_data$fea <- factor(sub_data$fea)
+        sub_data$id <- paste(sub_data$fea, sub_data$Run, sep="_")
 
         ## count how many fractions are assigned for each peptide ion
         structure <- aggregate(Run ~ . , data=unique(sub_data[, .(fea, Run)]), length)
+        ## 1. first, keep features which are measured in one fraction
         remove_peptide_ion <- structure[structure$Run > 1, ]
 
-        ## remove the peptide ions which are shared by multiple fractions
-        if (sum(remove_peptide_ion$Run > 1) != 0) {
-            sub_data <- sub_data[!fea %in% remove_peptide_ion$fea ]
-            message('** Peptides, that are shared by more than one fraction of mixture ', mixtures[i],', are removed.')
+        ## 2. second, if features are measured in multiple fractionations,
+        ## use the fractions with maximum average.
+        ## remove_peptide_ion : features that are measured in multiple fractions
+        if (nrow(remove_peptide_ion) > 0) {
+            # select the rows for overlapped PSM
+            tmp <- sub_data[which(sub_data$fea %in% remove_peptide_ion$fea), ]
+            tmp <- tmp[!is.na(tmp$Intensity), ]
+
+            # keep the fractions with maximum average PSM abundance
+            mean.frac.feature <- tmp %>% group_by(fea, id) %>% summarise(mean=mean(Intensity, na.rm = TRUE))
+            remove.fraction <- mean.frac.feature %>% group_by(fea) %>% filter(mean != max(mean))
+            filtered_sub_data <- sub_data %>% filter(!id %in% remove.fraction$id)
+
+            rm(mean.frac.feature)
+            rm(remove.fraction)
+            rm(tmp)
+            message('** For peptides overlapped between fractions of ', mixtures[i],', use the fraction with maximal average abundance.')
+            filtered_sub_data <- filtered_sub_data[, -which(colnames(filtered_sub_data) %in% c('id'))]
+        } else{
+            filtered_sub_data <- sub_data
         }
-        sub_data_shared_pep_rm <- sub_data[,  fea:= NULL]
-        all.data[[i]] <- as.data.table(sub_data_shared_pep_rm)
+        all.data[[i]] <- as.data.table(filtered_sub_data)
     }
+
     data.shared.pep.rm <- rbindlist(all.data)
     data.shared.pep.rm$Run <- data.shared.pep.rm$Mixture
     ## The fractions have been combined.
-    data.shared.pep.rm$Mixture <- "Single"
+    data.shared.pep.rm$Mixture <- "1"
     return(data.shared.pep.rm)
 }

@@ -31,7 +31,7 @@ MQtoMSstatsTMTFormat <- function(evidence,
                                 remove.Only.identified.by.site = FALSE,
                                 which.proteinid = 'Proteins',
                                 useUniquePeptide = TRUE,
-                                summaryforMultipleRows = max,
+                                summaryforMultipleRows = sum,
                                 removePSM_withMissingValue_withinRun = TRUE,
                                 removeProtein_with1Feature = FALSE){
 
@@ -42,7 +42,7 @@ MQtoMSstatsTMTFormat <- function(evidence,
     ## 0. check input for annotation
     ################################################
     #required.annotation <- c("Run", "Channel", "Group", "BiologicalMixture", "Subject")
-    required.annotation <- c("Run", "Channel", "Condition", "BioReplicate")
+    required.annotation <- c("Run", "Channel", "Condition", "BioReplicate", "Mixture")
 
     if (!all(required.annotation %in% colnames(annotation))) {
 
@@ -338,8 +338,11 @@ MQtoMSstatsTMTFormat <- function(evidence,
                     variable.name = "Channel",
                     value.name = "Intensity")
 
+    input.long <- input.long[!is.na(input.long$Intensity), ]
     input <- input.long
     rm(input.long)
+    rm(input.new)
+
 
     ## channel prefix for channel
     input$Channel <- gsub(inputlevel, 'channel', input$Channel)
@@ -431,8 +434,3 @@ MQtoMSstatsTMTFormat <- function(evidence,
 
     return(input)
 }
-
-
-## Remove the peptide ions overlapped among multiple fractions of same biological mixture
-## data: PSM level data, which has columns Protein, PSM, BioReplicate, Run, Channel, Intensity, Mixture
-## combine.fractions function is available in PDtoMSstatsTMTFormat.R
