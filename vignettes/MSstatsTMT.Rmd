@@ -49,7 +49,7 @@ Preprocess PSM data from Proteome Discoverer and convert into the required input
 ```{r}
 head(raw.input)
 head(annotation)
-required.input <- PDtoMSstatsTMTFormat(raw.input, annotation, which.proteinid = "Master.Protein.Accessions")
+required.input <- PDtoMSstatsTMTFormat(input = raw.input, annotation = annotation, which.proteinid = "Master.Protein.Accessions")
 head(required.input)
 ```
 

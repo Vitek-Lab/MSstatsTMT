@@ -93,7 +93,7 @@ groupComparison.TMT <- function(data,
 
     ## remove 'Norm' column : It should not used for inference
     if (remove_norm_channel & is.element('Norm', unique(data$Group))) {
-        data <- data %>% filter(Group != "Norm")
+        data <- data[data$Group != "Norm",]
         data$Group <- factor(data$Group)
     }
 

@@ -6,7 +6,7 @@
 \usage{
 MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation, fraction = FALSE,
   remove.Only.identified.by.site = FALSE, which.proteinid = "Proteins",
-  useUniquePeptide = TRUE, summaryforMultipleRows = max,
+  useUniquePeptide = TRUE, summaryforMultipleRows = sum,
   removePSM_withMissingValue_withinRun = TRUE,
   removeProtein_with1Feature = FALSE)
 }

@@ -31,7 +31,7 @@ PDtoMSstatsTMTFormat <- function(input,
                                 summaryforMultipleRows = sum,
                                 removePSM_withMissingValue_withinRun = TRUE,
                                 removeProtein_with1Feature = FALSE,
-                                which.proteinid = 'Protein.Accessions'){
+                                which.proteinid = 'Master.Protein.Accessions'){
 
 
     ################################################
@@ -101,11 +101,8 @@ PDtoMSstatsTMTFormat <- function(input,
     channels <- as.character(unique(annotation$Channel))
     input <- input[, which(colnames(input) %in% c(which.pro, which.NumProteins,
                                                 'Annotated.Sequence', 'Charge',
-                                                'Ions.Score', 'Spectrum.File', 'Quan.Info',
+                                                'Ions.Score', 'Spectrum.File', 'Quan.Info', 'Isolation.Interference....',
                                                 channels))]
-    tmp <- input[,channels]
-    missings <- apply(tmp, 1, function(x) sum(is.na(x)))
-    input <- input[missings != length(channels), ]
 
     colnames(input)[colnames(input) == 'Master.Protein.Accessions'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Protein.Accessions'] <- 'ProteinName'
@@ -115,6 +112,14 @@ PDtoMSstatsTMTFormat <- function(input,
 
     colnames(input)[colnames(input) == 'Annotated.Sequence'] <- 'PeptideSequence'
     colnames(input)[colnames(input) == 'Spectrum.File'] <- 'Run'
+
+    # remove the rows which has missing values
+    tmp <- input[,channels]
+    missings <- apply(tmp, 1, function(x) sum(is.na(x)))
+    input <- input[missings != length(channels), ]
+
+    # remove the rows whose protein ID is empty
+    input <- input[(input$ProteinName != "") & (!is.na(input$ProteinName)), ]
 
     ################################################
     ## 3. remove peptides which are used in more than one protein
@@ -197,39 +202,57 @@ PDtoMSstatsTMTFormat <- function(input,
                 if (nrow(subsub2) < 2) {
                     keepinfo.select <- rbind(keepinfo.select,
                                             subsub2)
+                    next()
                 } else {
-                    ## decision2 : keep the row with higher identification score
-                    if("Ions.Score" %in% names(subsub2) & (sum(is.na(subsub2$Ions.Score)) == 0)){ # make sure Ions.Score is available
-                        subsub3 <- subsub2[subsub2$Ions.Score == max(subsub2$Ions.Score), ] ## which.max choose only one row
+                    ## decision2 : keep the row with lowest isolation interference
+                    if("Isolation.Interference...." %in% names(subsub2) & (sum(is.na(subsub2$Isolation.Interference....)) == 0)){ # make sure Isolation.Interference.... is available
+                        subsub3 <- subsub2[subsub2$Isolation.Interference.... == min(subsub2$Isolation.Interference....), ]
                     } else {
                         subsub3 <- subsub2
                     }
+
+
                     if (nrow(subsub3) < 2) {
                         keepinfo.select <- rbind(keepinfo.select, subsub3)
+                        next()
                     } else {
-                        ## decision3 : ## maximum or sum up abundances among intensities for identical features within one run
-                        subsub3$totalmea <- apply(subsub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
-                        subsub4 <- subsub3[subsub3$totalmea == max(subsub3$totalmea), ]
-                        subsub4 <- subsub4[, which(colnames(subsub4) != "totalmea")]
-                        keepinfo.select <- rbind(keepinfo.select, subsub4)
+                        ## decision3 : keep the row with higher identification score
+                        if("Ions.Score" %in% names(subsub2) & (sum(is.na(subsub2$Ions.Score)) == 0)){ # make sure Ions.Score is available
+                            subsub4 <- subsub3[subsub2$Ions.Score == max(subsub2$Ions.Score), ] ## which.max choose only one row
+                        } else {
+                            subsub4 <- subsub3
+                        }
+
+
+                        if (nrow(subsub4) < 2) {
+                            keepinfo.select <- rbind(keepinfo.select, subsub4)
+                            next()
+                        } else {
+                            ## decision4 : ## maximum or sum up abundances among intensities for identical features within one run
+                            subsub4$totalmea <- apply(subsub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                            subsub5 <- subsub4[subsub4$totalmea == max(subsub4$totalmea), ]
+                            subsub5 <- subsub5[, which(colnames(subsub4) != "totalmea")]
+                            keepinfo.select <- rbind(keepinfo.select, subsub5)
+                            rm(subsub5)
+                        }
                         rm(subsub4)
                     }
                     rm(subsub3)
-
                 }
                 rm(subsub2)
+                rm(subsub)
             }
         }
         keepinfo.select <- keepinfo.select[, -which(colnames(keepinfo.select) %in% c('nmea'))]
         input.new <- rbind(input.no, keepinfo.select)
 
         input.new <- input.new[, -which(colnames(input.new) %in%
-                                            c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue'))]
+                                            c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue', 'Isolation.Interference....'))]
 
         message('** Multiple measurements in a feature and a run are summarized by summaryforMultipleRows.')
 
     } else {
-        input.new <- input[, -which(colnames(input) %in% c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue'))]
+        input.new <- input[, -which(colnames(input) %in% c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue', 'Isolation.Interference....'))]
     }
 
     # make long format
@@ -379,10 +402,11 @@ combine.fractions <- function(data){
             rm(remove.fraction)
             rm(tmp)
             message('** For peptides overlapped between fractions of ', mixtures[i],', use the fraction with maximal average abundance.')
-            filtered_sub_data <- filtered_sub_data[, -which(colnames(filtered_sub_data) %in% c('id'))]
         } else{
             filtered_sub_data <- sub_data
         }
+        # Remove unnecessary columns
+        filtered_sub_data <- filtered_sub_data[, -which(colnames(filtered_sub_data) %in% c('id', 'fea'))]
         all.data[[i]] <- as.data.table(filtered_sub_data)
     }
 

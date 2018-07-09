@@ -6,9 +6,9 @@
 \usage{
 PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
   useNumProteinsColumn = TRUE, useUniquePeptide = TRUE,
-  summaryforMultipleRows = max, removePSM_withMissingValue_withinRun = TRUE,
+  summaryforMultipleRows = sum, removePSM_withMissingValue_withinRun = TRUE,
   removeProtein_with1Feature = FALSE,
-  which.proteinid = "Protein.Accessions")
+  which.proteinid = "Master.Protein.Accessions")
 }
 \arguments{
 \item{input}{data name of Proteome discover PSM output. Read PSM sheet.}
