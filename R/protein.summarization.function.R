@@ -43,6 +43,8 @@ protein.summarization.function <- function(data,
         runchannel.id <- unique(data$runchannel)
         num.run <- length(runs)
 
+        res <- NULL
+
         for (i in 1:num.run) {
             ## For each run, use msstats dataprocess
             message(paste("Summarizing for Run :", runs[i] , "(", i, " of ", num.run, ")"))
@@ -54,16 +56,18 @@ protein.summarization.function <- function(data,
                                           MBimpute = MBimpute,
                                           maxQuantileforCensored = maxQuantileforCensored)
             ## output.msstats$RunlevelData : include the protein level summary
-            res <- output.msstats$RunlevelData
-            res <- res[which(colnames(res) %in% c('Protein', 'LogIntensities', 'originalRUN'))]
-            colnames(res)[colnames(res) == 'LogIntensities'] <- 'Abundance'
-            colnames(res)[colnames(res) == 'originalRUN'] <- 'runchannel'
-            res$runchannel <- as.character(res$runchannel)
+            res.sub <- output.msstats$RunlevelData
+            res.sub <- res.sub[which(colnames(res.sub) %in% c('Protein', 'LogIntensities', 'originalRUN'))]
+            colnames(res.sub)[colnames(res.sub) == 'LogIntensities'] <- 'Abundance'
+            colnames(res.sub)[colnames(res.sub) == 'originalRUN'] <- 'runchannel'
+            res.sub$runchannel <- as.character(res.sub$runchannel)
             annotation$runchannel <- as.character(annotation$runchannel)
-            res <- left_join(res, annotation, by='runchannel')
+            res.sub <- left_join(res.sub, annotation, by='runchannel')
 
             ## remove runchannel column
-            res <- res[, -which(colnames(res) %in% 'runchannel')]
+            res.sub <- res.sub[, -which(colnames(res.sub) %in% 'runchannel')]
+
+            res <- rbind(res, res.sub)
 
         }
         ## 2018 07 09 : end, if you want to remove, please remove else below.
