@@ -9,7 +9,12 @@
 #' @importFrom MASS huber
 #' @importFrom affy generateExprVal.method.mas
 #' @importFrom data.table :=
-protein.summarization.function <- function(data, method, normalization){
+protein.summarization.function <- function(data,
+                                           method,
+                                           normalization,
+                                           MBimpute,
+                                           censoredInt,
+                                           maxQuantileforCensored){
 
     data <- as.data.table(data)
     ## make sure the protein ID is character
@@ -17,98 +22,147 @@ protein.summarization.function <- function(data, method, normalization){
     ## make new column: combination of run and channel
     data$runchannel <- paste(data$Run, data$Channel, sep = '_')
 
-    ## makae intensity transformed
-    data$log2Intensity <- log2(data$Intensity)
+    ## 2018 07 09 : start by Meena
+    if (method == 'msstats'){
 
-    ## Number of negative values : if intensity is less than 1, replace with zero
-    ## then we don't need to worry about -Inf = log2(0)
-    if (nrow(data[!is.na(data$Intensity) & data$Intensity < 1]) > 0){
-        data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- 0
-        message('** Negative log2 intensities were replaced with zero.')
-    }
+        ## Record the group information
+        annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate', 'Condition', 'Mixture', 'runchannel')])
 
-    ## Record the group information
-    annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate', 'Condition', 'Mixture', 'runchannel')])
-    data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel', 'BioReplicate', 'runchannel')]
+        ## need to change the column for MSstats
+        colnames(data)[colnames(data) == 'Charge'] <- 'PrecursorCharge'
+        colnames(data)[colnames(data) == 'Run'] <- 'MSRun'
+        colnames(data)[colnames(data) == 'runchannel'] <- 'Run' ## channel should be 'Run' for MSstats
 
-    proteins <- unique(data$ProteinName)
-    num.protein <- length(proteins)
-    runs <- unique(data$Run)
-    runchannel.id <- unique(data$runchannel)
+        data$FragmentIon <- NA
+        data$ProductCharge <- NA
+        data$IsotopeLabelType <- 'L'
 
-    ## Store the estimated protein abundance
-    protein.abundance <- matrix(rep(NA, length(runchannel.id)*length(proteins)), nrow = length(proteins))
-    colnames(protein.abundance) <- runchannel.id
+        proteins <- unique(data$ProteinName)
+        num.protein <- length(proteins)
+        runs <- unique(data$MSRun)
+        runchannel.id <- unique(data$runchannel)
+        num.run <- length(runs)
 
-    ## For each protein and each run, do the summarization individually
-    for (i in 1:length(proteins)) {
-        message(paste("Summarizing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
+        for (i in 1:num.run) {
+            ## For each run, use msstats dataprocess
+            message(paste("Summarizing for Run :", runs[i] , "(", i, " of ", num.run, ")"))
+            sub_data <- data %>% filter(MSRun == runs[i])
+            output.msstats <- dataProcess(sub_data,
+                                          normalization=FALSE,
+                                          summaryMethod = 'TMP',
+                                          censoredInt=censoredInt,
+                                          MBimpute = MBimpute,
+                                          maxQuantileforCensored = maxQuantileforCensored)
+            ## output.msstats$RunlevelData : include the protein level summary
+            res <- output.msstats$RunlevelData
+            res <- res[which(colnames(res) %in% c('Protein', 'LogIntensities', 'originalRUN'))]
+            colnames(res)[colnames(res) == 'LogIntensities'] <- 'Abundance'
+            colnames(res)[colnames(res) == 'originalRUN'] <- 'runchannel'
+            res$runchannel <- as.character(res$runchannel)
+            annotation$runchannel <- as.character(annotation$runchannel)
+            res <- left_join(res, annotation, by='runchannel')
 
-        for (j in 1:length(runs)) {
-            sub_data <- data %>% filter(ProteinName == proteins[i] & Run == runs[j])
+            ## remove runchannel column
+            res <- res[, -which(colnames(res) %in% 'runchannel')]
 
-            if (nrow(sub_data) != 0) {
-                nfea <- length(unique(sub_data$PSM))
-                ## Change the long format to wide format
-                sub_data_wide <- sub_data %>%
-                    dplyr::select(log2Intensity, PSM, runchannel) %>%
-                    tidyr::spread(runchannel, log2Intensity)
-                rownames(sub_data_wide) <- sub_data_wide[,1]
-                sub_data_wide <- sub_data_wide[,-1]
+        }
+    ## 2018 07 09 : end, if you want to remove, please remove else below.
+    } else {
 
-                ## Number of negative values
-                #index <- which(apply(sub_data_wide, 1, function(col) any(col < 0)))
-                #if (length(index) != 0) {
-                #    sub_data_wide[!is.na(sub_data_wide) & sub_data_wide < 0 ] <- 0
-                #}
+        ## makae intensity transformed
+        data$log2Intensity <- log2(data$Intensity)
 
-                if (nrow(sub_data_wide) != 0) {
-                    if (nrow(sub_data_wide) == 1) { # Only one PSM for the protein
-                        protein.abundance[i, colnames(sub_data_wide)] <- as.matrix(sub_data_wide)
-                    } else {
-                        if (method == "LogSum") {
-                            # log2 (sum of original intensity)
-                            protein.abundance[i, colnames(sub_data_wide)] <- log2(colSums(2^sub_data_wide, na.rm = TRUE))
-                        }
+        ## Number of negative values : if intensity is less than 1, replace with zero
+        ## then we don't need to worry about -Inf = log2(0)
+        if (nrow(data[!is.na(data$Intensity) & data$Intensity < 1]) > 0){
+            data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- 0
+            message('** Negative log2 intensities were replaced with zero.')
+        }
 
-                        if (method == "Median") {
-                            #Median
-                            protein.abundance[i, colnames(sub_data_wide)] <- colMedians(as.matrix(sub_data_wide, na.rm = TRUE))
-                        }
-                        if (method == "Biweight") {
-                            #Biweight
-                            protein.abundance[i, colnames(sub_data_wide)] <- log2(generateExprVal.method.mas(as.matrix(2^sub_data_wide))$exprs)
-                        }
-                        if (method == "MedianPolish") {
-                            #median polish
-                            meddata  <-  stats::medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
-                            tmpresult <- meddata$overall + meddata$col
-                            protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
-                        }
-                        if (method == "Huber") {
-                            #Huber
-                            protein.abundance[i, colnames(sub_data_wide)] <- unlist(apply(as.matrix(sub_data_wide), 2,
-                                                                                          function(x) huber(x, k = 1.345)$mu))
+        ## Record the group information
+        annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate', 'Condition', 'Mixture', 'runchannel')])
+        data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel', 'BioReplicate', 'runchannel')]
+
+        proteins <- unique(data$ProteinName)
+        num.protein <- length(proteins)
+        runs <- unique(data$Run)
+        runchannel.id <- unique(data$runchannel)
+
+        ## Store the estimated protein abundance
+        protein.abundance <- matrix(rep(NA, length(runchannel.id)*length(proteins)), nrow = length(proteins))
+        colnames(protein.abundance) <- runchannel.id
+
+        ## For each protein and each run, do the summarization individually
+        for (i in 1:length(proteins)) {
+            message(paste("Summarizing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
+
+            for (j in 1:length(runs)) {
+                sub_data <- data %>% filter(ProteinName == proteins[i] & Run == runs[j])
+
+                if (nrow(sub_data) != 0) {
+                    nfea <- length(unique(sub_data$PSM))
+                    ## Change the long format to wide format
+                    sub_data_wide <- sub_data %>%
+                        dplyr::select(log2Intensity, PSM, runchannel) %>%
+                        tidyr::spread(runchannel, log2Intensity)
+                    rownames(sub_data_wide) <- sub_data_wide[,1]
+                    sub_data_wide <- sub_data_wide[,-1]
+
+                    ## Number of negative values
+                    #index <- which(apply(sub_data_wide, 1, function(col) any(col < 0)))
+                    #if (length(index) != 0) {
+                    #    sub_data_wide[!is.na(sub_data_wide) & sub_data_wide < 0 ] <- 0
+                    #}
+
+                    if (nrow(sub_data_wide) != 0) {
+                        if (nrow(sub_data_wide) == 1) { # Only one PSM for the protein
+                            protein.abundance[i, colnames(sub_data_wide)] <- as.matrix(sub_data_wide)
+                        } else {
+                            if (method == "LogSum") {
+                                # log2 (sum of original intensity)
+                                protein.abundance[i, colnames(sub_data_wide)] <- log2(colSums(2^sub_data_wide, na.rm = TRUE))
+                            }
+
+                            if (method == "Median") {
+                                #Median
+                                protein.abundance[i, colnames(sub_data_wide)] <- colMedians(as.matrix(sub_data_wide, na.rm = TRUE))
+                            }
+                            if (method == "Biweight") {
+                                #Biweight
+                                protein.abundance[i, colnames(sub_data_wide)] <- log2(generateExprVal.method.mas(as.matrix(2^sub_data_wide))$exprs)
+                            }
+                            if (method == "MedianPolish") {
+                                #median polish
+                                meddata  <-  stats::medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
+                                tmpresult <- meddata$overall + meddata$col
+                                protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
+                            }
+                            if (method == "Huber") {
+                                #Huber
+                                protein.abundance[i, colnames(sub_data_wide)] <- unlist(apply(as.matrix(sub_data_wide), 2,
+                                                                                              function(x) huber(x, k = 1.345)$mu))
+                            }
                         }
                     }
                 }
-            }
-        } ## end for loop by run
-    } ## end for loop by protein
+            } ## end for loop by run
+        } ## end for loop by protein
 
-    rownames(protein.abundance) <- proteins
+        rownames(protein.abundance) <- proteins
 
-    ## Get the group information for each subject
-    ## Make the data long format and add the group information to protein level data frame
-    res <- as.data.frame(protein.abundance)
-    res$Protein <- rownames(res)
-    res <- res %>% gather(runchannel, Abundance, -Protein) # Change to long format
-    res$runchannel <- as.character(res$runchannel)
-    annotation$runchannel <- as.character(annotation$runchannel)
-    res <- left_join(res, annotation, by='runchannel')
+        ## Get the group information for each subject
+        ## Make the data long format and add the group information to protein level data frame
+        res <- as.data.frame(protein.abundance)
+        res$Protein <- rownames(res)
+        res <- res %>% gather(runchannel, Abundance, -Protein) # Change to long format
+        res$runchannel <- as.character(res$runchannel)
+        annotation$runchannel <- as.character(annotation$runchannel)
+        res <- left_join(res, annotation, by='runchannel')
 
-    ## remove runchannel column
-    res <- res[, -which(colnames(res) %in% 'runchannel')]
+        ## remove runchannel column
+        res <- res[, -which(colnames(res) %in% 'runchannel')]
+
+    }
 
     if (normalization & length(runs) > 1) { # Do normalization based on group 'Norm'
       res <- protein.normalization(res)
