@@ -8,6 +8,9 @@
 #' @param data Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, Mixture, Run, Channel, Condition, BioReplicate, Intensity
 #' @param method Five different summarization methods to protein-level can be performed : "MedianPolish"(default), "Huber", "LogSum", "Median", "Biweight".
 #' @param normalization Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step.
+#' @param MBimpute only for summaryMethod="TMP" and censoredInt='NA' or '0'. TRUE (default) imputes 'NA' or '0' (depending on censoredInt option) by Accelated failure model. FALSE uses the values assigned by cutoffCensored.
+#' @param censoredInt Missing values are censored or at random. 'NA' (default) assumes that all 'NA's in 'Intensity' column are censored. '0' uses zero intensities as censored intensity. In this case, NA intensities are missing at random.
+#' @param maxQuantileforCensored Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
 #' @return data.frame with protein-level summarization for each run and channel
 #' @examples
 #' head(required.input)
@@ -18,8 +21,11 @@
 #' head(quant.byprotein)
 
 protein.summarization <- function(data,
-                                method = 'MedianPolish',
-                                normalization = TRUE){
+                                  method = 'MedianPolish',
+                                  normalization = TRUE,
+                                  MBimpute = TRUE,
+                                  censoredInt = 'NA',
+                                  maxQuantileforCensored = NULL){
 
     ## save process output in each step
     allfiles <- list.files()
@@ -56,7 +62,7 @@ protein.summarization <- function(data,
     }
 
     ## check the option for method
-    method.list <- c("LogSum", "Median", "Biweight", "MedianPolish", "Huber")
+    method.list <- c("LogSum", "Median", "Biweight", "MedianPolish", "Huber", "msstats")
 
     if (sum(method == method.list) != 1) {
         stop(" 'method' must be one of the following : 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'MedianPolish'. ")
@@ -68,6 +74,10 @@ protein.summarization <- function(data,
 
     write.table(processout, file=finalfile, row.names=FALSE)
 
-    return(protein.summarization.function(data, method, normalization))
+    return(protein.summarization.function(data,
+                                          method,
+                                          normalization,
+                                          MBimpute,
+                                          censoredInt,
+                                          maxQuantileforCensored))
 }
-
