@@ -109,43 +109,40 @@ protein.summarization.function <- function(data,
                     sub_data_wide <- sub_data %>%
                         dplyr::select(log2Intensity, PSM, runchannel) %>%
                         tidyr::spread(runchannel, log2Intensity)
-                    rownames(sub_data_wide) <- sub_data_wide[,1]
-                    sub_data_wide <- sub_data_wide[,-1]
 
-                    ## Number of negative values
-                    #index <- which(apply(sub_data_wide, 1, function(col) any(col < 0)))
-                    #if (length(index) != 0) {
-                    #    sub_data_wide[!is.na(sub_data_wide) & sub_data_wide < 0 ] <- 0
-                    #}
+                    if (nrow(sub_data_wide) == 1) { # Only one PSM for the protein
+                        # generate the data matrix with all numerics
+                        rownames(sub_data_wide) <- sub_data_wide[,1]
+                        sub_data_wide <- sub_data_wide[,-1]
+                        protein.abundance[i, colnames(sub_data_wide)] <- as.matrix(sub_data_wide)
+                    } else {
+                        # generate the data matrix with all numerics
+                        rownames(sub_data_wide) <- sub_data_wide[,1]
+                        sub_data_wide <- sub_data_wide[,-1]
 
-                    if (nrow(sub_data_wide) != 0) {
-                        if (nrow(sub_data_wide) == 1) { # Only one PSM for the protein
-                            protein.abundance[i, colnames(sub_data_wide)] <- as.matrix(sub_data_wide)
-                        } else {
-                            if (method == "LogSum") {
-                                # log2 (sum of original intensity)
-                                protein.abundance[i, colnames(sub_data_wide)] <- log2(colSums(2^sub_data_wide, na.rm = TRUE))
-                            }
+                        if (method == "LogSum") {
+                            # log2 (sum of original intensity)
+                            protein.abundance[i, colnames(sub_data_wide)] <- log2(colSums(2^sub_data_wide, na.rm = TRUE))
+                        }
 
-                            if (method == "Median") {
-                                #Median
-                                protein.abundance[i, colnames(sub_data_wide)] <- colMedians(as.matrix(sub_data_wide, na.rm = TRUE))
-                            }
-                            if (method == "Biweight") {
-                                #Biweight
-                                protein.abundance[i, colnames(sub_data_wide)] <- log2(generateExprVal.method.mas(as.matrix(2^sub_data_wide))$exprs)
-                            }
-                            if (method == "MedianPolish") {
-                                #median polish
-                                meddata  <-  stats::medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
-                                tmpresult <- meddata$overall + meddata$col
-                                protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
-                            }
-                            if (method == "Huber") {
-                                #Huber
-                                protein.abundance[i, colnames(sub_data_wide)] <- unlist(apply(as.matrix(sub_data_wide), 2,
-                                                                                              function(x) huber(x, k = 1.345)$mu))
-                            }
+                        if (method == "Median") {
+                            #Median
+                            protein.abundance[i, colnames(sub_data_wide)] <- colMedians(as.matrix(sub_data_wide, na.rm = TRUE))
+                        }
+                        if (method == "Biweight") {
+                            #Biweight
+                            protein.abundance[i, colnames(sub_data_wide)] <- log2(generateExprVal.method.mas(as.matrix(2^sub_data_wide))$exprs)
+                        }
+                        if (method == "MedianPolish") {
+                            #median polish
+                            meddata  <-  stats::medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
+                            tmpresult <- meddata$overall + meddata$col
+                            protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
+                        }
+                        if (method == "Huber") {
+                            #Huber
+                            protein.abundance[i, colnames(sub_data_wide)] <- unlist(apply(as.matrix(sub_data_wide), 2,
+                                                                                          function(x) huber(x, k = 1.345)$mu))
                         }
                     }
                 }
