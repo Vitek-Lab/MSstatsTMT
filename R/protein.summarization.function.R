@@ -21,7 +21,54 @@ protein.summarization.function <- function(data,
     data$ProteinName <- as.character(data$ProteinName)
     ## make new column: combination of run and channel
     data$runchannel <- paste(data$Run, data$Channel, sep = '_')
-
+    if(method=="MedianPolish"){
+      data$log2Intensity <- log2(data$Intensity)
+      
+      ## Number of negative values : if intensity is less than 1, replace with zero
+      ## then we don't need to worry about -Inf = log2(0)
+      if (nrow(data[!is.na(data$Intensity) & data$Intensity < 1]) > 0){
+        data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- 0
+        message('** Negative log2 intensities were replaced with zero.')
+      }
+      
+      ## Record the group information
+      annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate', 'Condition', 'Mixture', 'runchannel')])
+      data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel', 'BioReplicate', 'runchannel')]
+      
+      #Don't need there three lines in new method
+      runs <- unique(data$Run)
+      num.run<-length(runs)
+      runchannel.id <- unique(data$runchannel)
+      
+      #New MedianPolish
+      #add NAs to make every protein appear in all 10 channel
+      channels<-as.character(unique(data$Channel))
+      anno<-unique(data[,c("Run","ProteinName")])
+      anno.len<-nrow(anno)
+      channel.len<-length(channels)
+      mat<-rep(channels,anno.len)
+      mat<-matrix(mat,nrow = channel.len)
+      dt<-as.data.frame(t(mat))
+      anno<-cbind(anno,dt)
+      anno<-anno%>%gather(key = "v",value = "Channel",3:12)
+      data<-right_join(data,anno)
+      data<- as.data.table(data)
+      data<-data[order(data$Run,data$ProteinName),]
+      anno2<-unique(data[,c("runchannel","ProteinName","Run")])
+      anno2<-anno2[order(anno2$Run,anno2$ProteinName),]
+      res<-data[,.(MedianPolish= MedianPolishFunction(log2Intensity)),by=.(Run,ProteinName)] 
+      colnames(res)<-c( "Run","ProteinName","Abundance")
+      res$runchannel<-anno2$runchannel
+      res <- left_join(res, annotation, by='runchannel')
+      
+      res$Run<-res$Run.x#delete x and y
+      if (normalization & length(runs) > 1) { # Do normalization based on group 'Norm'
+        res <- protein.normalization(res)
+      }
+      res$Protein<-res$ProteinName
+      res<-res[,c(1,11,4,7,8,9,10)]
+      return(res)
+    }
     ## 2018 07 09 : start by Meena
     if (method == 'msstats'){
 
@@ -133,12 +180,12 @@ protein.summarization.function <- function(data,
                             #Biweight
                             protein.abundance[i, colnames(sub_data_wide)] <- log2(generateExprVal.method.mas(as.matrix(2^sub_data_wide))$exprs)
                         }
-                        if (method == "MedianPolish") {
-                            #median polish
-                            meddata  <-  stats::medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
-                            tmpresult <- meddata$overall + meddata$col
-                            protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
-                        }
+                        # if (method == "MedianPolish") {
+                        #     #median polish
+                        #     meddata  <-  stats::medpolish(as.matrix(sub_data_wide), na.rm=TRUE, trace.iter = FALSE)
+                        #     tmpresult <- meddata$overall + meddata$col
+                        #     protein.abundance[i, colnames(sub_data_wide)] <- tmpresult[colnames(sub_data_wide)]
+                        # }
                         if (method == "Huber") {
                             #Huber
                             protein.abundance[i, colnames(sub_data_wide)] <- unlist(apply(as.matrix(sub_data_wide), 2,
@@ -220,4 +267,21 @@ protein.normalization <- function(data) {
     }
 
     return(norm.data)
+}
+
+MedianPolishFunction<-function(c){
+  #take a vector
+  #transfor to a matrix
+  #perform MedianPolish
+  #return a vector 
+  
+  len<-length(c)
+  if(len%%10){
+    print("10 channel violation")
+  }
+  mat<-as.matrix(c)
+  dim(mat)<-c(len/10,10)
+  meddata  <-  stats::medpolish(mat, na.rm=TRUE, trace.iter = FALSE)
+  tmpresult <- meddata$overall + meddata$col
+  return(tmpresult)
 }
