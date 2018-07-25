@@ -21,25 +21,23 @@ protein.summarization.function <- function(data,
     data$ProteinName <- as.character(data$ProteinName)
     ## make new column: combination of run and channel
     data$runchannel <- paste(data$Run, data$Channel, sep = '_')
+    data$log2Intensity <- log2(data$Intensity)
+    ## Number of negative values : if intensity is less than 1, replace with zero
+    ## then we don't need to worry about -Inf = log2(0)
+    if (nrow(data[!is.na(data$Intensity) & data$Intensity < 1]) > 0){
+      data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- 0
+      message('** Negative log2 intensities were replaced with zero.')
+    }
+    
+    ## Record the group information
+    annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate', 'Condition', 'Mixture', 'runchannel')])
+    data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel', 'BioReplicate', 'runchannel')]
+    
+    #Don't need there three lines in new method
+    runs <- unique(data$Run)
+    num.run<-length(runs)
+    runchannel.id <- unique(data$runchannel)
     if(method=="MedianPolish"){
-      data$log2Intensity <- log2(data$Intensity)
-      
-      ## Number of negative values : if intensity is less than 1, replace with zero
-      ## then we don't need to worry about -Inf = log2(0)
-      if (nrow(data[!is.na(data$Intensity) & data$Intensity < 1]) > 0){
-        data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- 0
-        message('** Negative log2 intensities were replaced with zero.')
-      }
-      
-      ## Record the group information
-      annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate', 'Condition', 'Mixture', 'runchannel')])
-      data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel', 'BioReplicate', 'runchannel')]
-      
-      #Don't need there three lines in new method
-      runs <- unique(data$Run)
-      num.run<-length(runs)
-      runchannel.id <- unique(data$runchannel)
-      
       #New MedianPolish
       #add NAs to make every protein appear in all 10 channel
       channels<-as.character(unique(data$Channel))
@@ -67,6 +65,28 @@ protein.summarization.function <- function(data,
       }
       res$Protein<-res$ProteinName
       res<-res[,c(1,11,4,7,8,9,10)]
+      return(res)
+    } else if(method=="LogSum"){
+      res<-data[,.(LogSum = log2(sum(2^log2Intensity))),by=.(Run,ProteinName,runchannel)] 
+      colnames(res)<-c( "Run","ProteinName","runchannel","Abundance")
+      res <- left_join(res, annotation, by='runchannel')
+      res$Run<-res$Run.x#delete x and y
+      if (normalization & length(runs) > 1) { # Do normalization based on group 'Norm'
+        res <- protein.normalization(res)
+      }
+      res$Protein<-res$ProteinName
+      res<-res[,c(1,11,5,7,8,9,10)]
+      return(res)
+    } else if(method=="Median"){
+      res<-data[,.(Median = median(log2Intensity)),by=.(Run,ProteinName,runchannel)] 
+      colnames(res)<-c( "Run","ProteinName","runchannel","Abundance")
+      res <- left_join(res, annotation, by='runchannel')
+      res$Run<-res$Run.x#delete x and y
+      if (normalization & length(runs) > 1) { # Do normalization based on group 'Norm'
+        res <- protein.normalization(res)
+      }
+      res$Protein<-res$ProteinName
+      res<-res[,c(1,11,5,7,8,9,10)]
       return(res)
     }
     ## 2018 07 09 : start by Meena
@@ -167,15 +187,15 @@ protein.summarization.function <- function(data,
                         rownames(sub_data_wide) <- sub_data_wide[,1]
                         sub_data_wide <- sub_data_wide[,-1]
 
-                        if (method == "LogSum") {
-                            # log2 (sum of original intensity)
-                            protein.abundance[i, colnames(sub_data_wide)] <- log2(colSums(2^sub_data_wide, na.rm = TRUE))
-                        }
+                        # if (method == "LogSum") {
+                        #     # log2 (sum of original intensity)
+                        #     protein.abundance[i, colnames(sub_data_wide)] <- log2(colSums(2^sub_data_wide, na.rm = TRUE))
+                        # }
 
-                        if (method == "Median") {
-                            #Median
-                            protein.abundance[i, colnames(sub_data_wide)] <- colMedians(as.matrix(sub_data_wide, na.rm = TRUE))
-                        }
+                        # if (method == "Median") {
+                        #     #Median
+                        #     protein.abundance[i, colnames(sub_data_wide)] <- colMedians(as.matrix(sub_data_wide, na.rm = TRUE))
+                        # }
                         if (method == "Biweight") {
                             #Biweight
                             protein.abundance[i, colnames(sub_data_wide)] <- log2(generateExprVal.method.mas(as.matrix(2^sub_data_wide))$exprs)
