@@ -54,7 +54,7 @@ protein.summarization.function <- function(data,
       data<-data[order(data$Run,data$ProteinName),]
       anno2<-unique(data[,c("runchannel","ProteinName","Run")])
       anno2<-anno2[order(anno2$Run,anno2$ProteinName),]
-      res<-data[,.(MedianPolish= MedianPolishFunction(log2Intensity)),by=.(Run,ProteinName)] 
+      res<-data[,.(MedianPolish= MedianPolishFunction(log2Intensity,channel.len)),by=.(Run,ProteinName)] 
       colnames(res)<-c( "Run","ProteinName","Abundance")
       res$runchannel<-anno2$runchannel
       res <- left_join(res, annotation, by='runchannel')
@@ -288,19 +288,25 @@ protein.normalization <- function(data) {
 
     return(norm.data)
 }
+###########################################
+## function for MedianPolish calculation
+## depend on "stats:medpolish"
+## input: a vector of log2intensity per Protein, Run; number of channels
 
-MedianPolishFunction<-function(c){
+
+MedianPolishFunction<-function(c, num.channels){
   #take a vector
   #transfor to a matrix
   #perform MedianPolish
   #return a vector 
   
-  len<-length(c)
-  if(len%%10){
-    print("10 channel violation")
-  }
-  mat<-as.matrix(c)
-  dim(mat)<-c(len/10,10)
+  len <- length(c)
+  # if(len%%num.channels){
+  #   print("channel violation")
+  # }
+  #print(num.channels)
+  mat <- as.matrix(c)
+  dim(mat) <- c(len / num.channels,num.channels)
   meddata  <-  stats::medpolish(mat, na.rm=TRUE, trace.iter = FALSE)
   tmpresult <- meddata$overall + meddata$col
   return(tmpresult)
