@@ -37,6 +37,7 @@ protein.summarization.function <- function(data,
     runs <- unique(data$Run)
     num.run<-length(runs)
     runchannel.id <- unique(data$runchannel)
+    data$PSM<-as.character(data$PSM)
     if(method=="MedianPolish"){
       #New MedianPolish
       #add NAs to make every protein appear in all 10 channel
@@ -50,13 +51,17 @@ protein.summarization.function <- function(data,
       anno<-cbind(anno,dt)
       anno<-anno%>%gather(key = "v",value = "Channel",3:12)
       data<-right_join(data,anno)
+      anno1<-unique(data[,c("Run","ProteinName","PSM")])
+      anno2<-full_join(anno,anno1)[,-3]
+      data<-right_join(data,anno2)#runchannel+1 after this line
+      data$runchannel <- paste(data$Run, data$Channel, sep = '_')
       data<- as.data.table(data)
       data<-data[order(data$Run,data$ProteinName),]
-      anno2<-unique(data[,c("runchannel","ProteinName","Run")])
-      anno2<-anno2[order(anno2$Run,anno2$ProteinName),]
+      anno3<-unique(data[,c("runchannel","ProteinName","Run")])
+      anno3<-anno3[order(anno3$Run,anno3$ProteinName),]
       res<-data[,.(MedianPolish= MedianPolishFunction(log2Intensity,channel.len)),by=.(Run,ProteinName)] 
       colnames(res)<-c( "Run","ProteinName","Abundance")
-      res$runchannel<-anno2$runchannel
+      res$runchannel<-anno3$runchannel
       res <- left_join(res, annotation, by='runchannel')
       
       res$Run<-res$Run.x#delete x and y
