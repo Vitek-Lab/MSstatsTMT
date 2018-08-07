@@ -69,7 +69,7 @@ protein.summarization.function <- function(data,
         res <- protein.normalization(res)
       }
       res$Protein<-res$ProteinName
-      res<-res[,c(1,11,4,7,8,9,10)]
+      res<-res[,c("Run","Protein","Abundance","Channel","BioReplicate","Condition","Mixture")]
       return(res)
     } else if(method=="LogSum"){
       res<-data[,.(LogSum = log2(sum(2^log2Intensity))),by=.(Run,ProteinName,runchannel)] 
@@ -80,7 +80,7 @@ protein.summarization.function <- function(data,
         res <- protein.normalization(res)
       }
       res$Protein<-res$ProteinName
-      res<-res[,c(1,11,5,7,8,9,10)]
+      res<-res[,c("Run","Protein","Abundance","Channel","BioReplicate","Condition","Mixture")]
       return(res)
     } else if(method=="Median"){
       res<-data[,.(Median = median(log2Intensity)),by=.(Run,ProteinName,runchannel)] 
@@ -91,7 +91,7 @@ protein.summarization.function <- function(data,
         res <- protein.normalization(res)
       }
       res$Protein<-res$ProteinName
-      res<-res[,c(1,11,5,7,8,9,10)]
+      res<-res[,c("Run","Protein","Abundance","Channel","BioReplicate","Condition","Mixture")]
       return(res)
     }
     ## 2018 07 09 : start by Meena
