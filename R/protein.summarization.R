@@ -1,30 +1,29 @@
 #' Summarizing PSM level quantification to protein level quantification
 #'
-#' Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
-#' Then, normalization between MS runs using normalization channels will be implemented.
+#'
+#' We assume missing values are censored and then impute the missing values. Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
+#' After all, normalization between MS runs using normalization channels will be implemented.
 #'
 #' @export
 #' @importFrom utils read.table sessionInfo write.table
 #' @param data Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, Mixture, Run, Channel, Condition, BioReplicate, Intensity
-#' @param method Five different summarization methods to protein-level can be performed : "MedianPolish"(default), "Huber", "LogSum", "Median", "Biweight".
-#' @param normalization Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step.
-#' @param MBimpute only for summaryMethod="TMP" and censoredInt='NA' or '0'. TRUE (default) imputes 'NA' or '0' (depending on censoredInt option) by Accelated failure model. FALSE uses the values assigned by cutoffCensored.
-#' @param censoredInt Missing values are censored or at random. 'NA' (default) assumes that all 'NA's in 'Intensity' column are censored. '0' uses zero intensities as censored intensity. In this case, NA intensities are missing at random.
-#' @param maxQuantileforCensored Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
+#' @param method Four different summarization methods to protein-level can be performed : "msstats"(default), "MedianPolish", "Median", "LogSum".
+#' @param normalization Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step. If data only has one run, then normalization=FALSE.
+#' @param MBimpute only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each PSM.
+#' @param maxQuantileforCensored We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
 #' @return data.frame with protein-level summarization for each run and channel
 #' @examples
 #' head(required.input)
 #' str(required.input)
 #' quant.byprotein <- protein.summarization(required.input,
-#'                                          method="MedianPolish",
-#'                                          normalization=TRUE)
+#'                                          method="msstats",
+#'                                          normalization=TRUE,)
 #' head(quant.byprotein)
 
 protein.summarization <- function(data,
-                                  method = 'MedianPolish',
+                                  method = 'msstats',
                                   normalization = TRUE,
                                   MBimpute = TRUE,
-                                  censoredInt = 'NA',
                                   maxQuantileforCensored = NULL){
 
     ## save process output in each step
@@ -62,10 +61,10 @@ protein.summarization <- function(data,
     }
 
     ## check the option for method
-    method.list <- c("LogSum", "Median", "Biweight", "MedianPolish", "Huber", "msstats")
+    method.list <- c("LogSum", "Median", "MedianPolish", "msstats")
 
     if (sum(method == method.list) != 1) {
-        stop(" 'method' must be one of the following : 'LogSum', 'Median', 'Biweight', 'MedianPolish', 'Huber' default is 'MedianPolish'. ")
+        stop(" 'method' must be one of the following : 'LogSum', 'Median', MedianPolish', 'msstats' default is 'msstats'. ")
     }
 
     ## report which options are used.
@@ -78,6 +77,5 @@ protein.summarization <- function(data,
                                           method,
                                           normalization,
                                           MBimpute,
-                                          censoredInt,
                                           maxQuantileforCensored))
 }

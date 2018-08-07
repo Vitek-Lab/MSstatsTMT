@@ -6,7 +6,8 @@
 \usage{
 PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
   useNumProteinsColumn = TRUE, useUniquePeptide = TRUE,
-  summaryforMultipleRows = sum, removePSM_withMissingValue_withinRun = TRUE,
+  summaryforMultipleRows = sum,
+  removePSM_withMissingValue_withinRun = FALSE,
   removeProtein_with1Feature = FALSE,
   which.proteinid = "Master.Protein.Accessions")
 }

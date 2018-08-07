@@ -30,8 +30,9 @@ Experimental design of case-control study (patients are not repeatedly measured)
 }
 \examples{
 quant.byprotein <- protein.summarization(required.input,
-                                         method = "MedianPolish",
-                                         normalization=TRUE)
+                                         method="msstats",
+                                         normalization=TRUE,)
+
 test.byproposed <- groupComparison.TMT(quant.byprotein)
 
 # Only compare condition 0.125 and 1

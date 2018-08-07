@@ -24,14 +24,14 @@
 #' head(required.input)
 
 PDtoMSstatsTMTFormat <- function(input,
-                                annotation,
-                                fraction = FALSE,
-                                useNumProteinsColumn = TRUE,
-                                useUniquePeptide = TRUE,
-                                summaryforMultipleRows = sum,
-                                removePSM_withMissingValue_withinRun = TRUE,
-                                removeProtein_with1Feature = FALSE,
-                                which.proteinid = 'Master.Protein.Accessions'){
+                                 annotation,
+                                 fraction = FALSE,
+                                 useNumProteinsColumn = TRUE,
+                                 useUniquePeptide = TRUE,
+                                 summaryforMultipleRows = sum,
+                                 removePSM_withMissingValue_withinRun = FALSE,
+                                 removeProtein_with1Feature = FALSE,
+                                 which.proteinid = 'Master.Protein.Accessions'){
 
 
     ################################################
@@ -100,9 +100,9 @@ PDtoMSstatsTMTFormat <- function(input,
     input <- as.data.frame(input)
     channels <- as.character(unique(annotation$Channel))
     input <- input[, which(colnames(input) %in% c(which.pro, which.NumProteins,
-                                                'Annotated.Sequence', 'Charge',
-                                                'Ions.Score', 'Spectrum.File', 'Quan.Info', 'Isolation.Interference....',
-                                                channels))]
+                                                  'Annotated.Sequence', 'Charge',
+                                                  'Ions.Score', 'Spectrum.File', 'Quan.Info', 'Isolation.Interference....',
+                                                  channels))]
 
     colnames(input)[colnames(input) == 'Master.Protein.Accessions'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Protein.Accessions'] <- 'ProteinName'
@@ -201,7 +201,7 @@ PDtoMSstatsTMTFormat <- function(input,
 
                 if (nrow(subsub2) < 2) {
                     keepinfo.select <- rbind(keepinfo.select,
-                                            subsub2)
+                                             subsub2)
                     next()
                 } else {
                     ## decision2 : keep the row with lowest isolation interference
@@ -259,8 +259,8 @@ PDtoMSstatsTMTFormat <- function(input,
     input.long <- melt(input.new, id=c('ProteinName',
                                        'PeptideSequence','Charge',
                                        'Run'),
-                    variable.name = "Channel",
-                    value.name = "Intensity")
+                       variable.name = "Channel",
+                       value.name = "Intensity")
 
     # make sure no dupliate rows
     input.long <- input.long[!is.na(input.long$Intensity), ]
@@ -287,15 +287,15 @@ PDtoMSstatsTMTFormat <- function(input,
     }
 
     input.final <- data.frame("ProteinName" = input$ProteinName,
-                            "PeptideSequence" = input$PeptideSequence,
-                            "Charge" = input$Charge,
-                            "PSM" = paste(input$PeptideSequence, input$Charge, sep="_"),
-                            "Channel" = as.factor(input$Channel),
-                            "Condition" = input$Condition,
-                            "BioReplicate" = input$BioReplicate,
-                            "Run" = input$Run,
-                            "Mixture" = input$Mixture,
-                            "Intensity" = input$Intensity)
+                              "PeptideSequence" = input$PeptideSequence,
+                              "Charge" = input$Charge,
+                              "PSM" = paste(input$PeptideSequence, input$Charge, sep="_"),
+                              "Channel" = as.factor(input$Channel),
+                              "Condition" = input$Condition,
+                              "BioReplicate" = input$BioReplicate,
+                              "Run" = input$Run,
+                              "Mixture" = input$Mixture,
+                              "Intensity" = input$Intensity)
 
     input <- input.final
     rm(input.final)
@@ -343,8 +343,8 @@ PDtoMSstatsTMTFormat <- function(input,
         if (length(removepro) > 0) {
             input <- input[-which(input$ProteinName %in% removepro), ]
             message(paste0("** ", length(removepro),
-                          ' proteins, which have only one feature in a protein, are removed among ',
-                          lengthtotalprotein, ' proteins.'))
+                           ' proteins, which have only one feature in a protein, are removed among ',
+                           lengthtotalprotein, ' proteins.'))
         }
     }
 
@@ -353,12 +353,12 @@ PDtoMSstatsTMTFormat <- function(input,
     ##############################
 
     if (fraction) {
-      input <- combine.fractions(input)
-      ## change data.table to data.frame, in order to make the same class for input, without fraction
-      input <- as.data.frame(input)
-      # make sure no dupliate rows
-      input <- unique(input)
-      message('** Fractions belonging to same mixture have been combined.')
+        input <- combine.fractions(input)
+        ## change data.table to data.frame, in order to make the same class for input, without fraction
+        input <- as.data.frame(input)
+        # make sure no dupliate rows
+        input <- unique(input)
+        message('** Fractions belonging to same mixture have been combined.')
     }
     return(input)
 }

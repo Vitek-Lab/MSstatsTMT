@@ -4,34 +4,32 @@
 \alias{protein.summarization}
 \title{Summarizing PSM level quantification to protein level quantification}
 \usage{
-protein.summarization(data, method = "MedianPolish", normalization = TRUE,
-  MBimpute = TRUE, censoredInt = "NA", maxQuantileforCensored = NULL)
+protein.summarization(data, method = "msstats", normalization = TRUE,
+  MBimpute = TRUE, maxQuantileforCensored = NULL)
 }
 \arguments{
 \item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, Mixture, Run, Channel, Condition, BioReplicate, Intensity}
 
-\item{method}{Five different summarization methods to protein-level can be performed : "MedianPolish"(default), "Huber", "LogSum", "Median", "Biweight".}
+\item{method}{Four different summarization methods to protein-level can be performed : "msstats"(default), "MedianPolish", "Median", "LogSum".}
 
-\item{normalization}{Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step.}
+\item{normalization}{Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step. If data only has one run, then normalization=FALSE.}
 
-\item{MBimpute}{only for summaryMethod="TMP" and censoredInt='NA' or '0'. TRUE (default) imputes 'NA' or '0' (depending on censoredInt option) by Accelated failure model. FALSE uses the values assigned by cutoffCensored.}
+\item{MBimpute}{only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each PSM.}
 
-\item{censoredInt}{Missing values are censored or at random. 'NA' (default) assumes that all 'NA's in 'Intensity' column are censored. '0' uses zero intensities as censored intensity. In this case, NA intensities are missing at random.}
-
-\item{maxQuantileforCensored}{Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.}
+\item{maxQuantileforCensored}{We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.}
 }
 \value{
 data.frame with protein-level summarization for each run and channel
 }
 \description{
-Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
-Then, normalization between MS runs using normalization channels will be implemented.
+We assume missing values are censored and then impute the missing values. Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
+After all, normalization between MS runs using normalization channels will be implemented.
 }
 \examples{
 head(required.input)
 str(required.input)
 quant.byprotein <- protein.summarization(required.input,
-                                         method="MedianPolish",
-                                         normalization=TRUE)
+                                         method="msstats",
+                                         normalization=TRUE,)
 head(quant.byprotein)
 }

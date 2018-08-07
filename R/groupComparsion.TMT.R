@@ -13,8 +13,9 @@
 #' @return data.frame with result of inference
 #' @examples
 #' quant.byprotein <- protein.summarization(required.input,
-#'                                          method = "MedianPolish",
-#'                                          normalization=TRUE)
+#'                                          method="msstats",
+#'                                          normalization=TRUE,)
+#'
 #' test.byproposed <- groupComparison.TMT(quant.byprotein)
 #'
 #' # Only compare condition 0.125 and 1
