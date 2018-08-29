@@ -94,7 +94,7 @@ protein.summarization.function <- function(data,
         mat<-matrix(mat,nrow = channel.len)
         dt<-as.data.frame(t(mat))
         anno<-cbind(anno,dt)
-        anno<-anno%>%gather(key = "v",value = "Channel", 3:12)
+        anno<-anno%>%gather(key = "v",value = "Channel", 3:(channel.len+2))
         data<-right_join(data,anno)
         anno1<-unique(data[,c("Run","ProteinName","PSM")])
         anno2<-full_join(anno,anno1)[, -3]
