@@ -35,7 +35,8 @@ MQtoMSstatsTMTFormat <- function(evidence,
                                 removePSM_withMissingValue_withinRun = TRUE,
                                 removeProtein_with1Feature = FALSE){
 
-    ## evidence.txt file
+  PeptideSequence = fea2 = Run = NULL
+  ## evidence.txt file
     input <- evidence
 
     ################################################

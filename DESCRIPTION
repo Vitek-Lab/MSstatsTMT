@@ -3,22 +3,21 @@ Title: Protein Significance Analysis in shotgun mass spectrometry-based proteomi
 Version: 0.4.3
 Date: 2018-07-26
 Description: Tools for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling.
-Authors@R: c(
-	person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut", "cre")),
+Authors@R: c(person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut","cre")),
 	person("Meena", "Choi", email = "mnchoi67@gmail.com", role="aut"),
 	person("Sicheng", "Hao", email = "hao.sic@husky.neu.edu", role = "aut"))
 Maintainer: Ting Huang <thuang0703@gmail.com>
 License: Artistic-2.0
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.5)
 Imports: limma, lme4, dplyr, tidyr, nlme, 
-    reshape2, data.table, matrixStats, stats, utils, 
-    MASS, affy, ggplot2, grDevices, graphics,
+    reshape2, data.table, matrixStats, stats, utils, ggplot2, grDevices, graphics,
     lme4, MSstats
-Suggests: BiocStyle, knitr, rmarkdown
+Suggests: BiocStyle, knitr, rmarkdown,
+    testthat
 VignetteBuilder: knitr
 biocViews: MassSpectrometry, Proteomics, Software
 Encoding: UTF-8
 LazyData: true
 URL: http://msstats.org
 BugReports: https://groups.google.com/forum/#!forum/msstats
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0

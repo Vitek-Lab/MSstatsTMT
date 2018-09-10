@@ -8,6 +8,7 @@ proposed.model <- function(data,
                         contrast.matrix = "pairwise",
                         adj.method = "BH") {
 
+  Abundance = Group = Protein = NULL
     if(moderated){ ## moderated t statistic
         ## Estimate the prior variance and degree freedom
         para <- estimate.prior.var(data)
@@ -176,6 +177,7 @@ ebayes.limma <- function(data,
                          contrast.matrix = "pairwise",
                          adj.method = "BH"){
 
+  Subject = Abundance = NULL
     ## contrast matrix can be matrix or character vector.
     contrast.pairwise <- TRUE
     if(is.matrix(contrast.matrix)){
@@ -271,7 +273,8 @@ ebayes.limma <- function(data,
 protein.ttest <- function (data,
                            contrast.matrix = "pairwise",
                            adj.method = "BH"){
-
+    
+    Protein = Group = NULL
     ## contrast matrix can be matrix or character vector.
     contrast.pairwise <- TRUE
     if (is.matrix(contrast.matrix)) {
@@ -393,6 +396,8 @@ protein.ttest <- function (data,
 #' @import limma
 #' @keywords internal
 estimate.prior.var <- function(data){
+  
+  Subject = Abundance = Protein = NULL
     ## make sure data is in data.frame format
     data <- as.data.frame(data)
     data.mat <- data[, c("Protein", "Subject", "Abundance")]

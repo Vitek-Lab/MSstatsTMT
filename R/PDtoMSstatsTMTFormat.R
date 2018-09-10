@@ -33,7 +33,7 @@ PDtoMSstatsTMTFormat <- function(input,
                                  removeProtein_with1Feature = FALSE,
                                  which.proteinid = 'Master.Protein.Accessions'){
 
-
+    tions = NULL
     ################################################
     ## 0. check input for annotation
     ################################################
@@ -353,7 +353,7 @@ PDtoMSstatsTMTFormat <- function(input,
     ##############################
 
     if (fraction) {
-        input <- combine.fractions(input)
+        input <- tions(input)
         ## change data.table to data.frame, in order to make the same class for input, without fraction
         input <- as.data.frame(input)
         # make sure no dupliate rows
@@ -366,7 +366,8 @@ PDtoMSstatsTMTFormat <- function(input,
 ## Remove the peptide ions overlapped among multiple fractions of same biological mixture
 ## data: PSM level data, which has columns Protein, PSM, BioReplicate, Run, Channel, Intensity, Mixture
 combine.fractions <- function(data){
-
+  
+  Mixture = Intensity = fea =  Run = tions = . = NULL
     # combine fractions for each mixture
     mixtures <- unique(data$Mixture)
     data <- as.data.table(data)

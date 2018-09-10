@@ -4,9 +4,10 @@
 \alias{MQtoMSstatsTMTFormat}
 \title{Generate MSstatsTMT required input format for MaxQuant output}
 \usage{
-MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation, fraction = FALSE,
-  remove.Only.identified.by.site = FALSE, which.proteinid = "Proteins",
-  useUniquePeptide = TRUE, summaryforMultipleRows = sum,
+MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation,
+  fraction = FALSE, remove.Only.identified.by.site = FALSE,
+  which.proteinid = "Proteins", useUniquePeptide = TRUE,
+  summaryforMultipleRows = sum,
   removePSM_withMissingValue_withinRun = TRUE,
   removeProtein_with1Feature = FALSE)
 }

@@ -4,7 +4,7 @@ author: "Ting Huang (<thuang0703@gmail.com>), Meena Choi (<mnchoi67@gmail.com>),
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{MSstatsTMT User Guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

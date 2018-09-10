@@ -13,7 +13,8 @@ protein.summarization.function <- function(data,
                                            normalization,
                                            MBimpute,
                                            maxQuantileforCensored){
-
+  
+    ProteinName = runchannel = MSRun = log2Intensity = Run = . = NULL
     data <- as.data.table(data)
     ## make sure the protein ID is character
     data$ProteinName <- as.character(data$ProteinName)
@@ -157,6 +158,7 @@ protein.summarization.function <- function(data,
 
 protein.normalization <- function(data) {
 
+  Run = Abundance = . = Condition = Protein = NULL
     ## check whethere there are 'Norm' info or not.
     group.info <- unique(data$Condition)
 
