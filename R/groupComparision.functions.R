@@ -8,7 +8,7 @@ proposed.model <- function(data,
                         contrast.matrix = "pairwise",
                         adj.method = "BH") {
 
-  Abundance = Group = Protein = NULL
+    Abundance = Group = Protein = NULL
     if(moderated){ ## moderated t statistic
         ## Estimate the prior variance and degree freedom
         para <- estimate.prior.var(data)
@@ -177,7 +177,7 @@ ebayes.limma <- function(data,
                          contrast.matrix = "pairwise",
                          adj.method = "BH"){
 
-  Subject = Abundance = NULL
+    Subject = Abundance = NULL
     ## contrast matrix can be matrix or character vector.
     contrast.pairwise <- TRUE
     if(is.matrix(contrast.matrix)){
@@ -264,7 +264,8 @@ ebayes.limma <- function(data,
     res <- rbindlist(resList, use.names=TRUE, idcol = "Comparison")
     res$adjusted.pvalue <- p.adjust(res$pvalue, adj.method)
     res$Comparison <- gsub("group", "", res$Comparison)
-    res<-res[, c(2,1,3,5,6,4,7)]
+    ## !!comment : change with colnum ids
+    res <- res[, c(2,1,3,5,6,4,7)]
     return(res)
 }
 
@@ -273,7 +274,7 @@ ebayes.limma <- function(data,
 protein.ttest <- function (data,
                            contrast.matrix = "pairwise",
                            adj.method = "BH"){
-    
+
     Protein = Group = NULL
     ## contrast matrix can be matrix or character vector.
     contrast.pairwise <- TRUE
@@ -389,6 +390,7 @@ protein.ttest <- function (data,
         res[res$Comparison == comps[i], "adjusted.pvalue"] <- p.adjust(res[res$Comparison == comps[i], "pvalue"], adj.method)
 
     }
+    ## !! comment : change with column ids
     res<-res[, c(1,2,3,5,6,4,7)]
     return(res)
 }
@@ -396,8 +398,8 @@ protein.ttest <- function (data,
 #' @import limma
 #' @keywords internal
 estimate.prior.var <- function(data){
-  
-  Subject = Abundance = Protein = NULL
+
+    Subject = Abundance = Protein = NULL
     ## make sure data is in data.frame format
     data <- as.data.frame(data)
     data.mat <- data[, c("Protein", "Subject", "Abundance")]

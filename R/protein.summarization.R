@@ -35,7 +35,7 @@ protein.summarization <- function(data,
 
     while (is.element(finalfile,allfiles)) {
         num <- num+1
-        finalfile <- paste(paste(filenaming,num,sep="-"),".log",sep="")
+        finalfile <- paste(paste(filenaming,num,sep="-"), ".log", sep="")
     }
 
     session <- sessionInfo()
@@ -46,7 +46,8 @@ protein.summarization <- function(data,
     processout <- as.matrix(read.table("sessionInfo.txt", header=TRUE, sep="\t"))
     write.table(processout, file=finalfile, row.names=FALSE)
 
-    processout <- rbind(processout, as.matrix(c(" "," ","MSstatsTMT - protein.summarization function"," "),ncol=1))
+    processout <- rbind(processout,
+                        as.matrix(c(" ", " ", "MSstatsTMT - protein.summarization function", " "), ncol=1))
 
 
     ## check input
