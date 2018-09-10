@@ -70,3 +70,49 @@
 #' head(required.input)
 #'
 "required.input"
+
+
+#' Example of output from protein.summarizaiton function
+#'
+#' It is calculated from required.input.
+#' It is the output of protein.summarization function
+#' It should includes the required columns as below.
+#' The variables are as follows:
+#'
+#' \itemize{
+#'   \item Run MS run ID
+#'   \item Protein : Protein ID
+#'   \item Abundance: Protein Abundancer
+#'   \item Channel : Labeling information (126, ... 131)
+#'   \item Condition : Condition (ex. Healthy, Cancer, Time0)
+#'   \item BioReplicate : Unique ID for biological subject.
+#' }
+#'
+#' @format A data frame with 1450 rows and 7 variables.
+#' @examples
+#' head(MedianPolish.quant)
+#'
+"MedianPolish.quant"
+
+
+#' Example of output from groupComparision function
+#'
+#' It is calculated from the result of protein.summarizaiton function.
+#' It is the output of groupComparision function
+#' It should includes the required columns as below.
+#' The variables are as follows:
+#'
+#' \itemize{
+#'   \item Protein : Protein ID
+#'   \item Label: Label of the pairwise comparision or contrast 
+#'   \item log2FC: Log2 fold change
+#'   \item SE: Standard error of the comparsion of contrast results
+#'   \item DF: Degree of freedom
+#'   \item pvalue: Value of p statistic of the test
+#' }
+#'
+#' @format A data frame with 60 rows and 7 variables.
+#' @examples
+#' head(groupComparision.results)
+#'
+"groupComparision.results"
