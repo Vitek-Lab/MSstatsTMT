@@ -73,7 +73,8 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
                                 summaryPlot = TRUE,
                                 address="") {
 
-    Condition = Run = xorder = Channel = groupAxis = cumGroupAxis = abundance = analysis = NULL
+    Condition = Run = xorder = Channel = groupAxis = cumGroupAxis = 
+      abundance = analysis = NULL
     datafeature <- data.psm
 	datarun <- data.summarization
 
@@ -91,7 +92,8 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 		            ". However,'type' should be one of \"ProfilePlot\", \"QCPlot\"."))
 	}
 
-	if (address == FALSE){ ## here I used == FALSE, instead of !address. Because address can be logical or characters.
+	if (address == FALSE){ 
+	  ## here I used == FALSE, instead of !address. Because address can be logical or characters.
 	    if (which.Protein == 'all') {
 	        stop('** Cannnot generate all plots in a screen. Please set one protein at a time.')
 	    } else if (length(which.Protein) > 1) {
