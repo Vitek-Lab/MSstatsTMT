@@ -5,11 +5,11 @@
 \title{Generate MSstatsTMT required input format for MaxQuant output}
 \usage{
 MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation,
-  fraction = FALSE, remove.Only.identified.by.site = FALSE,
-  which.proteinid = "Proteins", useUniquePeptide = TRUE,
-  summaryforMultipleRows = sum,
-  removePSM_withMissingValue_withinRun = TRUE,
-  removeProtein_with1Feature = FALSE)
+  fraction = FALSE, which.proteinid = "Proteins",
+  rmProt_Only.identified.by.site = FALSE, useUniquePeptide = TRUE,
+  rmPSM_withMissing_withinRun = FALSE,
+  rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE,
+  summaryforMultipleRows = sum)
 }
 \arguments{
 \item{evidence}{name of 'evidence.txt' data, which includes feature-level data.}
@@ -20,17 +20,19 @@ MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation,
 
 \item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.}
 
-\item{remove.Only.identified.by.site}{TRUE will remove proteins with '+' in 'Only.identified.by.site' column from proteinGroups.txt, which was identified only by a modification site. FALSE is the default.}
-
 \item{which.proteinid}{Use 'Proteins'(default) column for protein name. 'Leading.proteins' or 'Leading.razor.proteins' can be used instead. However, those can potentially have the shared peptides.}
+
+\item{rmProt_Only.identified.by.site}{TRUE will remove proteins with '+' in 'Only.identified.by.site' column from proteinGroups.txt, which was identified only by a modification site. FALSE is the default.}
 
 \item{useUniquePeptide}{TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.}
 
-\item{summaryforMultipleRows}{max(default) or sum - when there are multiple measurements for certain feature and certain run, use highest or sum of multiple intensities.}
+\item{rmPSM_withMissing_withinRun}{TRUE will remove PSM with any missing value within each Run. Defaut is FALSE.}
 
-\item{removePSM_withMissingValue_withinRun}{TRUE(default) will remove PSM with any missing value within each Run.}
+\item{rmPSM_withfewMea_withinRun}{only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.}
 
-\item{removeProtein_with1Feature}{TRUE(default) will remove the proteins which have only 1 peptide and charge.}
+\item{rmProtein_with1Feature}{TRUE will remove the proteins which have only 1 peptide and charge. Defaut is FALSE.}
+
+\item{summaryforMultipleRows}{sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.}
 }
 \value{
 input for protein.summarization function
@@ -42,8 +44,8 @@ Convert MaxQuant output into the required input format for MSstatsTMT.
 \dontrun{
 head(evidence)
 head(proteinGroups)
-head(annotation)
-required.input <- MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation)
-head(required.input)
+head(annotation.mq)
+input.mq <- MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
+head(input.mq)
 }
 }

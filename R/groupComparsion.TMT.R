@@ -31,10 +31,9 @@
 groupComparison.TMT <- function(data,
                                 contrast.matrix = 'pairwise',
                                 remove_norm_channel = TRUE,
-                                model = 'proposed',
                                 moderated = TRUE,
                                 adj.method = "BH"){
-
+    model = 'proposed'
     ## save process output in each step
     allfiles <- list.files()
     filenaming <- "msstatstmt"

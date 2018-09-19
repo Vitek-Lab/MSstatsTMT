@@ -3,37 +3,42 @@
 #' Convert MaxQuant output into the required input format for MSstatsTMT.
 #'
 #' @export
-#' @importFrom dplyr summarise n
+#' @import tidyr
+#' @import dplyr
+#' @importFrom reshape2 melt
+#' @importFrom data.table as.data.table setkey rbindlist
 #' @param evidence name of 'evidence.txt' data, which includes feature-level data.
 #' @param proteinGroups name of 'proteinGroups.txt' data.
 #' @param annotation data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.
 #' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.
-#' @param remove.Only.identified.by.site TRUE will remove proteins with '+' in 'Only.identified.by.site' column from proteinGroups.txt, which was identified only by a modification site. FALSE is the default.
 #' @param which.proteinid Use 'Proteins'(default) column for protein name. 'Leading.proteins' or 'Leading.razor.proteins' can be used instead. However, those can potentially have the shared peptides.
+#' @param rmProt_Only.identified.by.site TRUE will remove proteins with '+' in 'Only.identified.by.site' column from proteinGroups.txt, which was identified only by a modification site. FALSE is the default.
 #' @param useUniquePeptide TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
-#' @param summaryforMultipleRows max(default) or sum - when there are multiple measurements for certain feature and certain run, use highest or sum of multiple intensities.
-#' @param removePSM_withMissingValue_withinRun TRUE(default) will remove PSM with any missing value within each Run.
-#' @param removeProtein_with1Feature TRUE(default) will remove the proteins which have only 1 peptide and charge.
+#' @param rmPSM_withMissing_withinRun TRUE will remove PSM with any missing value within each Run. Defaut is FALSE.
+#' @param rmPSM_withfewMea_withinRun only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
+#' @param rmProtein_with1Feature TRUE will remove the proteins which have only 1 peptide and charge. Defaut is FALSE.
+#' @param summaryforMultipleRows sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.
 #' @return input for protein.summarization function
 #' @examples
 #' \dontrun{
 #' head(evidence)
 #' head(proteinGroups)
-#' head(annotation)
-#' required.input <- MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation)
-#' head(required.input)
+#' head(annotation.mq)
+#' input.mq <- MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
+#' head(input.mq)
 #' }
 
 MQtoMSstatsTMTFormat <- function(evidence,
                                 proteinGroups,
                                 annotation,
                                 fraction = FALSE,
-                                remove.Only.identified.by.site = FALSE,
                                 which.proteinid = 'Proteins',
+                                rmProt_Only.identified.by.site = FALSE,
                                 useUniquePeptide = TRUE,
-                                summaryforMultipleRows = sum,
-                                removePSM_withMissingValue_withinRun = TRUE,
-                                removeProtein_with1Feature = FALSE){
+                                rmPSM_withMissing_withinRun = FALSE,
+                                rmPSM_withfewMea_withinRun = TRUE,
+                                rmProtein_with1Feature = FALSE,
+                                summaryforMultipleRows = sum){
 
     PeptideSequence = fea2 = Run = NULL
     ## evidence.txt file
@@ -42,15 +47,11 @@ MQtoMSstatsTMTFormat <- function(evidence,
     ################################################
     ## 0. check input for annotation
     ################################################
-    #required.annotation <- c("Run", "Channel", "Group", "BiologicalMixture", "Subject")
-    required.annotation <- c("Run", "Channel", "Condition", "BioReplicate", "Mixture")
+    check.annotation(annotation)
 
-    if (!all(required.annotation %in% colnames(annotation))) {
+    if (!all(unique(annotation$Run) %in% unique(input$Raw.file))) {
 
-        missedAnnotation <- which(!(required.annotation %in% colnames(annotation)))
-        stop(paste("Please check the required column in the annotation file. ** columns :",
-                   paste(required.annotation[missedAnnotation], collapse = ", "), " are missed."))
-
+        stop("Please check the annotation file. 'Run' must be matched with 'R.FileName'. ")
     }
 
     ################################################
@@ -61,7 +62,6 @@ MQtoMSstatsTMTFormat <- function(evidence,
     ## 1. remove contaminant, reverse proteinID
     ## Contaminant, Reverse column in evidence
     ################################################
-
     ## remove contaminant
     if (is.element("Contaminant", colnames(input)) &
         is.element("+", unique(input$Contaminant))) {
@@ -82,7 +82,7 @@ MQtoMSstatsTMTFormat <- function(evidence,
     message('** + Contaminant, + Reverse, + Only.identified.by.site, proteins are removed.')
 
     ## ? Only.identified.by.site column in proteinGroupID? : sometimes, it is not in evidence.txt
-    if (remove.Only.identified.by.site) {
+    if (rmProt_Only.identified.by.site) {
         if (is.element("Only.identified.by.site", colnames(input)) &
             is.element("+", unique(proteinGroups$Only.identified.by.site))) {
             input <- input[-which(input$Only.identified.by.site %in% "+"), ]
@@ -119,7 +119,7 @@ MQtoMSstatsTMTFormat <- function(evidence,
     }
 
     ## ? Only.identified.by.site column in proteinGroupID? : sometimes, it is not in evidence.txt
-    if (remove.Only.identified.by.site) {
+    if (rmProt_Only.identified.by.site) {
         if (is.element("Only.identified.by.site", colnames(proteinGroups)) &
             is.element("+", unique(proteinGroups$Only.identified.by.site))) {
             proteinGroups <- proteinGroups[-which(proteinGroups$Only.identified.by.site %in% "+"), ]
@@ -183,16 +183,17 @@ MQtoMSstatsTMTFormat <- function(evidence,
     ################################################
     ## 4. get subset of columns
     ################################################
-
+    # For maxquant 1.5. It needs to update for new version of maxquant
     inputlevel <- 'Reporter.intensity.corrected'
+
     ## columns which include inputlevel
-    int.column <- colnames(input)[grep(inputlevel, colnames(input))]
+    channels <- colnames(input)[grep(inputlevel, colnames(input))]
 
     input <- input[, which(colnames(input) %in% c(which.pro,
                                                 'Modified.sequence', 'Charge',
                                                 'Raw.file',
                                                 'Score',
-                                                int.column))]
+                                                channels))]
 
     colnames(input)[colnames(input) == 'Proteins'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Leading.proteins'] <- 'ProteinName'
@@ -209,7 +210,7 @@ MQtoMSstatsTMTFormat <- function(evidence,
     ## which means by row
     ################################################
 
-    tmp <- input[, which(colnames(input) %in% int.column)]
+    tmp <- input[, channels]
     tmp.count <- apply(tmp, 1, function(x) sum(x == 0))
     nchannel <- ncol(tmp)
 
@@ -218,11 +219,15 @@ MQtoMSstatsTMTFormat <- function(evidence,
 
     message('** PSMs, that have all zero intensities across channels in each run, are removed.')
 
+    # replace zero with NA
+    input.int <- input[,channels]
+    input.int[input.int == 0] <- NA
+    input[, channels] <- input.int
+
     ################################################
     ## 6. remove peptides which are used in more than one protein
     ## we assume to use unique peptide
     ################################################
-
     if (useUniquePeptide) {
 
         ## double check
@@ -243,23 +248,49 @@ MQtoMSstatsTMTFormat <- function(evidence,
     }
 
     ##############################
-    ## 7. remove multiple measurements per feature and run
+    ## 7. remove features which has missing measurements within each run
     ##############################
+    if (rmPSM_withMissing_withinRun) {
 
+        tmp <- input[,channels]
+        nmea <- apply(tmp, 1, function(x) sum(!is.na(x)))
+        input <- input[nmea == length(channels), ] # no missing values within run
+        message('** Rows which has any missing value within a run were removed from that run.')
+    }
+
+    ##############################
+    ##  8. remove features which has 1 or 2 measurements across runs
+    ##############################
+    if(rmPSM_withMissing_withinRun & rmPSM_withfewMea_withinRun){
+
+        stop("Please check the value of rmPSM_withfewMea_withinRun.
+             If rmPSM_withMissing_withinRun = TRUE, rmPSM_withfewMea_withinRun must be FALSE. ")
+    }
+
+    if (rmPSM_withfewMea_withinRun){
+
+        tmp <- input[,channels]
+        nmea <- apply(tmp, 1, function(x) sum(!is.na(x)))
+        input <- input[nmea > 2, ]
+        message(paste0('** ', sum(nmea <= 2), ' features have 1 or 2 intensities across runs and are removed.'))
+    }
+
+    ##############################
+    ## 9. remove multiple measurements per feature and run
+    ##############################
     input$fea <- paste(input$PeptideSequence, input$Charge, sep="_")
 
     ## check multiple measurements
     input$fea2 <- paste(input$fea, input$ProteinName, sep="_")
     input$fea2 <- factor(input$fea2)
 
-    structure <- input %>% group_by(fea2, Run) %>% summarise(nmeasure=n())
-    ## nmeasurement should be 1, otherwise, there are multiple measurements
-    fea.multimeas <- structure[structure$nmeasure > 1, ]
+    count <- xtabs(~ fea2 + Run, input)
+    ## there are multiple measurements
+    count2 <- as.data.frame(count)
+    fea.multimeas <- count2[count2$Freq > 1, ]
 
-    ## if there is any feature issued.
     ## separate input by multiple measurements vs one measurement
-    if (nrow(fea.multimeas) > 0) {
-        ## make unique feature and run
+    if (nrow(fea.multimeas) > 0) { ## if there is any feature issued.
         fea.multimeas$issue <- paste(fea.multimeas$fea2, fea.multimeas$Run, sep="_")
         input$issue <- paste(input$fea2, input$Run, sep="_")
 
@@ -268,60 +299,74 @@ MQtoMSstatsTMTFormat <- function(evidence,
 
         ## keep selected rows among issued rows
         keepinfo.select <- NULL
+        for (i in 1:length(unique(fea.multimeas$issue))) {
+            # message("Row ", i)
+            sub <- input[input$issue == unique(fea.multimeas$issue)[i], ]
+            sub <- unique(sub)
+            subfea <- fea.multimeas[fea.multimeas$issue == unique(fea.multimeas$issue)[i], ]
 
-        ## each feature
-        for (i in 1:length(unique(fea.multimeas$fea2))) {
-            sub <- input[input$fea2 == unique(fea.multimeas$fea2)[i], ]
-            subfea <- fea.multimeas[fea.multimeas$fea2 == unique(fea.multimeas$fea2)[i], ]
-
-            ## each run within specific feature
-            for (j in 1:length(unique(subfea$Run))) {
-                subsub <- sub[sub$Run == unique(subfea$Run)[j], ]
-
-                if (nrow(subsub) < 2) {
-                    next()
-                }
-
-                ## decision 1 : first use the rows which has most number of measurement
-                ## count the number of measurement per row
-                ## not NA also not zero
-                subsub$nmea <- apply(subsub[, int.column], 1, function(x) sum(!is.na(x) & x > 0))
-                ## which.max choose only one row
-                subsub2 <- subsub[subsub$nmea == max(subsub$nmea), ]
-
-                if (nrow(subsub2) < 2) {
-                    ## new column within if should be removed. otherwise can't be added in data.frame.
-                    subsub2 <- subsub2[, -which(colnames(subsub2) %in% c("nmea"))]
-                    keepinfo.select <- rbind(keepinfo.select,
-                                            subsub2)
-                } else {
-                    ## decision 2 : keep the row with higher Score
-                    ## Score : Andromeda score for the best associated MS/MS spectrum.
-                    subsub3 <- subsub2[subsub2$Score == max(subsub2$Score), ] ## which.max choose only one row
-
-                    if (nrow(subsub3) < 2) {
-                        ## new column within if should be removed. otherwise can't be added in data.frame.
-                        subsub3 <- subsub3[, -which(colnames(subsub3) %in% c("nmea"))]
-                        keepinfo.select <- rbind(keepinfo.select, subsub3)
-                    } else {
-                        ## decision 3 : maximum or sum up abundances among intensities for identical features within one run
-                        subsub3$totalmea <- apply(subsub3[, int.column], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
-                        subsub4 <- subsub3[subsub3$totalmea == max(subsub3$totalmea), ]
-
-                        ## new column within if should be removed. otherwise can't be added in data.frame.
-                        subsub4 <- subsub4[, -which(colnames(subsub4) %in% c("nmea", "totalmea"))]
-                        keepinfo.select <- rbind(keepinfo.select, subsub4)
-                        rm(subsub4)
-                    }
-                    rm(subsub3)
-                }
-                rm(subsub2)
+            if (nrow(sub) < 2) {
+                keepinfo.select <- rbind(keepinfo.select, sub)
+                next()
             }
+
+            ## decision 1 : first use the rows which has most number of measurement
+            ## count the number of measurement per row
+            sub$nmea <- apply(sub[, channels], 1, function(x) sum(!is.na(x)))
+            sub2 <- sub[sub$nmea == max(sub$nmea), ] ## which.max choose only one row
+            sub2 <- sub2[, -which(colnames(sub2) %in% c('nmea'))] # remove the added columns
+
+            if (nrow(sub2) < 2) {
+                keepinfo.select <- rbind(keepinfo.select, sub2)
+                next()
+            } else {
+                ## decision 2 : keep the row with higher Score
+                ## Score : Andromeda score for the best associated MS/MS spectrum.
+                if("Score" %in% names(sub2) & (sum(is.na(sub2$Score)) == 0)){ # make sure Score is available
+                    sub3 <- sub2[sub2$Score == max(sub2$Score), ]
+                } else {
+                    sub3 <- sub2
+                }
+
+                if (nrow(sub3) < 2) {
+                    keepinfo.select <- rbind(keepinfo.select, sub3)
+                    next()
+                } else {
+                    ## decision 3 : ## maximum or sum up abundances among intensities for identical features within one run
+                    if(!(length(summaryforMultipleRows) == 1 & (identical(summaryforMultipleRows, sum) | identical(summaryforMultipleRows, max)))){
+                        stop("summaryforMultipleRows can only be sum or max! ")
+                    }
+
+                    sub3$totalmea <- apply(sub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                    sub4 <- sub3[sub3$totalmea == max(sub3$totalmea), ]
+                    sub4 <- sub4[, which(colnames(sub3) != "totalmea")]
+
+                    if (nrow(sub4) < 2) {
+                        keepinfo.select <- rbind(keepinfo.select, sub4)
+
+                    } else {
+                        # sum up or maximum abundances among intensities for identical features within one run
+                        if(identical(summaryforMultipleRows, sum)){
+                            summaryforMultipleRows = max
+                        } else {
+                            summaryforMultipleRows = sum
+                        }
+
+                        sub3$totalmea <- apply(sub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                        sub4 <- sub3[sub3$totalmea == max(sub3$totalmea), ]
+                        sub4 <- sub4[, which(colnames(sub3) != "totalmea")]
+                        keepinfo.select <- rbind(keepinfo.select, sub4)
+                    }
+                    rm(sub4)
+                }
+                rm(sub3)
+            }
+            rm(sub2)
+            rm(sub)
         }
 
         ## combine the featurew without any issue
         input.new <- rbind(input.no, keepinfo.select)
-
         input.new <- input.new[, -which(colnames(input.new) %in%
                                             c('Score', 'fea', 'fea2', 'issue'))]
 
@@ -336,21 +381,20 @@ MQtoMSstatsTMTFormat <- function(evidence,
                                        'PeptideSequence',
                                        'Charge',
                                        'Run'),
-                    variable.name = "Channel",
-                    value.name = "Intensity")
+                       variable.name = "Channel",
+                       value.name = "Intensity")
 
+    # make sure no dupliate rows
     input.long <- input.long[!is.na(input.long$Intensity), ]
     input <- input.long
     rm(input.long)
     rm(input.new)
 
-
+    ##############################
+    ## 10. add annotation
+    ##############################
     ## channel prefix for channel
     input$Channel <- gsub(inputlevel, 'channel', input$Channel)
-
-    ##############################
-    ## 8. add annotation
-    ##############################
 
     input <- merge(input, annotation, by=c("Run", "Channel"), all.x =TRUE)
 
@@ -380,31 +424,9 @@ MQtoMSstatsTMTFormat <- function(evidence,
     rm(input.final)
 
     ##############################
-    ## 6. remove features which has missing measurements within each run
+    ## 11. remove proteins with only one peptide and charge per protein
     ##############################
-    ## number of channels in the dataset
-    n_channels <- length(unique(input$Channel))
-
-    if (removePSM_withMissingValue_withinRun) {
-
-        ## it is the same across experiments. # measurement per feature.
-        xtmp <- input[!is.na(input$Intensity) & input$Intensity > 0, ]
-        xtmp$eachRun <- paste(xtmp$PSM, xtmp$Run, sep="_")
-        count_measure <- xtabs( ~ eachRun, xtmp)
-        remove_feature_name <- count_measure[count_measure < n_channels]
-
-        if (length(remove_feature_name) > 0) {
-            xtmp <- xtmp[-which(xtmp$eachRun %in% names(remove_feature_name)), ]
-        }
-        input <- xtmp[, colnames(xtmp) != "eachRun"]
-        message('** Features which has any missing value within a run were removed from that run.')
-    }
-
-    ##############################
-    ## 7. remove proteins with only one peptide and charge per protein
-    ##############################
-
-    if (removeProtein_with1Feature) {
+    if (rmProtein_with1Feature) {
 
         ## remove protein which has only one peptide
         tmp <- unique(input[, c("ProteinName", 'PSM')])
@@ -423,7 +445,7 @@ MQtoMSstatsTMTFormat <- function(evidence,
     }
 
     ##############################
-    ## 8. combine fractions within each mixture
+    ## 12. combine fractions within each mixture
     ##############################
 
     if (fraction) {

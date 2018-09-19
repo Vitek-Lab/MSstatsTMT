@@ -5,11 +5,10 @@
 \title{Generate MSstatsTMT required input format for Proteome discoverer output}
 \usage{
 PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
-  useNumProteinsColumn = TRUE, useUniquePeptide = TRUE,
-  summaryforMultipleRows = sum,
-  removePSM_withMissingValue_withinRun = FALSE,
-  removeProtein_with1Feature = FALSE,
-  which.proteinid = "Master.Protein.Accessions")
+  which.proteinid = "Protein.Accessions", useNumProteinsColumn = TRUE,
+  useUniquePeptide = TRUE, rmPSM_withMissing_withinRun = FALSE,
+  rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE,
+  summaryforMultipleRows = sum)
 }
 \arguments{
 \item{input}{data name of Proteome discover PSM output. Read PSM sheet.}
@@ -18,17 +17,19 @@ PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
 
 \item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.}
 
+\item{which.proteinid}{Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead.}
+
 \item{useNumProteinsColumn}{TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.}
 
 \item{useUniquePeptide}{TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.}
 
-\item{summaryforMultipleRows}{max(default) or sum - when there are multiple measurements for certain feature and certain run, use highest or sum of multiple intensities.}
+\item{rmPSM_withMissing_withinRun}{TRUE will remove PSM with any missing value within each Run. Defaut is FALSE.}
 
-\item{removePSM_withMissingValue_withinRun}{TRUE(default) will remove PSM with any missing value within each Run.}
+\item{rmPSM_withfewMea_withinRun}{only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.}
 
-\item{removeProtein_with1Feature}{TRUE(default) will remove the proteins which have only 1 peptide and charge.}
+\item{rmProtein_with1Feature}{TRUE will remove the proteins which have only 1 peptide and charge. Defaut is FALSE.}
 
-\item{which.proteinid}{Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead.}
+\item{summaryforMultipleRows}{sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.}
 }
 \value{
 input for protein.summarization function
@@ -37,8 +38,8 @@ input for protein.summarization function
 Convert Proteome discoverer output into the required input format for MSstatsTMT.
 }
 \examples{
-head(raw.input)
-head(annotation)
-required.input <- PDtoMSstatsTMTFormat(raw.input, annotation)
-head(required.input)
+head(raw.pd)
+head(annotation.pd)
+input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
+head(input.pd)
 }

@@ -5,8 +5,7 @@
 \title{Finding differentially abundant proteins across conditions in TMT experiment}
 \usage{
 groupComparison.TMT(data, contrast.matrix = "pairwise",
-  remove_norm_channel = TRUE, model = "proposed", moderated = TRUE,
-  adj.method = "BH")
+  remove_norm_channel = TRUE, moderated = TRUE, adj.method = "BH")
 }
 \arguments{
 \item{data}{Name of the output of protein.summarization function. It should have columns named Protein, Mixture, Run, Channel, Condition, BioReplicate, Abundance.}
@@ -15,11 +14,11 @@ groupComparison.TMT(data, contrast.matrix = "pairwise",
 
 \item{remove_norm_channel}{TRUE(default) removes 'Norm' channels for inference step.}
 
-\item{model}{Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.}
-
 \item{moderated}{Only for model = 'proposed'. If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.}
 
 \item{adj.method}{adjusted method for multiple comparison. "BH" is default.}
+
+\item{model}{Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.}
 }
 \value{
 data.frame with result of inference
