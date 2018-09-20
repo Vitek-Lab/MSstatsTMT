@@ -69,9 +69,14 @@ groupComparison.TMT <- function(data,
     if (!all(required.info %in% colnames(data))) {
 
         missedAnnotation <- which(!(required.info %in% colnames(data)))
-        stop(paste("Please check the required input. ** columns :",
-                   required.info[missedAnnotation],
-                   ", are missed.", collapse = ", "))
+        missedAnnotation.comb <- paste(required.info[missedAnnotation], collapse = ", ")
+        if (length(missedAnnotation) == 1) {
+            stop(paste("Please check the required input. ** columns :",
+                       missedAnnotation.comb, "is missed."))
+        } else {
+            stop(paste("Please check the required input. ** columns :",
+                       missedAnnotation.comb, ", are missed."))
+        }
 
     }
 
