@@ -182,12 +182,6 @@ PDtoMSstatsTMTFormat <- function(input,
     ##############################
     ##  5. remove features which has 1 or 2 measurements across runs
     ##############################
-    if(rmPSM_withMissing_withinRun & rmPSM_withfewMea_withinRun){
-
-        stop("Please check the value of rmPSM_withfewMea_withinRun.
-         If rmPSM_withMissing_withinRun = TRUE, rmPSM_withfewMea_withinRun must be FALSE. ")
-    }
-
     if (rmPSM_withfewMea_withinRun){
 
         tmp <- input[,channels]
@@ -396,7 +390,7 @@ PDtoMSstatsTMTFormat <- function(input,
         message('** Fractions belonging to same mixture have been combined.')
     }
     return(input)
-}
+    }
 
 ## Remove the peptide ions overlapped among multiple fractions of same biological mixture
 ## data: PSM level data, which has columns Protein, PSM, BioReplicate, Run, Channel, Intensity, Mixture

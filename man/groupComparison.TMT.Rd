@@ -14,11 +14,9 @@ groupComparison.TMT(data, contrast.matrix = "pairwise",
 
 \item{remove_norm_channel}{TRUE(default) removes 'Norm' channels for inference step.}
 
-\item{moderated}{Only for model = 'proposed'. If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.}
+\item{moderated}{TRUE (default) will moderate t statistic will be calculated; otherwise, ordinary t statistic will be used.}
 
 \item{adj.method}{adjusted method for multiple comparison. "BH" is default.}
-
-\item{model}{Three different statistical approached can be performed : "proposed", "limma", "ttest". "proposed" is the default.}
 }
 \value{
 data.frame with result of inference
@@ -28,19 +26,19 @@ Tests for significant changes in protein abundance across conditions based on a 
 Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
 }
 \examples{
-quant.byprotein <- protein.summarization(required.input,
+quant.msstats <- protein.summarization(input.pd,
                                          method="msstats",
-                                         normalization=TRUE,)
+                                         normalization=TRUE)
 
-test.byproposed <- groupComparison.TMT(quant.byprotein)
+test.pairwise <- groupComparison.TMT(quant.msstats)
 
 # Only compare condition 0.125 and 1
-levels(quant.byprotein$Condition)
+levels(quant.msstats$Condition)
 # 'Norm' should be not considered in the contrast
 comparison<-matrix(c(-1,0,0,1),nrow=1)
 # Set the names of each row
 row.names(comparison)<-"1-0.125"
 # Set the column names
 colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
-test.contrast <- groupComparison.TMT(data = quant.byprotein, contrast.matrix = comparison)
+test.contrast <- groupComparison.TMT(data = quant.msstats, contrast.matrix = comparison)
 }

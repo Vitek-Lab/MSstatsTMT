@@ -5,15 +5,14 @@
 \title{Visualization for explanatory data analysis - TMT experiment}
 \usage{
 dataProcessPlots.TMT(data.psm = data.psm,
-  data.summarization = data.summarization, type = type,
-  ylimUp = FALSE, ylimDown = FALSE, x.axis.size = 10,
-  y.axis.size = 10, text.size = 4, text.angle = 90,
-  legend.size = 7, dot.size.profile = 2, ncol.guide = 5,
-  width = 10, height = 10, which.Protein = "all",
+  data.summarization = data.summarization, type = type, ylimUp = FALSE,
+  ylimDown = FALSE, x.axis.size = 10, y.axis.size = 10, text.size = 4,
+  text.angle = 90, legend.size = 7, dot.size.profile = 2,
+  ncol.guide = 5, width = 10, height = 10, which.Protein = "all",
   originalPlot = TRUE, summaryPlot = TRUE, address = "")
 }
 \arguments{
-\item{data.psm}{name of the data with PSM-level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MQtoMSstatsTMTFormat}}).}
+\item{data.psm}{name of the data with PSM-level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).}
 
 \item{data.summarization}{name of the data with protein-level, which can be the output of (\code{\link{protein.summarization}}) function.}
 
@@ -25,7 +24,7 @@ FALSE(Default) for Profile Plot and QC Plot use the upper limit as rounded off m
 
 \item{ylimDown}{lower limit for y-axis in the log scale. FALSE(Default) for Profile Plot and QC Plot is 0.}
 
-\item{x.axis.size}{size of x-axis labeling for "Run" in Profile Plot and QC Plot.}
+\item{x.axis.size}{size of x-axis labeling for "Run" and "channel in Profile Plot and QC Plot.}
 
 \item{y.axis.size}{size of y-axis labels. Default is 10.}
 
@@ -61,24 +60,28 @@ plot or pdf
 }
 \description{
 To illustrate the quantitative data and quality control of MS runs,
-dataProcessPlots.TMT takes the quantitative data from converter functions (\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MQtoMSstatsTMTFormat}}) as input
+dataProcessPlots.TMT takes the quantitative data from converter functions (\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}) as input
 and generate two types of figures in pdf files as output :
 (1) profile plot (specify "ProfilePlot" in option type), to identify the potential sources of variation for each protein;
 (2) quality control plot (specify "QCPlot" in option type), to evaluate the systematic bias between MS runs.
 }
 \examples{
-head(raw.input)
-head(annotation)
-required.input <- PDtoMSstatsTMTFormat(raw.input, annotation)
-quant.byprotein <- protein.summarization(required.input,
-                                         method="MedianPolish",
+head(raw.pd)
+head(annotation.pd)
+input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
+quant.msstats <- protein.summarization(input.pd,
+                                         method="msstats",
                                          normalization=TRUE)
 
-dataProcessPlots.TMT(data.psm=required.input,
-                     data.summarization=quant.byprotein,
-                     type='ProfilePlot')
+dataProcessPlots.TMT(data.psm=input.pd,
+                     data.summarization=quant.msstats,
+                     type='ProfilePlot',
+                     width = 21,
+                     height = 7)
 
-dataProcessPlots.TMT(data.psm=required.input,
-                     data.summarization=quant.byprotein,
-                     type='QCPlot')
+dataProcessPlots.TMT(data.psm=input.pd,
+                     data.summarization=quant.msstats,
+                     type='QCPlot',
+                     width = 21,
+                     height = 7)
 }

@@ -1,17 +1,3 @@
 # MSstatsTMT
 
-First download the repository to your own computer.
-
-#Build package
-
-Local build and install
-1. Go to directory where the package folder located
-2. Type: R CMD build MSstatsTMT (normally this will generate a file with name like "MSstatsTMT_0.0.0.9000.tar.gz"
-3. Type: R CMD INSTALL MSstatsTMT_0.0.0.9000.tar.gz (or whatever the package is called)
-
-
-Github install
-
-devtools::install_github(repo = "Vitek-Lab/MSstatsTMT",auth_token = "e746d301b801a834fb047d7a6be7a707a184fef2")
-
-
+MSstats is an R-based package for detecting differentially abundant proteins in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling. It is applicable to isobaric labeling quantitative proteomics, including iTRAQ and TMT. The official webpage is http://msstats.org/msstatstmt/.

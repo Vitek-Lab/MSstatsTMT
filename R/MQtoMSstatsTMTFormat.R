@@ -24,21 +24,21 @@
 #' head(evidence)
 #' head(proteinGroups)
 #' head(annotation.mq)
-#' input.mq <- MQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
+#' input.mq <- MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
 #' head(input.mq)
 #' }
 
-MQtoMSstatsTMTFormat <- function(evidence,
-                                proteinGroups,
-                                annotation,
-                                fraction = FALSE,
-                                which.proteinid = 'Proteins',
-                                rmProt_Only.identified.by.site = FALSE,
-                                useUniquePeptide = TRUE,
-                                rmPSM_withMissing_withinRun = FALSE,
-                                rmPSM_withfewMea_withinRun = TRUE,
-                                rmProtein_with1Feature = FALSE,
-                                summaryforMultipleRows = sum){
+MaxQtoMSstatsTMTFormat <- function(evidence,
+                                 proteinGroups,
+                                 annotation,
+                                 fraction = FALSE,
+                                 which.proteinid = 'Proteins',
+                                 rmProt_Only.identified.by.site = FALSE,
+                                 useUniquePeptide = TRUE,
+                                 rmPSM_withMissing_withinRun = FALSE,
+                                 rmPSM_withfewMea_withinRun = TRUE,
+                                 rmProtein_with1Feature = FALSE,
+                                 summaryforMultipleRows = sum){
 
     PeptideSequence = fea2 = Run = NULL
     ## evidence.txt file
@@ -190,10 +190,10 @@ MQtoMSstatsTMTFormat <- function(evidence,
     channels <- colnames(input)[grep(inputlevel, colnames(input))]
 
     input <- input[, which(colnames(input) %in% c(which.pro,
-                                                'Modified.sequence', 'Charge',
-                                                'Raw.file',
-                                                'Score',
-                                                channels))]
+                                                  'Modified.sequence', 'Charge',
+                                                  'Raw.file',
+                                                  'Score',
+                                                  channels))]
 
     colnames(input)[colnames(input) == 'Proteins'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Leading.proteins'] <- 'ProteinName'
@@ -261,12 +261,6 @@ MQtoMSstatsTMTFormat <- function(evidence,
     ##############################
     ##  8. remove features which has 1 or 2 measurements across runs
     ##############################
-    if(rmPSM_withMissing_withinRun & rmPSM_withfewMea_withinRun){
-
-        stop("Please check the value of rmPSM_withfewMea_withinRun.
-             If rmPSM_withMissing_withinRun = TRUE, rmPSM_withfewMea_withinRun must be FALSE. ")
-    }
-
     if (rmPSM_withfewMea_withinRun){
 
         tmp <- input[,channels]
@@ -410,15 +404,15 @@ MQtoMSstatsTMTFormat <- function(evidence,
     }
 
     input.final <- data.frame("ProteinName" = input$ProteinName,
-                            "PeptideSequence" = input$PeptideSequence,
-                            "Charge" = input$Charge,
-                            "PSM" = paste(input$PeptideSequence, input$Charge, sep="_"),
-                            "Channel" = as.factor(input$Channel),
-                            "Condition" = input$Condition,
-                            "BioReplicate" = input$BioReplicate,
-                            "Run" = input$Run,
-                            "Mixture" = input$Mixture,
-                            "Intensity" = input$Intensity)
+                              "PeptideSequence" = input$PeptideSequence,
+                              "Charge" = input$Charge,
+                              "PSM" = paste(input$PeptideSequence, input$Charge, sep="_"),
+                              "Channel" = as.factor(input$Channel),
+                              "Condition" = input$Condition,
+                              "BioReplicate" = input$BioReplicate,
+                              "Run" = input$Run,
+                              "Mixture" = input$Mixture,
+                              "Intensity" = input$Intensity)
 
     input <- input.final
     rm(input.final)
@@ -439,8 +433,8 @@ MQtoMSstatsTMTFormat <- function(evidence,
         if (length(removepro) > 0) {
             input <- input[-which(input$ProteinName %in% removepro), ]
             message(paste0("** ", length(removepro),
-                          ' proteins, which have only one feature in a protein, are removed among ',
-                          lengthtotalprotein, ' proteins.'))
+                           ' proteins, which have only one feature in a protein, are removed among ',
+                           lengthtotalprotein, ' proteins.'))
         }
     }
 
@@ -449,10 +443,10 @@ MQtoMSstatsTMTFormat <- function(evidence,
     ##############################
 
     if (fraction) {
-      input <- combine.fractions(input)
-      ## change data.table to data.frame, in order to make the same class for input, without fraction
-      input <- as.data.frame(input)
-      message('** Fractions belonging to same mixture have been combined.')
+        input <- combine.fractions(input)
+        ## change data.table to data.frame, in order to make the same class for input, without fraction
+        input <- as.data.frame(input)
+        message('** Fractions belonging to same mixture have been combined.')
     }
 
     return(input)

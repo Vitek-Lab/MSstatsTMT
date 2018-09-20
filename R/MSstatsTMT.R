@@ -5,7 +5,8 @@
 #' @section functions :
 #' \itemize{
 #'   \item \code{\link{PDtoMSstatsTMTFormat}} : generate MSstatsTMT required input format for Proteome discoverer output.
-#'   \item \code{\link{MQtoMSstatsTMTFormat}} : generate MSstatsTMT required input format for Maxquant output.
+#'   \item \code{\link{MaxQtoMSstatsTMTFormat}} : generate MSstatsTMT required input format for MaxQuant output.
+#'   \item \code{\link{SpectroMinetoMSstatsTMTFormat}} : generate MSstatsTMT required input format for SpectroMine output.
 #'   \item \code{\link{protein.summarization}} : summarizing PSM level quantification to protein level quantification.
 #'   \item \code{\link{dataProcessPlots.TMT}} : Visualization for explanatory data analysis.
 #'   \item \code{\link{groupComparison.TMT}} : testing for significant changes in protein abundance across conditions.

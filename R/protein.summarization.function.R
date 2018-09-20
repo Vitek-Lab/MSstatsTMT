@@ -8,6 +8,7 @@
 #' @importFrom stats medpolish
 #' @importFrom matrixStats colMedians
 #' @importFrom data.table :=
+
 protein.summarization.function <- function(data,
                                            method,
                                            normalization,
@@ -26,8 +27,8 @@ protein.summarization.function <- function(data,
     ## replace with zero
     ## then we don't need to worry about -Inf = log2(0)
     if (nrow(data[!is.na(data$Intensity) & data$Intensity < 1]) > 0){
-      data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- 0
-      message('** Negative log2 intensities were replaced with zero.')
+        data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- 0
+        message('** Negative log2 intensities were replaced with zero.')
     }
 
     ## Record the group information
@@ -109,15 +110,15 @@ protein.summarization.function <- function(data,
         anno <- cbind(anno, dt)#attach channels to each run and protein
 
         anno <- anno %>% unite("Run.Protein", Run,ProteinName) %>%
-          gather(v, Channel, -Run.Protein) %>%
-          separate(Run.Protein, into = c("Run", "ProteinName"))
+            gather(v, Channel, -Run.Protein) %>%
+            separate(Run.Protein, into = c("Run", "ProteinName"))
         anno$Run <- as.numeric(as.character(anno$Run))
         data <- right_join(data, anno)
 
         #Create a annotation to make sure there are no missing PSMs for each Run and Protein
         anno1 <- unique(data[, c("Run", "ProteinName", "PSM")])
         anno2 <- full_join(anno,anno1) %>%
-          select("Run", "ProteinName", "Channel", "PSM")
+            select("Run", "ProteinName", "Channel", "PSM")
         data <- right_join(data, anno2) #runchannel+1 after this line
 
         #Create a annotation for "runchannel" sorted by Run and ProteinName
@@ -158,7 +159,7 @@ protein.summarization.function <- function(data,
         res$Run <- res$Run.x#delete x and y
 
         if (normalization & length(runs) > 1) {
-          # Do normalization based on group 'Norm'
+            # Do normalization based on group 'Norm'
             res <- protein.normalization(res)
         }
         res$Protein <- res$ProteinName
@@ -178,7 +179,7 @@ protein.summarization.function <- function(data,
         res$Run <- res$Run.x #delete x and y
 
         if (normalization & length(runs) > 1) {
-          # Do normalization based on group 'Norm'
+            # Do normalization based on group 'Norm'
             res <- protein.normalization(res)
         }
         res$Protein<-res$ProteinName
@@ -228,7 +229,7 @@ protein.normalization <- function(data) {
             norm.channel <- norm.channel[, .(Abundance = mean(Abundance, na.rm = TRUE)),
                                          by = .(Protein, Run)]
             norm.channel$diff <- median(norm.channel$Abundance, na.rm = TRUE) -
-              norm.channel$Abundance
+                norm.channel$Abundance
             setkey(sub_data, Run)
             setkey(norm.channel, Run)
             norm.sub_data <- merge(sub_data, norm.channel[, .(Run, diff)], all.x=TRUE)
@@ -270,3 +271,4 @@ MedianPolishFunction <- function(c, num.channels){
     tmpresult <- meddata$overall + meddata$col
     return(tmpresult)
 }
+

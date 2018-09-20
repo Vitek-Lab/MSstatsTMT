@@ -49,12 +49,12 @@ Preprocess PSM data from Proteome Discoverer and convert into the required input
 ### Example
 ```{r}
 # read in PD PSM sheet
-raw.pd <- read.delim("161117_SILAC_HeLa_UPS1_TMT10_5Mixtures_3TechRep_UPSdB_Multiconsensus_PD22_Intensity_PSMs.txt")
+# raw.pd <- read.delim("161117_SILAC_HeLa_UPS1_TMT10_5Mixtures_3TechRep_UPSdB_Multiconsensus_PD22_Intensity_PSMs.txt")
 head(raw.pd)
 
 # Read in annotation including condition and biological replicates per run and channel.
 # Users should make this annotation file. It is not the output from Proteome Discoverer.
-annotation.pd <- read.csv(file="PD_Annotation.csv", header=TRUE)
+# annotation.pd <- read.csv(file="PD_Annotation.csv", header=TRUE)
 head(annotation.pd)
 
 # do not remove PSM with missing values within one run
@@ -90,12 +90,12 @@ Preprocess PSM-level data from MaxQuant and convert into the required input form
 ### Example
 ```{r}
 # Read in MaxQuant files
-proteinGroups <- read.table("proteinGroups.txt", sep="\t", header=TRUE)
+# proteinGroups <- read.table("proteinGroups.txt", sep="\t", header=TRUE)
 
-evidence <- read.table("evidence.txt", sep="\t", header=TRUE)
+# evidence <- read.table("evidence.txt", sep="\t", header=TRUE)
 
 # Users should make this annotation file. It is not the output from MaxQuant.
-annotation.mq <- read.csv(file="MQ_Annotation.csv", header=TRUE)
+# annotation.mq <- read.csv(file="MQ_Annotation.csv", header=TRUE)
 
 input.mq <- MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
 head(input.mq)
@@ -123,10 +123,10 @@ Preprocess PSM data from SpectroMine and convert into the required input format 
 ### Example
 ```{r}
 # Read in SpectroMine PSM report
-raw.mine <- read.csv('20180831_095547_CID-OT-MS3-Short_PSM Report_20180831_103118.xls', sep="\t")
+# raw.mine <- read.csv('20180831_095547_CID-OT-MS3-Short_PSM Report_20180831_103118.xls', sep="\t")
 
 # Users should make this annotation file. It is not the output from SpectroMine
-annotation.mine <- read.csv(file="Mine_Annotation.csv", header=TRUE)
+# annotation.mine <- read.csv(file="Mine_Annotation.csv", header=TRUE)
 
 input.mine <- SpectroMinetoMSstatsTMTFormat(raw.mine, annotation.mine)
 head(input.mine)

@@ -13,12 +13,12 @@
 #' @param maxQuantileforCensored We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
 #' @return data.frame with protein-level summarization for each run and channel
 #' @examples
-#' head(required.input)
-#' str(required.input)
-#' quant.byprotein <- protein.summarization(required.input,
+#' head(input.pd)
+#' str(input.pd)
+#' quant.msstats <- protein.summarization(input.pd,
 #'                                          method="msstats",
 #'                                          normalization=TRUE)
-#' head(quant.byprotein)
+#' head(quant.msstats)
 
 protein.summarization <- function(data,
                                   method = 'msstats',
@@ -52,8 +52,8 @@ protein.summarization <- function(data,
 
 
     ## check input
-    required.info <- c('ProteinName', 'PSM', 'Channel', 'BioReplicate',
-                       'Run', 'Mixture', 'Condition', 'Intensity')
+    required.info <- c('ProteinName', 'PSM', 'PeptideSequence', 'Charge',
+                       'Channel', 'BioReplicate', 'Run', 'Mixture', 'Condition', 'Intensity')
 
     if (!all(required.info %in% colnames(data))) {
 

@@ -26,10 +26,10 @@ We assume missing values are censored and then impute the missing values. Protei
 After all, normalization between MS runs using normalization channels will be implemented.
 }
 \examples{
-head(required.input)
-str(required.input)
-quant.byprotein <- protein.summarization(required.input,
+head(input.pd)
+str(input.pd)
+quant.msstats <- protein.summarization(input.pd,
                                          method="msstats",
-                                         normalization=TRUE,)
-head(quant.byprotein)
+                                         normalization=TRUE)
+head(quant.msstats)
 }

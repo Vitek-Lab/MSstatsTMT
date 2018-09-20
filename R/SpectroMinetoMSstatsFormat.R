@@ -10,7 +10,7 @@
 #' @param input data name of SpectroMine PSM output. Read PSM sheet.
 #' @param annotation data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.
 #' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.
-#' @param filter_with_Qvalue TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with zero and will be considered as censored missing values for imputation purpose.
+#' @param filter_with_Qvalue TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with NA and will be considered as censored missing values for imputation purpose.
 #' @param qvalue_cutoff Cutoff for EG.Qvalue. default is 0.01.
 #' @param useUniquePeptide TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
 #' @param rmPSM_withMissing_withinRun TRUE will remove PSM with any missing value within each Run. Defaut is FALSE.
@@ -76,7 +76,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
 
     if (!all( required.cols %in% colnames(input))) {
 
-        misssing.col <- required.cols[!required.cols %in% colnames(input)]
+        missing.col <- required.cols[!required.cols %in% colnames(input)]
 
         stop(paste0("** Please check the required input. The required input needs : ",
                     toString(missing.col)))
@@ -161,12 +161,6 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
     ##############################
     ##  6. remove features which has 1 or 2 measurements across runs
     ##############################
-    if(rmPSM_withMissing_withinRun & rmPSM_withfewMea_withinRun){
-
-        stop("Please check the value of rmPSM_withfewMea_withinRun.
-             If rmPSM_withMissing_withinRun = TRUE, rmPSM_withfewMea_withinRun must be FALSE. ")
-    }
-
     if (rmPSM_withfewMea_withinRun){
 
         tmp <- input[,channels]
@@ -348,3 +342,4 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
 
     return(input)
 }
+

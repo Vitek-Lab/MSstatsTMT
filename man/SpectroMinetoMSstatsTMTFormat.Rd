@@ -11,13 +11,13 @@ SpectroMinetoMSstatsTMTFormat(input, annotation, fraction = FALSE,
   summaryforMultipleRows = sum)
 }
 \arguments{
-\item{input}{data name of Proteome discover PSM output. Read PSM sheet.}
+\item{input}{data name of SpectroMine PSM output. Read PSM sheet.}
 
 \item{annotation}{data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.}
 
 \item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.}
 
-\item{filter_with_Qvalue}{TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with zero and will be considered as censored missing values for imputation purpose.}
+\item{filter_with_Qvalue}{TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with NA and will be considered as censored missing values for imputation purpose.}
 
 \item{qvalue_cutoff}{Cutoff for EG.Qvalue. default is 0.01.}
 
