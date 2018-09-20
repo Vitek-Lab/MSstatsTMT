@@ -262,7 +262,7 @@ PDtoMSstatsTMTFormat <- function(input,
                             stop("summaryforMultipleRows can only be sum or max! ")
                         }
 
-                        sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                        sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm <- TRUE))
                         sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
                         sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
 
@@ -272,12 +272,12 @@ PDtoMSstatsTMTFormat <- function(input,
                         } else {
                             # sum up or maximum abundances among intensities for identical features within one run
                             if(identical(summaryforMultipleRows, sum)){
-                                summaryforMultipleRows = max
+                                summaryforMultipleRows <- max
                             } else {
-                                summaryforMultipleRows = sum
+                                summaryforMultipleRows <- sum
                             }
 
-                            sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                            sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm <- TRUE))
                             sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
                             sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
                             keepinfo.select <- rbind(keepinfo.select, sub5)
@@ -305,11 +305,11 @@ PDtoMSstatsTMTFormat <- function(input,
     }
 
     # make long format
-    input.long <- melt(input.new, id=c('ProteinName',
+    input.long <- melt(input.new, id <- c('ProteinName',
                                        'PeptideSequence','Charge',
                                        'Run'),
-                       variable.name = "Channel",
-                       value.name = "Intensity")
+                       variable.name <- "Channel",
+                       value.name <- "Intensity")
 
     # make sure no dupliate rows
     input.long <- input.long[!is.na(input.long$Intensity), ]
@@ -329,7 +329,7 @@ PDtoMSstatsTMTFormat <- function(input,
         stop("Please check the annotation file. The channel name must be matched with that in input data ")
     }
 
-    input <- merge(input, annotation, by=c("Run", "Channel"), all.x =TRUE)
+    input <- merge(input, annotation, by <- c("Run", "Channel"), all.x  <- TRUE)
 
     ## check whether there is any missing 'Condition'
     noruninfo <- unique(input[is.na(input$Condition), c("Run", "Channel")])
@@ -342,16 +342,16 @@ PDtoMSstatsTMTFormat <- function(input,
         stop('** Please add them to annotation file.')
     }
 
-    input.final <- data.frame("ProteinName" = input$ProteinName,
-                              "PeptideSequence" = input$PeptideSequence,
-                              "Charge" = input$Charge,
-                              "PSM" = paste(input$PeptideSequence, input$Charge, sep="_"),
-                              "Channel" = as.factor(input$Channel),
-                              "Condition" = input$Condition,
-                              "BioReplicate" = input$BioReplicate,
-                              "Run" = input$Run,
-                              "Mixture" = input$Mixture,
-                              "Intensity" = input$Intensity)
+    input.final <- data.frame("ProteinName" <- input$ProteinName,
+                              "PeptideSequence" <- input$PeptideSequence,
+                              "Charge" <- input$Charge,
+                              "PSM" <- paste(input$PeptideSequence, input$Charge, sep <- "_"),
+                              "Channel" <- as.factor(input$Channel),
+                              "Condition" <- input$Condition,
+                              "BioReplicate" <- input$BioReplicate,
+                              "Run" <- input$Run,
+                              "Mixture" <- input$Mixture,
+                              "Intensity" <- input$Intensity)
 
     input <- input.final
     rm(input.final)
@@ -366,7 +366,7 @@ PDtoMSstatsTMTFormat <- function(input,
         ## remove protein which has only one peptide
         tmp <- unique(input[, c("ProteinName", 'PSM')])
         tmp$Protein <- factor(tmp$ProteinName)
-        count <- xtabs( ~ ProteinName, data=tmp)
+        count <- xtabs( ~ ProteinName, data <- tmp)
         lengthtotalprotein <- length(count)
 
         removepro <- names(count[count <= 1])
@@ -396,7 +396,7 @@ PDtoMSstatsTMTFormat <- function(input,
 ## data: PSM level data, which has columns Protein, PSM, BioReplicate, Run, Channel, Intensity, Mixture
 combine.fractions <- function(data){
 
-    Mixture = Intensity = fea =  Run = tions = . = NULL
+    Mixture <- Intensity <- fea <-  Run <- tions <- . <- NULL
 
     # combine fractions for each mixture
     mixtures <- unique(data$Mixture)
@@ -407,12 +407,12 @@ combine.fractions <- function(data){
     for (i in 1: length(mixtures)) {
         sub_data <- data[Mixture == mixtures[i]]
         sub_data <- sub_data[!is.na(Intensity)]
-        sub_data$fea <- paste(sub_data$PSM, sub_data$ProteinName, sep="_")
+        sub_data$fea <- paste(sub_data$PSM, sub_data$ProteinName, sep <- "_")
         sub_data$fea <- factor(sub_data$fea)
-        sub_data$id <- paste(sub_data$fea, sub_data$Run, sep="_")
+        sub_data$id <- paste(sub_data$fea, sub_data$Run, sep <- "_")
 
         ## count how many fractions are assigned for each peptide ion
-        structure <- aggregate(Run ~ . , data=unique(sub_data[, .(fea, Run)]), length)
+        structure <- aggregate(Run ~ . , data <- unique(sub_data[, .(fea, Run)]), length)
         ## 1. first, keep features which are measured in one fraction
         remove_peptide_ion <- structure[structure$Run > 1, ]
 
@@ -425,7 +425,7 @@ combine.fractions <- function(data){
             tmp <- tmp[!is.na(tmp$Intensity), ]
 
             # keep the fractions with maximum average PSM abundance
-            mean.frac.feature <- tmp %>% group_by(fea, id) %>% summarise(mean=mean(Intensity, na.rm = TRUE))
+            mean.frac.feature <- tmp %>% group_by(fea, id) %>% summarise(mean <- mean(Intensity, na.rm <- TRUE))
             remove.fraction <- mean.frac.feature %>% group_by(fea) %>% filter(mean != max(mean))
             filtered_sub_data <- sub_data %>% filter(!id %in% remove.fraction$id)
 
@@ -458,7 +458,7 @@ check.annotation <- function(annotation){
 
         missedAnnotation <- which(!(required.annotation %in% colnames(annotation)))
         stop(paste("Please check the required column in the annotation file. ** columns :",
-                   paste(required.annotation[missedAnnotation], collapse = ", "), " are missed."))
+                   paste(required.annotation[missedAnnotation], collapse <- ", "), " are missed."))
 
     }
 }

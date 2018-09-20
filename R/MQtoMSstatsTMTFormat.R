@@ -31,16 +31,16 @@
 MaxQtoMSstatsTMTFormat <- function(evidence,
                                  proteinGroups,
                                  annotation,
-                                 fraction = FALSE,
-                                 which.proteinid = 'Proteins',
-                                 rmProt_Only.identified.by.site = FALSE,
-                                 useUniquePeptide = TRUE,
-                                 rmPSM_withMissing_withinRun = FALSE,
-                                 rmPSM_withfewMea_withinRun = TRUE,
-                                 rmProtein_with1Feature = FALSE,
-                                 summaryforMultipleRows = sum){
+                                 fraction <- FALSE,
+                                 which.proteinid <- 'Proteins',
+                                 rmProt_Only.identified.by.site <- FALSE,
+                                 useUniquePeptide <- TRUE,
+                                 rmPSM_withMissing_withinRun <- FALSE,
+                                 rmPSM_withfewMea_withinRun <- TRUE,
+                                 rmProtein_with1Feature <- FALSE,
+                                 summaryforMultipleRows <- sum){
 
-    PeptideSequence = fea2 = Run = NULL
+    PeptideSequence <- fea2 <- Run <- NULL
     ## evidence.txt file
     input <- evidence
 
@@ -137,7 +137,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     tempname <- unique(proteinGroups[,c("Protein.IDs", "id")])
     colnames(tempname) <- c("uniquefromProteinGroups", "Protein.group.IDs")
 
-    input <- merge(input, tempname, by="Protein.group.IDs")
+    input <- merge(input, tempname, by <- "Protein.group.IDs")
 
     ################################################
     ## 3. which protein id :
@@ -235,7 +235,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
         pepcount$PeptideSequence <- factor(pepcount$PeptideSequence)
 
         ## count how many proteins are assigned for each peptide
-        structure <- pepcount %>% group_by(PeptideSequence) %>% summarise(npro=n())
+        structure <- pepcount %>% group_by(PeptideSequence) %>% summarise(npro <- n())
         remove_peptide <- structure[structure$npro > 1, ]
 
         ## remove the peptides which are used in more than one protein
@@ -272,10 +272,10 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     ##############################
     ## 9. remove multiple measurements per feature and run
     ##############################
-    input$fea <- paste(input$PeptideSequence, input$Charge, sep="_")
+    input$fea <- paste(input$PeptideSequence, input$Charge, sep <- "_")
 
     ## check multiple measurements
-    input$fea2 <- paste(input$fea, input$ProteinName, sep="_")
+    input$fea2 <- paste(input$fea, input$ProteinName, sep <- "_")
     input$fea2 <- factor(input$fea2)
 
     count <- xtabs(~ fea2 + Run, input)
@@ -285,8 +285,8 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
 
     ## separate input by multiple measurements vs one measurement
     if (nrow(fea.multimeas) > 0) { ## if there is any feature issued.
-        fea.multimeas$issue <- paste(fea.multimeas$fea2, fea.multimeas$Run, sep="_")
-        input$issue <- paste(input$fea2, input$Run, sep="_")
+        fea.multimeas$issue <- paste(fea.multimeas$fea2, fea.multimeas$Run, sep <- "_")
+        input$issue <- paste(input$fea2, input$Run, sep <- "_")
 
         ## keep rows with no issue
         input.no <- input[-which(input$issue %in% unique(fea.multimeas$issue)), ]
@@ -331,7 +331,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
                         stop("summaryforMultipleRows can only be sum or max! ")
                     }
 
-                    sub3$totalmea <- apply(sub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                    sub3$totalmea <- apply(sub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm <- TRUE))
                     sub4 <- sub3[sub3$totalmea == max(sub3$totalmea), ]
                     sub4 <- sub4[, which(colnames(sub3) != "totalmea")]
 
@@ -341,12 +341,12 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
                     } else {
                         # sum up or maximum abundances among intensities for identical features within one run
                         if(identical(summaryforMultipleRows, sum)){
-                            summaryforMultipleRows = max
+                            summaryforMultipleRows <- max
                         } else {
-                            summaryforMultipleRows = sum
+                            summaryforMultipleRows <- sum
                         }
 
-                        sub3$totalmea <- apply(sub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                        sub3$totalmea <- apply(sub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm <- TRUE))
                         sub4 <- sub3[sub3$totalmea == max(sub3$totalmea), ]
                         sub4 <- sub4[, which(colnames(sub3) != "totalmea")]
                         keepinfo.select <- rbind(keepinfo.select, sub4)
@@ -371,12 +371,12 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     }
 
     # make long format
-    input.long <- melt(input.new, id=c('ProteinName',
+    input.long <- melt(input.new, id<-c('ProteinName',
                                        'PeptideSequence',
                                        'Charge',
                                        'Run'),
-                       variable.name = "Channel",
-                       value.name = "Intensity")
+                       variable.name <- "Channel",
+                       value.name <- "Intensity")
 
     # make sure no dupliate rows
     input.long <- input.long[!is.na(input.long$Intensity), ]
@@ -390,7 +390,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     ## channel prefix for channel
     input$Channel <- gsub(inputlevel, 'channel', input$Channel)
 
-    input <- merge(input, annotation, by=c("Run", "Channel"), all.x =TRUE)
+    input <- merge(input, annotation, by<-c("Run", "Channel"), all.x <- TRUE)
 
     ## check whether there is any missing 'Condition'
     noruninfo <- unique(input[is.na(input$Condition), c("Run", "Channel")])
@@ -403,16 +403,16 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
         stop('** Please add them to annotation file.')
     }
 
-    input.final <- data.frame("ProteinName" = input$ProteinName,
-                              "PeptideSequence" = input$PeptideSequence,
-                              "Charge" = input$Charge,
-                              "PSM" = paste(input$PeptideSequence, input$Charge, sep="_"),
-                              "Channel" = as.factor(input$Channel),
-                              "Condition" = input$Condition,
-                              "BioReplicate" = input$BioReplicate,
-                              "Run" = input$Run,
-                              "Mixture" = input$Mixture,
-                              "Intensity" = input$Intensity)
+    input.final <- data.frame("ProteinName" <- input$ProteinName,
+                              "PeptideSequence" <- input$PeptideSequence,
+                              "Charge" <- input$Charge,
+                              "PSM" <- paste(input$PeptideSequence, input$Charge, sep<-"_"),
+                              "Channel" <- as.factor(input$Channel),
+                              "Condition" <- input$Condition,
+                              "BioReplicate" <- input$BioReplicate,
+                              "Run" <- input$Run,
+                              "Mixture" <- input$Mixture,
+                              "Intensity" <- input$Intensity)
 
     input <- input.final
     rm(input.final)
@@ -425,7 +425,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
         ## remove protein which has only one peptide
         tmp <- unique(input[, c("ProteinName", 'PSM')])
         tmp$ProteinName <- factor(tmp$ProteinName)
-        count <- xtabs( ~ ProteinName, data=tmp)
+        count <- xtabs( ~ ProteinName, data<-tmp)
         lengthtotalprotein <- length(count)
 
         removepro <- names(count[count <= 1])

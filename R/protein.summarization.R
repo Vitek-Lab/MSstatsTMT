@@ -21,10 +21,10 @@
 #' head(quant.msstats)
 
 protein.summarization <- function(data,
-                                  method = 'msstats',
-                                  normalization = TRUE,
-                                  MBimpute = TRUE,
-                                  maxQuantileforCensored = NULL){
+                                  method <- 'msstats',
+                                  normalization <- TRUE,
+                                  MBimpute <- TRUE,
+                                  maxQuantileforCensored <- NULL){
 
     ## save process output in each step
     allfiles <- list.files()
@@ -35,7 +35,7 @@ protein.summarization <- function(data,
 
     while (is.element(finalfile,allfiles)) {
         num <- num + 1
-        finalfile <- paste(paste(filenaming,num,sep="-"), ".log", sep="")
+        finalfile <- paste(paste(filenaming,num,sepv<-v"-"), ".log", sep <- "")
     }
 
     session <- sessionInfo()
@@ -43,12 +43,12 @@ protein.summarization <- function(data,
     print(session)
     sink()
 
-    processout <- as.matrix(read.table("sessionInfo.txt", header=TRUE, sep="\t"))
-    write.table(processout, file=finalfile, row.names=FALSE)
+    processout <- as.matrix(read.table("sessionInfo.txt", header <- TRUE, sep <- "\t"))
+    write.table(processout, file <- finalfile, row.names <- FALSE)
 
     processout <- rbind(processout,
                         as.matrix(c(" ", " ", "MSstatsTMT - protein.summarization function", " "),
-                                  ncol=1))
+                                  ncol <- 1))
 
 
     ## check input
@@ -59,7 +59,7 @@ protein.summarization <- function(data,
 
         missedAnnotation <- which(!(required.info %in% colnames(data)))
         stop(paste("Please check the required input. ** columns :",
-                   required.info[missedAnnotation], ", are missed.", collapse = ", "))
+                   required.info[missedAnnotation], ", are missed.", collapse <- ", "))
 
     }
 
@@ -77,7 +77,7 @@ protein.summarization <- function(data,
     processout <- rbind(processout,
                         c(paste("Normalization between MS runs :", normalization)))
 
-    write.table(processout, file=finalfile, row.names=FALSE)
+    write.table(processout, file <- finalfile, row.names <- FALSE)
 
     return(protein.summarization.function(data,
                                           method,

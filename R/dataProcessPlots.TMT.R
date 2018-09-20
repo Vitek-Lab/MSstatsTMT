@@ -58,26 +58,26 @@
 #'                      width = 21,
 #'                      height = 7)
 
-dataProcessPlots.TMT <- function(data.psm = data.psm,
-                                 data.summarization = data.summarization,
-                                 type = type,
-                                 ylimUp = FALSE,
-                                 ylimDown = FALSE,
-                                 x.axis.size = 10,
-                                 y.axis.size = 10,
-                                 text.size = 4,
-                                 text.angle = 90,
-                                 legend.size = 7,
-                                 dot.size.profile = 2,
-                                 ncol.guide = 5,
-                                 width = 10,
-                                 height = 10,
-                                 which.Protein = "all",
-                                 originalPlot = TRUE,
-                                 summaryPlot = TRUE,
-                                 address="") {
+dataProcessPlots.TMT <- function(data.psm <- data.psm,
+                                 data.summarization <- data.summarization,
+                                 type <- type,
+                                 ylimUp <- FALSE,
+                                 ylimDown <- FALSE,
+                                 x.axis.size <- 10,
+                                 y.axis.size <- 10,
+                                 text.size <- 4,
+                                 text.angle <- 90,
+                                 legend.size <- 7,
+                                 dot.size.profile <- 2,
+                                 ncol.guide <- 5,
+                                 width <- 10,
+                                 height <- 10,
+                                 which.Protein <- "all",
+                                 originalPlot <- TRUE,
+                                 summaryPlot <- TRUE,
+                                 address<-"") {
 
-    Condition = Run = xorder = Channel = groupAxis = cumGroupAxis = abundance = analysis = NULL
+    Condition <- Run <- xorder <- Channel <- groupAxis <- cumGroupAxis <- abundance <- analysis <- NULL
     datafeature <- data.psm
     datarun <- data.summarization
 
@@ -141,7 +141,7 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
         }
 
         ## assign upper or lower limit
-        y.limup <- ceiling(max(datafeature$abundance, na.rm=TRUE) + 3)
+        y.limup <- ceiling(max(datafeature$abundance, na.rm <- TRUE) + 3)
 
         if (is.numeric(ylimUp)) {
             y.limup <- ylimUp
@@ -159,7 +159,7 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
         ## !! important: order of x-axis
         ## can be reorder by group and then channel, WITHIN Run
         ## first make new column for x-axis
-        datafeature$group.channel <- paste(datafeature$Condition, datafeature$Channel, sep="_")
+        datafeature$group.channel <- paste(datafeature$Condition, datafeature$Channel, sep <- "_")
 
         ## not sure better way for coding
         ## potentially change it.
@@ -169,8 +169,8 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
             runid <- unique(datafeature$Run)[k]
             datafeature[datafeature$Run == runid, ]$xorder <- factor(datafeature[datafeature$Run == runid, ]$group.channel,
-                                                                     levels = unique(datafeature[datafeature$Run == runid, ]$group.channel),
-                                                                     labels = seq(1, length(unique(datafeature[datafeature$Run == runid, ]$group.channel))))
+                                                                     levels <- unique(datafeature[datafeature$Run == runid, ]$group.channel),
+                                                                     labels <- seq(1, length(unique(datafeature[datafeature$Run == runid, ]$group.channel))))
         }
 
         ## check
@@ -184,12 +184,12 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
         ## count # per condition per Run
         #groupline <- unique(datafeature[, c('Condition', 'Run')])
         #groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
-        groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis = n())
+        groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis <- n())
         groupline <- groupline %>% select(-xorder, -Channel)
         groupline <- groupline[!duplicated(groupline), ]
 
         ## make accumurated # as condition increase
-        groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis=cumsum(groupAxis))
+        groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis <- cumsum(groupAxis))
 
         groupline$cumGroupAxis <- groupline$cumGroupAxis + 0.5
 
@@ -207,13 +207,13 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
         haverun <- FALSE
 
         if (sum(is.element(colnames(datarun), "Run")) != 0) {
-            datamat <- dcast(Protein + Channel ~ Run, data=datarun, value.var='Abundance', keep=TRUE)
+            datamat <- dcast(Protein + Channel ~ Run, data <- datarun, value.var <- 'Abundance', keep <- TRUE)
 
             datarun <- melt(datamat, id.vars=c('Protein', 'Channel'))
             colnames(datarun)[colnames(datarun) %in% c("variable", "value")] <- c('Run', 'Abundance')
 
             ## match x axis order
-            datarun <- merge(datarun, tempGroupName, by=c('Run', 'Channel'))
+            datarun <- merge(datarun, tempGroupName, by <- c('Run', 'Channel'))
 
             haverun <- TRUE
         }
@@ -234,10 +234,10 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
                 while (is.element(finalfile, allfiles)) {
                     num <- num + 1
-                    finalfile <- paste0(paste(filenaming, num, sep="-"), ".pdf")
+                    finalfile <- paste0(paste(filenaming, num, sep <- "-"), ".pdf")
                 }
 
-                pdf(finalfile, width=width, height=height)
+                pdf(finalfile, width <- width, height <- height)
             }
 
             ## factoring for run, channel, condition should be done before loop
@@ -284,60 +284,60 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
                 ## for annotation of condition
                 groupline.tmp <- data.frame(groupline,
-                                            "PSM" = unique(sub$PSM)[1],
-                                            "PeptideSequence" = unique(sub$PeptideSequence)[1])
+                                            "PSM" <- unique(sub$PSM)[1],
+                                            "PeptideSequence" <- unique(sub$PeptideSequence)[1])
 
                 groupline.all.tmp <- data.frame(groupline.all,
-                                                "PSM" = unique(sub$PSM)[1],
-                                                "PeptideSequence" = unique(sub$PeptideSequence)[1])
+                                                "PSM" <- unique(sub$PSM)[1],
+                                                "PeptideSequence" <- unique(sub$PeptideSequence)[1])
 
                 ## 1st plot for original plot
-                ptemp <- ggplot(aes_string(x='xorder', y='abundance',
-                                           color='PSM', linetype='PSM'), data=sub) +
+                ptemp <- ggplot(aes_string(x <- 'xorder', y <- 'abundance',
+                                           color <- 'PSM', linetype <- 'PSM'), data <- sub) +
                     facet_grid(~Run) +
                     geom_point(size=dot.size.profile) +
-                    geom_line(size=0.5) +
-                    scale_colour_manual(values=s) +
-                    scale_linetype_manual(values=ss) +
-                    scale_shape_manual(values=c(16)) +
-                    labs(title=unique(sub$Protein),
-                         x='MS runs') +
-                    scale_y_continuous(yaxis.name, limits=c(y.limdown, y.limup)) +
+                    geom_line(size <- 0.5) +
+                    scale_colour_manual(values <- s) +
+                    scale_linetype_manual(values <- ss) +
+                    scale_shape_manual(values <- c(16)) +
+                    labs(title <- unique(sub$Protein),
+                         x <- 'MS runs') +
+                    scale_y_continuous(yaxis.name, limits <- c(y.limdown, y.limup)) +
                     scale_x_continuous('MS runs') +
-                    geom_vline(data=groupline.tmp,
-                               aes(xintercept=cumGroupAxis),
-                               colour="grey", linetype="longdash") +
-                    geom_text(data=groupline.all.tmp,
-                              aes(x=xorder, y=abundance, label=Condition),
-                              size=text.size,
-                              angle=text.angle,
-                              color="black") +
+                    geom_vline(data <- groupline.tmp,
+                               aes(xintercept <- cumGroupAxis),
+                               colour <- "grey", linetype <- "longdash") +
+                    geom_text(data <- groupline.all.tmp,
+                              aes(x <- xorder, y <- abundance, label <- Condition),
+                              size <- text.size,
+                              angle <- text.angle,
+                              color <- "black") +
                     theme(
-                        panel.background = element_rect(fill='white', colour="black"),
-                        legend.key = element_rect(fill='white', colour='white'),
-                        panel.grid.minor = element_blank(),
-                        strip.background = element_rect(fill='gray95'),
-                        axis.ticks.x = element_blank(),
-                        axis.text.x = element_blank(),
-                        axis.text.y = element_text(size=y.axis.size, colour="black"),
-                        axis.ticks = element_line(colour="black"),
-                        axis.title.x = element_text(size=x.axis.size+5, vjust=-0.4),
-                        axis.title.y = element_text(size=y.axis.size+5, vjust=0.3),
-                        title = element_text(size=x.axis.size+8, vjust=1.5),
-                        legend.position = "top",
-                        legend.text = element_text(size=legend.size)) +
-                    guides(color = guide_legend(title = paste("# peptide:", nlevels(sub$PeptideSequence)),
-                                                title.theme = element_text(size=13, angle=0),
-                                                keywidth = 0.4,
-                                                keyheight = 0.1,
-                                                default.unit = 'inch',
-                                                ncol = ncol.guide),
-                           linetype = guide_legend(title = paste("# peptide:", nlevels(sub$PeptideSequence)),
-                                                   title.theme = element_text(size=13, angle=0),
-                                                   keywidth = 0.4,
-                                                   keyheight = 0.1,
-                                                   default.unit = 'inch',
-                                                   ncol = ncol.guide))
+                        panel.background <- element_rect(fill <- 'white', colour <- "black"),
+                        legend.key <- element_rect(fill='white', colour='white'),
+                        panel.grid.minor <- element_blank(),
+                        strip.background <- element_rect(fill <- 'gray95'),
+                        axis.ticks.x <- element_blank(),
+                        axis.text.x <- element_blank(),
+                        axis.text.y <- element_text(size <- y.axis.size, colour <- "black"),
+                        axis.ticks <- element_line(colour <- "black"),
+                        axis.title.x <- element_text(size <- x.axis.size+5, vjust <- -0.4),
+                        axis.title.y <- element_text(size <- y.axis.size+5, vjust <- 0.3),
+                        title <- element_text(size <- x.axis.size+8, vjust <- 1.5),
+                        legend.position <- "top",
+                        legend.text <- element_text(size <- legend.size)) +
+                    guides(color <- guide_legend(title <- paste("# peptide:", nlevels(sub$PeptideSequence)),
+                                                title.theme <- element_text(size <- 13, angle <- 0),
+                                                keywidth <- 0.4,
+                                                keyheight <- 0.1,
+                                                default.unit <- 'inch',
+                                                ncol <- ncol.guide),
+                           linetype <- guide_legend(title <- paste("# peptide:", nlevels(sub$PeptideSequence)),
+                                                   title.theme <- element_text(size<-13, angle<-0),
+                                                   keywidth <- 0.4,
+                                                   keyheight <- 0.1,
+                                                   default.unit <- 'inch',
+                                                   ncol <- ncol.guide))
 
                 print(ptemp)
 
@@ -366,10 +366,10 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
                 while (is.element(finalfile, allfiles)) {
                     num <- num + 1
-                    finalfile <- paste0(paste(filenaming, num, sep="-"), ".pdf")
+                    finalfile <- paste0(paste(filenaming, num, sep <- "-"), ".pdf")
                 }
 
-                pdf(finalfile, width=width, height=height)
+                pdf(finalfile, width <- width, height <- height)
             }
 
             for (i in 1:nlevels(datafeature$Protein)) {
@@ -396,14 +396,14 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
                 ## for annotation of condition
                 groupline.tmp <- data.frame(groupline,
-                                            "PSM" = unique(sub$PSM)[1],
-                                            "PeptideSequence" = unique(sub$PeptideSequence)[1],
-                                            "analysis" = 'Run summary')
+                                            "PSM" <- unique(sub$PSM)[1],
+                                            "PeptideSequence" <- unique(sub$PeptideSequence)[1],
+                                            "analysis" <- 'Run summary')
 
                 groupline.all.tmp <- data.frame(groupline.all,
-                                                "PSM" = unique(sub$PSM)[1],
-                                                "PeptideSequence" = unique(sub$PeptideSequence)[1],
-                                                "analysis" = 'Run summary')
+                                                "PSM" <- unique(sub$PSM)[1],
+                                                "PeptideSequence" <- unique(sub$PeptideSequence)[1],
+                                                "analysis" <- 'Run summary')
 
                 if (haverun) {
                     subrun <- datarun[datarun$Protein == levels(datafeature$Protein)[i], ]
@@ -443,47 +443,47 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
                     final$analysis <- factor(final$analysis)
                     final$PSM <- factor(final$PSM)
 
-                    ptempall <- ggplot(aes_string(x='xorder', y='abundance',
-                                                  color='analysis', linetype='PSM', size='analysis'), data=final) +
+                    ptempall <- ggplot(aes_string(x <- 'xorder', y <- 'abundance',
+                                                  color <- 'analysis', linetype <- 'PSM', size <- 'analysis'), data <- final) +
                         facet_grid(~Run) +
-                        geom_point(size=dot.size.profile) +
-                        geom_line(size=0.5) +
-                        scale_colour_manual(values=c("lightgray", "darkred")) +
-                        scale_shape_manual(values=c(16)) +
-                        scale_size_manual(values=c(1.7, 2), guide="none") +
-                        scale_linetype_manual(values=c(rep(1, times=length(unique(final$PSM))-1), 2), guide="none") +
-                        labs(title=unique(sub$Protein),
-                             x='MS runs') +
-                        scale_y_continuous(yaxis.name, limits=c(y.limdown, y.limup)) +
-                        geom_vline(data=groupline.tmp,
-                                   aes(xintercept=cumGroupAxis),
-                                   colour="grey", linetype="longdash") +
-                        geom_text(data=groupline.all.tmp,
-                                  aes(x=xorder, y=abundance, label=Condition),
-                                  size=text.size,
-                                  angle=text.angle,
-                                  color="black") +
+                        geom_point(size <- dot.size.profile) +
+                        geom_line(size <- 0.5) +
+                        scale_colour_manual(values <- c("lightgray", "darkred")) +
+                        scale_shape_manual(values <- c(16)) +
+                        scale_size_manual(values <- c(1.7, 2), guide <- "none") +
+                        scale_linetype_manual(values <- c(rep(1, times <- length(unique(final$PSM))-1), 2), guide <- "none") +
+                        labs(title <- unique(sub$Protein),
+                             x <- 'MS runs') +
+                        scale_y_continuous(yaxis.name, limits <- c(y.limdown, y.limup)) +
+                        geom_vline(data <- groupline.tmp,
+                                   aes(xintercept <- cumGroupAxis),
+                                   colour <- "grey", linetype <- "longdash") +
+                        geom_text(data <- groupline.all.tmp,
+                                  aes(x <- xorder, y <- abundance, label <- Condition),
+                                  size <- text.size,
+                                  angle <- text.angle,
+                                  color <- "black") +
                         theme(
-                            panel.background = element_rect(fill='white', colour="black"),
-                            legend.key = element_rect(fill='white', colour='white'),
-                            panel.grid.minor = element_blank(),
-                            strip.background = element_rect(fill='gray95'),
-                            axis.ticks.x = element_blank(),
-                            axis.text.x = element_blank(),
-                            axis.text.y = element_text(size=y.axis.size, colour="black"),
-                            axis.ticks = element_line(colour="black"),
-                            axis.title.x = element_text(size=x.axis.size+5, vjust=-0.4),
-                            axis.title.y = element_text(size=y.axis.size+5, vjust=0.3),
-                            title = element_text(size=x.axis.size+8, vjust=1.5),
-                            legend.position = "top",
-                            legend.text = element_text(size=legend.size),
-                            legend.title=element_blank()) +
-                        guides(color = guide_legend(order=1,
-                                                    title=NULL,
-                                                    label.theme = element_text(size=10, angle=0)))
+                            panel.background <- element_rect(fill <- 'white', colour <- "black"),
+                            legend.key <- element_rect(fill <- 'white', colour <- 'white'),
+                            panel.grid.minor <- element_blank(),
+                            strip.background <- element_rect(fill <- 'gray95'),
+                            axis.ticks.x <- element_blank(),
+                            axis.text.x <- element_blank(),
+                            axis.text.y <- element_text(size <- y.axis.size, colour <- "black"),
+                            axis.ticks <- element_line(colour<-"black"),
+                            axis.title.x <- element_text(size <- x.axis.size+5, vjust <- -0.4),
+                            axis.title.y <- element_text(size <- y.axis.size+5, vjust <- 0.3),
+                            title <- element_text(size <- x.axis.size+8, vjust <- 1.5),
+                            legend.position <- "top",
+                            legend.text <- element_text(size <- legend.size),
+                            legend.title <- element_blank()) +
+                        guides(color <- guide_legend(order <- 1,
+                                                    title <- NULL,
+                                                    label.theme <- element_text(size <- 10, angle <- 0)))
 
                     ## draw point again because some red summary dots could be hiden
-                    ptempall <- ptempall + geom_point(data=final, aes(x=xorder, y=abundance, size=analysis, color=analysis))
+                    ptempall <- ptempall + geom_point(data <- final, aes(x <- xorder, y <- abundance, size <- analysis, color <- analysis))
 
                     print(ptempall)
 
@@ -519,14 +519,14 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
             while (is.element(finalfile, allfiles)) {
                 num <- num + 1
-                finalfile <- paste0(paste(filenaming, num, sep="-"), ".pdf")
+                finalfile <- paste0(paste(filenaming, num, sep <- "-"), ".pdf")
             }
 
-            pdf(finalfile, width=width, height=height)
+            pdf(finalfile, width <- width, height <- height)
         }
 
         ## assign upper or lower limit
-        y.limup <- ceiling(max(datafeature$abundance, na.rm=TRUE) + 3)
+        y.limup <- ceiling(max(datafeature$abundance, na.rm <- TRUE) + 3)
 
         if (is.numeric(ylimUp)) {
             y.limup <- ylimUp
@@ -542,7 +542,7 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
         ## !! important: order of x-axis
         ## can be reorder by group and then channel, WITHIN Run
         ## first make new column for x-axis
-        datafeature$group.channel <- paste(datafeature$Condition, datafeature$Channel, sep="_")
+        datafeature$group.channel <- paste(datafeature$Condition, datafeature$Channel, sep <- "_")
 
         ## not sure better way for coding
         ## potentially change it.
@@ -552,8 +552,8 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
             runid <- unique(datafeature$Run)[k]
             datafeature[datafeature$Run == runid, ]$xorder <- factor(datafeature[datafeature$Run == runid, ]$group.channel,
-                                                                     levels = unique(datafeature[datafeature$Run == runid, ]$group.channel),
-                                                                     labels = seq(1, length(unique(datafeature[datafeature$Run == runid, ]$group.channel))))
+                                                                     levels <- unique(datafeature[datafeature$Run == runid, ]$group.channel),
+                                                                     labels <- seq(1, length(unique(datafeature[datafeature$Run == runid, ]$group.channel))))
         }
 
         ## check
@@ -567,12 +567,12 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
         ## count # per condition per Run
         #groupline <- unique(datafeature[, c('Condition', 'Run')])
         #groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
-        groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis = n())
+        groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis <- n())
         groupline <- groupline %>% select(-xorder, -Channel)
         groupline <- groupline[!duplicated(groupline), ]
 
         ## make accumurated # as condition increase
-        groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis=cumsum(groupAxis))
+        groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis<-cumsum(groupAxis))
 
         groupline$cumGroupAxis <- groupline$cumGroupAxis + 0.5
 
@@ -591,44 +591,44 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
             ## for annotation of condition
             groupline.tmp <- data.frame(groupline,
-                                        "PSM" = unique(datafeature$PSM)[1],
-                                        "PeptideSequence" = unique(datafeature$PeptideSequence)[1])
+                                        "PSM" <- unique(datafeature$PSM)[1],
+                                        "PeptideSequence" <- unique(datafeature$PeptideSequence)[1])
 
             groupline.all.tmp <- data.frame(groupline.all,
-                                            "PSM" = unique(datafeature$PSM)[1],
-                                            "PeptideSequence" = unique(datafeature$PeptideSequence)[1])
+                                            "PSM" <- unique(datafeature$PSM)[1],
+                                            "PeptideSequence" <- unique(datafeature$PeptideSequence)[1])
 
             ## 1st plot for original plot
             ## for boxplot, x-axis, xorder should be factor
             datafeature$xorder <- factor(datafeature$xorder)
 
-            ptemp <- ggplot(aes_string(x='xorder', y='abundance'), data=datafeature) +
+            ptemp <- ggplot(aes_string(x <- 'xorder', y <- 'abundance'), data <- datafeature) +
                 facet_grid(~Run) +
-                geom_boxplot(aes_string(fill='Condition'), outlier.shape=1, outlier.size=1.5) +
-                labs(title = 'All proteins',
-                     x = 'MS runs') +
-                scale_y_continuous(yaxis.name, limits=c(y.limdown, y.limup)) +
-                geom_vline(data=groupline.tmp,
-                           aes(xintercept=cumGroupAxis),
-                           colour="grey", linetype="longdash") +
-                geom_text(data=groupline.all.tmp,
-                          aes(x=xorder, y=abundance, label=Condition),
-                          size=text.size,
-                          angle=text.angle,
-                          color="black") +
+                geom_boxplot(aes_string(fill <- 'Condition'), outlier.shape <- 1, outlier.size <- 1.5) +
+                labs(title <- 'All proteins',
+                     x <- 'MS runs') +
+                scale_y_continuous(yaxis.name, limits <- c(y.limdown, y.limup)) +
+                geom_vline(data <- groupline.tmp,
+                           aes(xintercept <- cumGroupAxis),
+                           colour <- "grey", linetype <- "longdash") +
+                geom_text(data <- groupline.all.tmp,
+                          aes(x <- xorder, y <- abundance, label <- Condition),
+                          size <- text.size,
+                          angle <- text.angle,
+                          color <- "black") +
                 theme(
-                    panel.background = element_rect(fill='white', colour="black"),
-                    legend.key = element_rect(fill='white', colour='white'),
-                    panel.grid.minor = element_blank(),
-                    strip.background = element_rect(fill='gray95'),
-                    axis.ticks.x = element_blank(),
-                    axis.text.x = element_blank(),
-                    axis.text.y = element_text(size=y.axis.size, colour="black"),
-                    axis.ticks = element_line(colour="black"),
-                    axis.title.x = element_text(size=x.axis.size+5, vjust=-0.4),
-                    axis.title.y = element_text(size=y.axis.size+5, vjust=0.3),
-                    title = element_text(size=x.axis.size+8, vjust=1.5),
-                    legend.position = "none")
+                    panel.background <- element_rect(fill <- 'white', colour <- "black"),
+                    legend.key <- element_rect(fill <- 'white', colour <- 'white'),
+                    panel.grid.minor <- element_blank(),
+                    strip.background <- element_rect(fill <- 'gray95'),
+                    axis.ticks.x <- element_blank(),
+                    axis.text.x <- element_blank(),
+                    axis.text.y <- element_text(size <- y.axis.size, colour <- "black"),
+                    axis.ticks <- element_line(colour <- "black"),
+                    axis.title.x <- element_text(size <- x.axis.size+5, vjust <- -0.4),
+                    axis.title.y <- element_text(size <- y.axis.size+5, vjust <- 0.3),
+                    title <- element_text(size <- x.axis.size+8, vjust <- 1.5),
+                    legend.position <- "none")
 
             print(ptemp)
 
@@ -683,44 +683,44 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
                 ## for annotation of condition
                 groupline.tmp <- data.frame(groupline,
-                                            "PSM" = unique(sub$PSM)[1],
-                                            "PeptideSequence" = unique(sub$PeptideSequence)[1])
+                                            "PSM" <- unique(sub$PSM)[1],
+                                            "PeptideSequence" <- unique(sub$PeptideSequence)[1])
 
                 groupline.all.tmp <- data.frame(groupline.all,
-                                                "PSM" = unique(sub$PSM)[1],
-                                                "PeptideSequence" = unique(sub$PeptideSequence)[1])
+                                                "PSM" <- unique(sub$PSM)[1],
+                                                "PeptideSequence" <- unique(sub$PeptideSequence)[1])
 
                 ## 1st plot for original plot
                 ## for boxplot, x-axis, xorder should be factor
                 sub$xorder <- factor(sub$xorder)
 
-                ptemp <- ggplot(aes_string(x='xorder', y='abundance'), data=sub) +
+                ptemp <- ggplot(aes_string(x <- 'xorder', y <- 'abundance'), data <- sub) +
                     facet_grid(~Run) +
-                    geom_boxplot(aes_string(fill='Condition'), outlier.shape=1, outlier.size=1.5) +
-                    labs(title = unique(sub$Protein),
-                         x = 'MS runs') +
-                    scale_y_continuous(yaxis.name, limits=c(y.limdown, y.limup)) +
-                    geom_vline(data=groupline.tmp,
-                               aes(xintercept=cumGroupAxis),
-                               colour="grey", linetype="longdash") +
-                    geom_text(data=groupline.all.tmp,
-                              aes(x=xorder, y=abundance, label=Condition),
-                              size=text.size,
-                              angle=text.angle,
-                              color="black") +
+                    geom_boxplot(aes_string(fill <- 'Condition'), outlier.shape <- 1, outlier.size <- 1.5) +
+                    labs(title <- unique(sub$Protein),
+                         x <- 'MS runs') +
+                    scale_y_continuous(yaxis.name, limits <- c(y.limdown, y.limup)) +
+                    geom_vline(data <- groupline.tmp,
+                               aes(xintercept <- cumGroupAxis),
+                               colour <- "grey", linetype <- "longdash") +
+                    geom_text(data <- groupline.all.tmp,
+                              aes(x <- xorder, y <- abundance, label <- Condition),
+                              size <- text.size,
+                              angle <- text.angle,
+                              color <- "black") +
                     theme(
-                        panel.background = element_rect(fill='white', colour="black"),
-                        legend.key = element_rect(fill='white', colour='white'),
-                        panel.grid.minor = element_blank(),
-                        strip.background = element_rect(fill='gray95'),
-                        axis.ticks.x = element_blank(),
-                        axis.text.x = element_blank(),
-                        axis.text.y = element_text(size=y.axis.size, colour="black"),
-                        axis.ticks = element_line(colour="black"),
-                        axis.title.x = element_text(size=x.axis.size+5, vjust=-0.4),
-                        axis.title.y = element_text(size=y.axis.size+5, vjust=0.3),
-                        title = element_text(size=x.axis.size+8, vjust=1.5),
-                        legend.position = "none")
+                        panel.background <- element_rect(fill <- 'white', colour <- "black"),
+                        legend.key <- element_rect(fill <- 'white', colour <- 'white'),
+                        panel.grid.minor <- element_blank(),
+                        strip.background <- element_rect(fill <- 'gray95'),
+                        axis.ticks.x <- element_blank(),
+                        axis.text.x <- element_blank(),
+                        axis.text.y <- element_text(size <- y.axis.size, colour <- "black"),
+                        axis.ticks <- element_line(colour <- "black"),
+                        axis.title.x <- element_text(size <- x.axis.size+5, vjust <- -0.4),
+                        axis.title.y <- element_text(size <- y.axis.size+5, vjust <- 0.3),
+                        title <- element_text(size <- x.axis.size+8, vjust <- 1.5),
+                        legend.position <- "none")
 
                 print(ptemp)
 

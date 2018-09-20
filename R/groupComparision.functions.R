@@ -5,11 +5,11 @@
 #' @keywords internal
 
 proposed.model <- function(data,
-                           moderated = TRUE,
-                           contrast.matrix = "pairwise",
-                           adj.method = "BH") {
+                           moderated <- TRUE,
+                           contrast.matrix <- "pairwise",
+                           adj.method <- "BH") {
 
-    Abundance = Group = Protein = NULL
+    Abundance <- Group <- Protein <- NULL
 
     if(moderated){ ## moderated t statistic
         ## Estimate the prior variance and degree freedom
@@ -50,7 +50,7 @@ proposed.model <- function(data,
         ncomp <- nrow(contrast.matrix)
     }
 
-    res <- as.data.frame(matrix(rep(0, 6 * length(proteins) * ncomp), ncol = 6)) ## store the inference results
+    res <- as.data.frame(matrix(rep(0, 6 * length(proteins) * ncomp), ncol <- 6)) ## store the inference results
     colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF")
     data <- as.data.table(data) ## make suree the input data is with data table format
     count <- 0
@@ -62,12 +62,12 @@ proposed.model <- function(data,
         tag <- FALSE ## Indicate whether there are enough measurements to train the linear model
 
         ## linear mixed model
-        fit.mixed <- try(lmer(Abundance ~ 1 + (1|Mixture) + Group, data=sub_data), TRUE)
+        fit.mixed <- try(lmer(Abundance ~ 1 + (1|Mixture) + Group, data <- sub_data), TRUE)
 
         if(!inherits(fit.mixed, "try-error")){
 
             ## train linear model
-            fit.fixed <- lm(Abundance ~ 1 + Mixture + Group, data=sub_data)
+            fit.fixed <- lm(Abundance ~ 1 + Mixture + Group, data <- sub_data)
 
             ## Get estimated fold change from mixed model
             coeff <- fixed.effects(fit.mixed)
@@ -87,7 +87,7 @@ proposed.model <- function(data,
 
         } else {
             ## if there is only one run in the data, then train one-way anova
-            fit.fixed <- try(lm(Abundance ~ Group, data=sub_data), TRUE)
+            fit.fixed <- try(lm(Abundance ~ Group, data <- sub_data), TRUE)
 
             if(!inherits(fit.fixed, "try-error")){
                 ## Get estimated fold change from mixed model
@@ -115,9 +115,9 @@ proposed.model <- function(data,
 
             for(j in 1:(length(groups)-1)){
                 for(k in (j+1):length(groups)){
-                    count = count + 1
+                    count <- count + 1
                     res[count, "Protein"] <- proteins[i] ## protein names
-                    res[count, "Comparison"] <- paste(groups[j], groups[k], sep = "-") ## comparison
+                    res[count, "Comparison"] <- paste(groups[j], groups[k], sep <- "-") ## comparison
 
                     if(!tag){
                         g1_df <- nrow(sub_data[Group == groups[j]]) ## size of group 1
@@ -127,7 +127,7 @@ proposed.model <- function(data,
                         res[count, "log2FC"] <- FC
                         ## Calculate the t statistic
                         t <- FC/sqrt(variance) ## t statistic
-                        p <- 2*pt(-abs(t), df = df.post) ## p value
+                        p <- 2*pt(-abs(t), df <- df.post) ## p value
                         res[count, "pvalue"] <- p
                         res[count, "SE"] <- sqrt(variance) ## se
                         res[count, "DF"] <- df.post
@@ -148,7 +148,7 @@ proposed.model <- function(data,
 
                 if(!tag){
                     ## size of each group
-                    group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n = sum(!is.na(Abundance)))
+                    group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n <- sum(!is.na(Abundance)))
                     group_df$Group <- as.character(group_df$Group)
 
                     ## variance of diff
@@ -160,7 +160,7 @@ proposed.model <- function(data,
                     t <- FC/sqrt(variance)
 
                     ## calculate p-value
-                    p <- 2*pt(-abs(t), df = df.post)
+                    p <- 2*pt(-abs(t), df <- df.post)
                     res[count, "pvalue"] <- p
 
                     ## SE
@@ -200,7 +200,7 @@ proposed.model <- function(data,
 #' @keywords internal
 estimate.prior.var <- function(data){
 
-    Subject = Abundance = Protein = NULL
+    Subject <- Abundance <- Protein <- NULL
     ## make sure data is in data.frame format
     data <- as.data.frame(data)
     data.mat <- data[, c("Protein", "Subject", "Abundance")]
@@ -229,6 +229,6 @@ estimate.prior.var <- function(data){
     fit <- lmFit(data.mat, design)
     fit2 <- eBayes(fit)
 
-    return(list(df.prior = fit2$df.prior,
-                s2.prior = fit2$s2.prior))
+    return(list(df.prior <- fit2$df.prior,
+                s2.prior <- fit2$s2.prior))
 }
