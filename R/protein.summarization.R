@@ -17,7 +17,7 @@
 #' str(required.input)
 #' quant.byprotein <- protein.summarization(required.input,
 #'                                          method="msstats",
-#'                                          normalization=TRUE,)
+#'                                          normalization=TRUE)
 #' head(quant.byprotein)
 
 protein.summarization <- function(data,

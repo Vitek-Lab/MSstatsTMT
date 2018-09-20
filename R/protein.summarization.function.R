@@ -83,11 +83,14 @@ protein.summarization.function <- function(data,
             res.sub <- res.sub[, -which(colnames(res.sub) %in% 'runchannel')]
             res <- rbind(res, res.sub)
 
-            if (normalization & length(runs) > 1) { # Do normalization based on group 'Norm'
-                res <- protein.normalization(res)
-            }
-            return(res)
         }
+
+        if (normalization & length(runs) > 1) { # Do normalization based on group 'Norm'
+            res <- protein.normalization(res)
+        }
+
+        return(res)
+
     } else if (method == "MedianPolish"){
         #Method MedianPolish
         #add NAs to make every protein appear in all the channels
