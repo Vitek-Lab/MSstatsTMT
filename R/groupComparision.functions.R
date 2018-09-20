@@ -32,12 +32,21 @@ proposed.model <- function(data,
     }
 
     groups <- as.character(unique(data$Group)) # groups
+    if(length(groups) > 1){
+        stop("Please check the Condition column in annotation file. There must be at least two conditions!")
+    }
+
     ## set up matrix for result
     if(contrast.pairwise){
         ncomp <- length(groups) * (length(groups) - 1) / 2 # Number of comparison
 
     } else {
         # # comparison come from contrast.matrix
+        if (!all(colnames(contrast.matrix) %in% groups)) {
+
+            stop("Please check the contrast.matrix. Column names of contrast.matrix. must be matched with conditions!")
+        }
+
         ncomp <- nrow(contrast.matrix)
     }
 
