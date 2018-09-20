@@ -73,7 +73,7 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
                                 summaryPlot = TRUE,
                                 address="") {
 
-    Condition = Run = xorder = Channel = groupAxis = cumGroupAxis = 
+    Condition = Run = xorder = Channel = groupAxis = cumGroupAxis =
       abundance = analysis = NULL
     datafeature <- data.psm
 	datarun <- data.summarization
@@ -92,7 +92,7 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 		            ". However,'type' should be one of \"ProfilePlot\", \"QCPlot\"."))
 	}
 
-	if (address == FALSE){ 
+	if (address == FALSE){
 	  ## here I used == FALSE, instead of !address. Because address can be logical or characters.
 	    if (which.Protein == 'all') {
 	        stop('** Cannnot generate all plots in a screen. Please set one protein at a time.')
@@ -113,7 +113,8 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
 
             	## message if name of Protein is wrong.
             	if (length(setdiff(temp.name,unique(datafeature$Protein))) > 0) {
-              		stop(paste0("Please check protein name. Data set does not have this protein. - ", toString(temp.name)))
+              		stop(paste0("Please check protein name. Data set does not have this protein. - ",
+              		            toString(temp.name)))
               	}
           	}
 

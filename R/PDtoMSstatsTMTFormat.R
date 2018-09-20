@@ -63,7 +63,8 @@ PDtoMSstatsTMTFormat <- function(input,
     }
 
     if (is.null(which.pro)) {
-        stop('** Please select which columns should be used for protein ids, among two options (Protein.Accessions, Master.Protein.Accessions).')
+        stop('** Please select which columns should be used for protein ids,
+             among two options (Protein.Accessions, Master.Protein.Accessions).')
     }
 
     if (which.pro == 'Protein.Accessions' & !is.element('Protein.Accessions', colnames(input))) {
@@ -79,7 +80,8 @@ PDtoMSstatsTMTFormat <- function(input,
     }
 
     if (!is.element(which.pro, colnames(input))) {
-        stop('** Please select which columns should be used for protein ids, among two options (Protein.Accessions, Master.Protein.Accessions).')
+        stop('** Please select which columns should be used for protein ids,
+             among two options (Protein.Accessions, Master.Protein.Accessions).')
     }
 
     # Find the corresponding number of proteins or protein groups for each peptide ions
@@ -298,12 +300,14 @@ PDtoMSstatsTMTFormat <- function(input,
 
         input.new <- rbind(input.no, keepinfo.select)
         input.new <- input.new[, -which(colnames(input.new) %in%
-                                            c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue', 'Isolation.Interference....'))]
+                                            c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2',
+                                              'issue', 'Isolation.Interference....'))]
 
         message('** Multiple measurements in a feature and a run are summarized by summaryforMultipleRows.')
 
     } else {
-        input.new <- input[, -which(colnames(input) %in% c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2', 'issue', 'Isolation.Interference....'))]
+        input.new <- input[, -which(colnames(input) %in% c('Quan.Info', 'numProtein', 'Ions.Score', 'fea', 'fea2',
+                                                           'issue', 'Isolation.Interference....'))]
     }
 
     # make long format
@@ -399,6 +403,7 @@ PDtoMSstatsTMTFormat <- function(input,
 combine.fractions <- function(data){
 
     Mixture = Intensity = fea =  Run = tions = . = NULL
+
     # combine fractions for each mixture
     mixtures <- unique(data$Mixture)
     data <- as.data.table(data)
@@ -433,7 +438,8 @@ combine.fractions <- function(data){
             rm(mean.frac.feature)
             rm(remove.fraction)
             rm(tmp)
-            message('** For peptides overlapped between fractions of ', mixtures[i],', use the fraction with maximal average abundance.')
+            message('** For peptides overlapped between fractions of ', mixtures[i],
+                    ', use the fraction with maximal average abundance.')
         } else{
             filtered_sub_data <- sub_data
         }

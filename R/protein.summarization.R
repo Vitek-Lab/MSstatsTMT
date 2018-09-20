@@ -34,7 +34,7 @@ protein.summarization <- function(data,
     finalfile <- "msstatstmt.log"
 
     while (is.element(finalfile,allfiles)) {
-        num <- num+1
+        num <- num + 1
         finalfile <- paste(paste(filenaming,num,sep="-"), ".log", sep="")
     }
 
@@ -46,13 +46,13 @@ protein.summarization <- function(data,
     processout <- as.matrix(read.table("sessionInfo.txt", header=TRUE, sep="\t"))
     write.table(processout, file=finalfile, row.names=FALSE)
 
-    processout <- rbind(processout, 
-                        as.matrix(c(" ", " ", "MSstatsTMT - protein.summarization function", " "), 
+    processout <- rbind(processout,
+                        as.matrix(c(" ", " ", "MSstatsTMT - protein.summarization function", " "),
                                   ncol=1))
 
 
     ## check input
-    required.info <- c('ProteinName', 'PSM', 'Channel', 'BioReplicate', 
+    required.info <- c('ProteinName', 'PSM', 'Channel', 'BioReplicate',
                        'Run', 'Mixture', 'Condition', 'Intensity')
 
     if (!all(required.info %in% colnames(data))) {
@@ -67,14 +67,14 @@ protein.summarization <- function(data,
     method.list <- c("LogSum", "Median", "MedianPolish", "msstats")
 
     if (sum(method == method.list) != 1) {
-        stop(" 'method' must be one of the following : 'LogSum', 'Median', 
+        stop(" 'method' must be one of the following : 'LogSum', 'Median',
              'MedianPolish', 'msstats' default is 'msstats'. ")
     }
 
     ## report which options are used.
-    processout <- rbind(processout, 
+    processout <- rbind(processout,
                         c(paste("Method for protein summarization :", method)))
-    processout <- rbind(processout, 
+    processout <- rbind(processout,
                         c(paste("Normalization between MS runs :", normalization)))
 
     write.table(processout, file=finalfile, row.names=FALSE)

@@ -9,6 +9,7 @@ proposed.model <- function(data,
                         adj.method = "BH") {
 
     Abundance = Group = Protein = NULL
+
     if(moderated){ ## moderated t statistic
         ## Estimate the prior variance and degree freedom
         para <- estimate.prior.var(data)
@@ -32,14 +33,14 @@ proposed.model <- function(data,
     groups <- as.character(unique(data$Group)) # groups
     ## set up matrix for result
     if(contrast.pairwise){
-        ncomp <- length(groups)*(length(groups)-1)/2 # Number of comparison
+        ncomp <- length(groups) * (length(groups) - 1) / 2 # Number of comparison
 
     } else {
         # # comparison come from contrast.matrix
         ncomp <- nrow(contrast.matrix)
     }
 
-    res <- matrix(rep(0, 6*length(proteins)*ncomp), ncol = 6) ## store the inference results
+    res <- matrix(rep(0, 6 * length(proteins) * ncomp), ncol = 6) ## store the inference results
     data <- as.data.table(data) ## make suree the input data is with data table format
     count <- 0
     ## do inference for each protein individually
@@ -60,9 +61,11 @@ proposed.model <- function(data,
             ## Get estimated fold change from mixed model
             coeff <- fixed.effects(fit.mixed)
             coeff[-1] <- coeff[-1] + coeff[1]
+
             # Find the group name for baseline
             names(coeff) <- gsub("Group", "", names(coeff))
             names(coeff)[1] <- setdiff(as.character(groups), names(coeff))
+
             # Estimate the group variance from fixed model
             av <- anova(fit.fixed)
             varcomp <- as.data.frame(VarCorr(fit.mixed))
@@ -70,6 +73,7 @@ proposed.model <- function(data,
             df <- av$Df[3]
             s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
             df.post <- df + df.prior
+
         } else {
             ## if there is only one run in the data, then train one-way anova
             fit.fixed <- try(lm(Abundance ~ Group, data=sub_data), TRUE)
@@ -78,25 +82,30 @@ proposed.model <- function(data,
                 ## Get estimated fold change from mixed model
                 coeff <- coef(fit.fixed)
                 coeff[-1] <- coeff[-1] + coeff[1]
+
                 ## Find the group name for baseline
                 names(coeff) <- gsub("Group", "", names(coeff))
                 names(coeff)[1] <- setdiff(as.character(groups), names(coeff))
+
                 ## Estimate the group variance from fixed model
                 av <- anova(fit.fixed)
                 MSE <- av$"Mean Sq"[2]
                 df <- av$Df[2]
                 s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
                 df.post <- df + df.prior
+
             } else {
                 tag <- TRUE
             }
         }
 
+        ##!! Sicheng or Ting, could you change the number for column to column name?
         if(contrast.pairwise){ ## Pairwise comparison
 
             for(j in 1:(length(groups)-1)){
                 for(k in (j+1):length(groups)){
                     count = count + 1
+
                     res[count, 1] <- proteins[i] ## protein names
                     res[count, 2] <- paste(groups[j], groups[k], sep = "-") ## comparison
                     if(!tag){
@@ -166,6 +175,7 @@ proposed.model <- function(data,
     for(i in 1:ncomp){
         res[res$Comparison == comps[i], "adjusted.pvalue"] <- p.adjust(res[res$Comparison == comps[i], "pvalue"], adj.method)
     }
+    ##!! Sicheng : please use column name
     res <- res[, c(1,2,3,5,6,4,7)]
     return(res)
 }
@@ -178,6 +188,7 @@ ebayes.limma <- function(data,
                          adj.method = "BH"){
 
     Subject = Abundance = NULL
+
     ## contrast matrix can be matrix or character vector.
     contrast.pairwise <- TRUE
     if(is.matrix(contrast.matrix)){
@@ -264,7 +275,7 @@ ebayes.limma <- function(data,
     res <- rbindlist(resList, use.names=TRUE, idcol = "Comparison")
     res$adjusted.pvalue <- p.adjust(res$pvalue, adj.method)
     res$Comparison <- gsub("group", "", res$Comparison)
-    ## !!comment : change with colnum ids
+    ## !!Sicheng : change with colnum ids
     res <- res[, c(2,1,3,5,6,4,7)]
     return(res)
 }
@@ -284,10 +295,11 @@ protein.ttest <- function (data,
 
     ## get group info
     groups <- as.character(unique(data$Group))
+
     ## set up matrix for result
     if (contrast.pairwise) {
         ## Number of comparison
-        ncomp <- length(groups)*(length(groups)-1)/2
+        ncomp <- length(groups) * (length(groups) - 1) / 2
 
     } else {
         ## comparison come from contrast.matrix
@@ -299,11 +311,11 @@ protein.ttest <- function (data,
     ## proteins
     proteins <- as.character(unique(data$Protein))
     ## store the inference results
-    res <- matrix(rep(0, 6*length(proteins)*ncomp), ncol = 6)
+    res <- matrix(rep(0, 6 * length(proteins) * ncomp), ncol = 6)
     ## make suree the input data is with data table format
     data <- as.data.table(data)
     count <- 0
-    num.protein<-length(unique(data$Protein))
+    num.protein <- length(unique(data$Protein))
 
     ## Do inference for each protein individually
     for (i in 1:length(proteins)) {

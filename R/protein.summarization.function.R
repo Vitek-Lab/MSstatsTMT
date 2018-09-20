@@ -13,8 +13,9 @@ protein.summarization.function <- function(data,
                                            normalization,
                                            MBimpute,
                                            maxQuantileforCensored){
-##########!!!!!!!!!!##########!!!!!!!!!!##########!!!!!!!!!!##########!!!!!!!!!!
+
     ProteinName = runchannel = MSRun = log2Intensity = Run = . = NULL
+
     data <- as.data.table(data)
     ## make sure the protein ID is character
     data$ProteinName <- as.character(data$ProteinName)
@@ -22,15 +23,15 @@ protein.summarization.function <- function(data,
     data$runchannel <- paste(data$Run, data$Channel, sep = '_')
     data$log2Intensity <- log2(data$Intensity)
     ## Number of negative values : if intensity is less than 1
-    ##replace with zero
+    ## replace with zero
     ## then we don't need to worry about -Inf = log2(0)
     if (nrow(data[!is.na(data$Intensity) & data$Intensity < 1]) > 0){
       data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- 0
       message('** Negative log2 intensities were replaced with zero.')
     }
-                                                                                
+
     ## Record the group information
-    annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate', 
+    annotation <- unique(data[ , c('Run', 'Channel', 'BioReplicate',
                                    'Condition', 'Mixture', 'runchannel')])
 
     # Prepare the information for protein summarization
@@ -39,12 +40,11 @@ protein.summarization.function <- function(data,
     runchannel.id <- unique(data$runchannel) # record runs X channels
     data$PSM <- as.character(data$PSM)
 
-    ## 2018 07 09 : start by Meena
     if (method == 'msstats'){
         ## need to change the column for MSstats
         colnames(data)[colnames(data) == 'Charge'] <- 'PrecursorCharge'
         colnames(data)[colnames(data) == 'Run'] <- 'MSRun'
-        colnames(data)[colnames(data) == 'runchannel'] <- 'Run' 
+        colnames(data)[colnames(data) == 'runchannel'] <- 'Run'
         ## channel should be 'Run' for MSstats
 
         data$FragmentIon <- NA
@@ -71,7 +71,7 @@ protein.summarization.function <- function(data,
                                           maxQuantileforCensored = maxQuantileforCensored)
             ## output.msstats$RunlevelData : include the protein level summary
             res.sub <- output.msstats$RunlevelData
-            res.sub <- res.sub[which(colnames(res.sub) %in% c('Protein', 
+            res.sub <- res.sub[which(colnames(res.sub) %in% c('Protein',
                                                               'LogIntensities', 'originalRUN'))]
             colnames(res.sub)[colnames(res.sub) == 'LogIntensities'] <- 'Abundance'
             colnames(res.sub)[colnames(res.sub) == 'originalRUN'] <- 'runchannel'
@@ -93,10 +93,10 @@ protein.summarization.function <- function(data,
         #add NAs to make every protein appear in all the channels
 
         ## add more annotation and block
-        data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel', 
+        data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel',
                          'BioReplicate', 'runchannel')]
         channels <- as.character(unique(data$Channel))
-        
+
         #Create a annotation to make sure there are no missing Channels for each protein in data
         anno <- unique(data[, c("Run", "ProteinName")])#name of each run and protein
         anno.len <- nrow(anno)
@@ -104,29 +104,28 @@ protein.summarization.function <- function(data,
         mat <- matrix(rep(channels,anno.len), nrow = channel.len)
         dt <- as.data.frame(t(mat))
         anno <- cbind(anno, dt)#attach channels to each run and protein
-        ## !! comment : remove number to select column
-        anno <- anno %>% unite("Run.Protein", Run,ProteinName) %>% 
-          gather(v, Channel, -Run.Protein) %>% 
+
+        anno <- anno %>% unite("Run.Protein", Run,ProteinName) %>%
+          gather(v, Channel, -Run.Protein) %>%
           separate(Run.Protein, into = c("Run", "ProteinName"))
-        anno$Run<-as.numeric(as.character(anno$Run))
+        anno$Run <- as.numeric(as.character(anno$Run))
         data <- right_join(data, anno)
-        
-        
+
         #Create a annotation to make sure there are no missing PSMs for each Run and Protein
         anno1 <- unique(data[, c("Run", "ProteinName", "PSM")])
-        anno2 <- full_join(anno,anno1) %>% 
-          select("Run", "ProteinName","Channel","PSM")
-        data <- right_join(data,anno2) #runchannel+1 after this line
-        
+        anno2 <- full_join(anno,anno1) %>%
+          select("Run", "ProteinName", "Channel", "PSM")
+        data <- right_join(data, anno2) #runchannel+1 after this line
+
         #Create a annotation for "runchannel" sorted by Run and ProteinName
         data$runchannel <- paste(data$Run, data$Channel, sep = '_')
         data <- as.data.table(data)
-        data <- data[order(data$Run, data$ProteinName),]
+        data <- data[order(data$Run, data$ProteinName), ]
         anno3 <- unique(data[, c("runchannel", "ProteinName" ,"Run")])
         anno3 <- anno3[order(anno3$Run, anno3$ProteinName), ]
-        
+
         #Computer by each Run and ProteinName
-        res <- data[, .(MedianPolish= MedianPolishFunction(log2Intensity, 
+        res <- data[, .(MedianPolish= MedianPolishFunction(log2Intensity,
                                                            channel.len)), by=.(Run, ProteinName)]
         colnames(res) <- c("Run", "ProteinName", "Abundance")
         res$runchannel <- anno3$runchannel
@@ -134,33 +133,33 @@ protein.summarization.function <- function(data,
         res$Run <- res$Run.x #delete x and y
 
         #Protein Normalization
-        if (normalization & length(runs) > 1) { 
-          # Do normalization based on group 'Norm'
+        if (normalization & length(runs) > 1) {
+            # Do normalization based on group 'Norm'
             res <- protein.normalization(res)
         }
         res$Protein <- res$ProteinName
-        res <- res[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate", 
+        res <- res[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
                        "Condition", "Mixture")]
         return(res)
 
     } else if (method == "LogSum"){
 
         #Method LogSum
-        data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel', 
+        data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel',
                          'BioReplicate', 'runchannel')]
-        res <- data[, .(LogSum = log2(sum(2^log2Intensity))), by=.(Run,ProteinName, 
+        res <- data[, .(LogSum = log2(sum(2^log2Intensity))), by=.(Run,ProteinName,
                                                                    runchannel)] # calculate the logsum for each protein and channel
         colnames(res) <- c("Run", "ProteinName", "runchannel", "Abundance")
         res <- left_join(res, annotation, by='runchannel')
         # add the annotation information to the results
         res$Run <- res$Run.x#delete x and y
 
-        if (normalization & length(runs) > 1) { 
+        if (normalization & length(runs) > 1) {
           # Do normalization based on group 'Norm'
             res <- protein.normalization(res)
         }
         res$Protein <- res$ProteinName
-        res <- res[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate", 
+        res <- res[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
                        "Condition", "Mixture")]
         return(res)
 
@@ -168,10 +167,10 @@ protein.summarization.function <- function(data,
         #Method Median
         data <- data[, c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel',
                          'BioReplicate', 'runchannel')]
-        res <- data[, .(Median = median(log2Intensity)), by=.(Run,ProteinName, 
+        res <- data[, .(Median = median(log2Intensity)), by=.(Run,ProteinName,
                                                               runchannel)] # calculate the median for each protein and channel
         colnames(res) <- c("Run", "ProteinName", "runchannel", "Abundance")
-        res <- left_join(res, annotation, by='runchannel') 
+        res <- left_join(res, annotation, by='runchannel')
         # add the annotation information to the results
         res$Run <- res$Run.x #delete x and y
 
@@ -180,7 +179,7 @@ protein.summarization.function <- function(data,
             res <- protein.normalization(res)
         }
         res$Protein<-res$ProteinName
-        res<-res[,c("Run", "Protein", "Abundance", "Channel", "BioReplicate", 
+        res<-res[,c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
                     "Condition", "Mixture")]
         return(res)
     }
@@ -197,32 +196,35 @@ protein.summarization.function <- function(data,
 protein.normalization <- function(data) {
 
     Run = Abundance = . = Condition = Protein = NULL
+
     ## check whethere there are 'Norm' info or not.
     group.info <- unique(data$Condition)
 
     ## if there is 'Norm' available in Condition column,
     if (is.element('Norm', group.info)) {
 
-        data$Protein <- as.character(data$Protein) 
+        data$Protein <- as.character(data$Protein)
+
         # make sure protein names are character
         proteins <- unique(data$Protein) # proteins
         num.protein <- length(proteins)
-        data <- as.data.table(data) 
+        data <- as.data.table(data)
+
         # make suree the input data is with data table format
         norm.data <- list()
 
         # do inference for each protein individually
         for (i in 1:length(proteins)) {
 
-            message(paste("Normalization between MS runs for Protein :", 
+            message(paste("Normalization between MS runs for Protein :",
                           proteins[i] , "(", i, " of ", num.protein, ")"))
 
             sub_data <- data[Protein == proteins[i]] # data for protein i
             sub_data <- na.omit(sub_data)
             norm.channel <- sub_data[Condition == "Norm"]
-            norm.channel <- norm.channel[, .(Abundance = mean(Abundance, na.rm = TRUE)), 
+            norm.channel <- norm.channel[, .(Abundance = mean(Abundance, na.rm = TRUE)),
                                          by = .(Protein, Run)]
-            norm.channel$diff <- median(norm.channel$Abundance, na.rm = TRUE) - 
+            norm.channel$diff <- median(norm.channel$Abundance, na.rm = TRUE) -
               norm.channel$Abundance
             setkey(sub_data, Run)
             setkey(norm.channel, Run)

@@ -33,6 +33,8 @@ groupComparison.TMT <- function(data,
                                 remove_norm_channel = TRUE,
                                 moderated = TRUE,
                                 adj.method = "BH"){
+
+    ## only 'proposed' is possible publicly
     model = 'proposed'
     ## save process output in each step
     allfiles <- list.files()
