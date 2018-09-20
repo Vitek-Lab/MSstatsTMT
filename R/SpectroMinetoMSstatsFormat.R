@@ -7,7 +7,7 @@
 #' @import dplyr
 #' @importFrom reshape2 melt
 #' @importFrom data.table as.data.table setkey rbindlist
-#' @param input data name of Proteome discover PSM output. Read PSM sheet.
+#' @param input data name of SpectroMine PSM output. Read PSM sheet.
 #' @param annotation data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.
 #' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.
 #' @param filter_with_Qvalue TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with zero and will be considered as censored missing values for imputation purpose.

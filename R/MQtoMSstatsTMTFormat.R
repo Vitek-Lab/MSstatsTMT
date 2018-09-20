@@ -145,7 +145,7 @@ MQtoMSstatsTMTFormat <- function(evidence,
     ## 2) Leading.proteins
     ## 3) Leading.razor.protein
     ################################################
-    ## default : Protein Accessions
+    ## default : Protein
     which.pro <- NULL
 
     if (which.proteinid == 'Proteins') {

@@ -221,7 +221,7 @@ PDtoMSstatsTMTFormat <- function(input,
         ## keep selected rows among issued rows
         keepinfo.select <- NULL
         for (i in 1:length(unique(fea.multimeas$issue))) {
-            message("Row ", i)
+            # message("Row ", i)
             sub <- input[input$issue == unique(fea.multimeas$issue)[i], ]
             sub <- unique(sub)
             subfea <- fea.multimeas[fea.multimeas$issue == unique(fea.multimeas$issue)[i], ]
