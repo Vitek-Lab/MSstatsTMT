@@ -16,6 +16,7 @@ protein.summarization.function <- function(data,
                                            maxQuantileforCensored){
 
     ProteinName = runchannel = MSRun = log2Intensity = Run = . = NULL
+    v = Channel = Run.Protein = NULL
 
     data <- as.data.table(data)
     ## make sure the protein ID is character
