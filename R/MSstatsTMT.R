@@ -4,12 +4,12 @@
 #'
 #' @section functions :
 #' \itemize{
-#'   \item \code{\link{PDtoMSstatsTMTFormat}} : generate MSstatsTMT required input format for Proteome discoverer output.
-#'   \item \code{\link{MaxQtoMSstatsTMTFormat}} : generate MSstatsTMT required input format for MaxQuant output.
-#'   \item \code{\link{SpectroMinetoMSstatsTMTFormat}} : generate MSstatsTMT required input format for SpectroMine output.
-#'   \item \code{\link{protein.summarization}} : summarizing PSM level quantification to protein level quantification.
-#'   \item \code{\link{dataProcessPlots.TMT}} : Visualization for explanatory data analysis.
-#'   \item \code{\link{groupComparison.TMT}} : testing for significant changes in protein abundance across conditions.
+#'   \item \code{\link{PDtoMSstatsTMTFormat}} : generates MSstatsTMT required input format for Proteome discoverer output.
+#'   \item \code{\link{MaxQtoMSstatsTMTFormat}} : generates MSstatsTMT required input format for MaxQuant output.
+#'   \item \code{\link{SpectroMinetoMSstatsTMTFormat}} : generates MSstatsTMT required input format for SpectroMine output.
+#'   \item \code{\link{protein.summarization}} : summarizes PSM level quantification to protein level quantification.
+#'   \item \code{\link{dataProcessPlots.TMT}} : visualizes for explanatory data analysis.
+#'   \item \code{\link{groupComparison.TMT}} : tests for significant changes in protein abundance across conditions.
 #' }
 #'
 #' @docType package

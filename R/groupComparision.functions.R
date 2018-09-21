@@ -5,9 +5,9 @@
 #' @keywords internal
 
 proposed.model <- function(data,
-                           moderated <- TRUE,
-                           contrast.matrix <- "pairwise",
-                           adj.method <- "BH") {
+                           moderated = TRUE,
+                           contrast.matrix = "pairwise",
+                           adj.method = "BH") {
 
     Abundance <- Group <- Protein <- NULL
 
@@ -50,7 +50,7 @@ proposed.model <- function(data,
         ncomp <- nrow(contrast.matrix)
     }
 
-    res <- as.data.frame(matrix(rep(0, 6 * length(proteins) * ncomp), ncol <- 6)) ## store the inference results
+    res <- as.data.frame(matrix(rep(0, 6 * length(proteins) * ncomp), ncol = 6)) ## store the inference results
     colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF")
     data <- as.data.table(data) ## make suree the input data is with data table format
     count <- 0
@@ -117,7 +117,7 @@ proposed.model <- function(data,
                 for(k in (j+1):length(groups)){
                     count <- count + 1
                     res[count, "Protein"] <- proteins[i] ## protein names
-                    res[count, "Comparison"] <- paste(groups[j], groups[k], sep <- "-") ## comparison
+                    res[count, "Comparison"] <- paste(groups[j], groups[k], sep = "-") ## comparison
 
                     if(!tag){
                         g1_df <- nrow(sub_data[Group == groups[j]]) ## size of group 1
@@ -148,19 +148,19 @@ proposed.model <- function(data,
 
                 if(!tag){
                     ## size of each group
-                    group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n <- sum(!is.na(Abundance)))
+                    group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n = sum(!is.na(Abundance)))
                     group_df$Group <- as.character(group_df$Group)
 
                     ## variance of diff
-                    variance <- s2.post*sum((1/group_df$n)*((contrast.matrix[j,group_df$Group])^2))
-                    FC <- sum(coeff*(contrast.matrix[j,names(coeff)])) # fold change
+                    variance <- s2.post * sum((1/group_df$n) * ((contrast.matrix[j, group_df$Group]) ^ 2))
+                    FC <- sum(coeff*(contrast.matrix[j, names(coeff)])) # fold change
                     res[count, "log2FC"] <- FC
 
                     ## Calculate the t statistic
                     t <- FC/sqrt(variance)
 
                     ## calculate p-value
-                    p <- 2*pt(-abs(t), df <- df.post)
+                    p <- 2*pt(-abs(t), df = df.post)
                     res[count, "pvalue"] <- p
 
                     ## SE
@@ -201,17 +201,21 @@ proposed.model <- function(data,
 estimate.prior.var <- function(data){
 
     Subject <- Abundance <- Protein <- NULL
+
     ## make sure data is in data.frame format
     data <- as.data.frame(data)
     data.mat <- data[, c("Protein", "Subject", "Abundance")]
+
     ## long to wide format
     data.mat <- data.mat %>% spread(Subject, Abundance)
+
     ## Assign the row names
     rownames(data.mat) <- data.mat$Protein
     data.mat <- data.mat %>% select(-Protein)
 
     ## Extract the group information
     Annotation <- unique(data[, c("Subject", "Group", "Run", "Mixture")])
+
     ## Assign the row names
     rownames(Annotation) <- Annotation$Subject
     Annotation <- Annotation[colnames(data.mat), ]

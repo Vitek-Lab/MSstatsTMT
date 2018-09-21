@@ -1,9 +1,10 @@
 
-#' Example of output from Proteome Discoverer 2.2 for TMT10 experiments.
+#' Example of output from Proteome Discoverer 2.2 for TMT-10plex experiments.
 #'
 #' Example of Proteome discover PSM sheet.
 #' It is the input for PDtoMSstatsTMTFormat function, with annotation file.
-#' It includes peak intensities for 10 proteins among 15 MS runs with TMT10.
+#' Annotation file should be made by users.
+#' It includes peak intensities for 10 proteins among 15 MS runs with TMT-10plex.
 #' The variables are as follows:
 #'
 #' \itemize{
@@ -23,7 +24,7 @@
 #'
 "raw.pd"
 
-#' Example of annotation file for raw.pd
+#' Example of annotation file for raw.pd, which is the PSM output of Proteome Discoverer
 #'
 #' Annotation of example data, raw.pd, in this package.
 #' It should be prepared by users.
@@ -47,11 +48,11 @@
 #'
 "annotation.pd"
 
-#' Example of output from MaxQuant for TMT10 experiments.
+#' Example of output from MaxQuant for TMT-10plex experiments.
 #'
-#' Example of MaxQuant peptide evidence file.
+#' Example of evidence.txt from MaxQuant.
 #' It is the input for MaxQtoMSstatsTMTFormat function, with proteinGroups.txt
-#'  and annotation file.
+#' and annotation file. Annotation file should be made by users.
 #' It includes peak intensities for 10 proteins among 15 MS runs with TMT10.
 #' The important variables are as follows:
 #'
@@ -74,11 +75,11 @@
 #'
 "evidence"
 
-#' Example of proteinGroups file from MaxQuant for TMT10 experiments.
+#' Example of proteinGroups file from MaxQuant for TMT-10plex experiments.
 #'
-#' Example of MaxQuant identified protein group information file.
+#' Example of proteinGroup.txt file from MaxQuant, which is identified protein group information file.
 #' It is the input for MaxQtoMSstatsTMTFormat function, with evidence.txt
-#'  and annotation file.
+#' and annotation file.
 #' It includes identified protein groups for 10 proteins among 15 MS runs with TMT10.
 #' The important variables are as follows:
 #'
@@ -96,9 +97,9 @@
 #'
 "proteinGroups"
 
-#' Example of annotation file for raw.mq
+#' Example of annotation file for evidence, which is the output of MaxQuant.
 #'
-#' Annotation of example data, raw.mq, in this package.
+#' Annotation of example data, evidence, in this package.
 #' It should be prepared by users.
 #' The variables are as follows:
 #'
@@ -120,11 +121,12 @@
 #'
 "annotation.mq"
 
-#' Example of output from SpectroMine for TMT6 experiments.
+#' Example of output from SpectroMine for TMT-6plex experiments.
 #'
 #' Example of SpectroMine PSM sheet.
-#' It is the input for SpectroMinetoMSstatsTMTFormat function, with annotation file.
-#' It includes peak intensities for 10 proteins among 12 MS runs with TMT6.
+#' It is the output of SpectroMine and the input for SpectroMinetoMSstatsTMTFormat function, with annotation file.
+#' Annotation file should be made by users.
+#' It includes peak intensities for 10 proteins among 12 MS runs with TMT-6plex.
 #' The important variables are as follows:
 #'
 #' \itemize{
@@ -143,7 +145,7 @@
 #'
 "raw.mine"
 
-#' Example of annotation file for raw.mine
+#' Example of annotation file for raw.mine, which is the output of SpectroMine.
 #'
 #' Annotation of example data, raw.mine, in this package.
 #' It should be prepared by users.
@@ -169,9 +171,9 @@
 
 #' Example of output from PDtoMSstatsTMTFormat function
 #'
-#' It is calculated from raw.pd and annotation.pd
-#' It is the output of PDtoMSstatsTMTFormat function
-#' It should includes the required columns as below.
+#' It is made from \code{\link{raw.pd}} and \code{\link{annotation.pd}},
+#' which is the output of PDtoMSstatsTMTFormat function.
+#' It should include the required columns as below.
 #' The variables are as follows:
 #'
 #' \itemize{
@@ -195,15 +197,15 @@
 
 #' Example of output from protein.summarizaiton function
 #'
-#' It is calculated from input.pd.
-#' It is the output of protein.summarization function
-#' It should includes the required columns as below.
+#' It is made from \code{\link{input.pd}}.
+#' It is the output of protein.summarization function.
+#' It should include the required columns as below.
 #' The variables are as follows:
 #'
 #' \itemize{
 #'   \item Run : MS run ID
 #'   \item Protein : Protein ID
-#'   \item Abundance: Protein Abundance
+#'   \item Abundance: Protein-level summarized abundance
 #'   \item Channel : Labeling information (126, ... 131)
 #'   \item Condition : Condition (ex. Healthy, Cancer, Time0)
 #'   \item BioReplicate : Unique ID for biological subject.
@@ -218,9 +220,9 @@
 
 #' Example of output from groupComparison.TMT function
 #'
-#' It is calculated from the result of protein.summarizaiton function with contrast.matrix = 'pairwise'.
-#' It is the output of groupComparison.TMT function
-#' It should includes the required columns as below.
+#' It is the output of groupComparison.TMT function,
+#' which is the result of group comparions with the output of protein.summarization function.
+#' It should include the columns as below.
 #' The variables are as follows:
 #'
 #' \itemize{

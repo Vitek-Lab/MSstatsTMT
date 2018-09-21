@@ -3,13 +3,13 @@
 \docType{data}
 \name{annotation.mq}
 \alias{annotation.mq}
-\title{Example of annotation file for raw.mq, which is the output of MaxQuant.}
+\title{Example of annotation file for evidence, which is the output of MaxQuant.}
 \format{A data frame with 150 rows and 5 variables.}
 \usage{
 annotation.mq
 }
 \description{
-Annotation of example data, raw.mq, in this package.
+Annotation of example data, evidence, in this package.
 It should be prepared by users.
 The variables are as follows:
 }

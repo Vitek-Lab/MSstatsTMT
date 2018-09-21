@@ -28,14 +28,14 @@
 
 SpectroMinetoMSstatsTMTFormat <- function(input,
                                           annotation,
-                                          fraction <- FALSE,
-                                          filter_with_Qvalue <- TRUE,
-                                          qvalue_cutoff <- 0.01,
-                                          useUniquePeptide <- TRUE,
-                                          rmPSM_withMissing_withinRun <- FALSE,
-                                          rmPSM_withfewMea_withinRun <- TRUE,
-                                          rmProtein_with1Feature <- FALSE,
-                                          summaryforMultipleRows <- sum){
+                                          fraction = FALSE,
+                                          filter_with_Qvalue = TRUE,
+                                          qvalue_cutoff = 0.01,
+                                          useUniquePeptide = TRUE,
+                                          rmPSM_withMissing_withinRun = FALSE,
+                                          rmPSM_withfewMea_withinRun = TRUE,
+                                          rmProtein_with1Feature = FALSE,
+                                          summaryforMultipleRows = sum){
 
 
     ################################################
@@ -67,8 +67,8 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
     }
 
     # extract the columns for channels
-    pattern <- paste(check.column.start, ".*", check.column.end, sep <- "")
-    channels <- grep(pattern, colnames(input), value <- TRUE)
+    pattern <- paste(check.column.start, ".*", check.column.end, sep = "")
+    channels <- grep(pattern, colnames(input), value = TRUE)
 
     # extract the required columns
     required.cols <- c('PG.ProteinAccessions', 'P.MoleculeID', 'PP.Charge',
@@ -130,7 +130,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
         pepcount$PeptideSequence <- factor(pepcount$PeptideSequence)
 
         ## count how many proteins are assigned for each peptide
-        structure <- pepcount %>% group_by(PeptideSequence) %>% summarise(length <- length(ProteinName))
+        structure <- pepcount %>% group_by(PeptideSequence) %>% summarise(length = length(ProteinName))
 
         remove_peptide <- structure[structure$length != 1, ]
 
@@ -172,10 +172,10 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
     ##############################
     ## 7. remove multiple measurements per feature and run
     ##############################
-    input$fea <- paste(input$PeptideSequence, input$Charge, sep <- "_")
+    input$fea <- paste(input$PeptideSequence, input$Charge, sep = "_")
 
     ## check multiple measurements
-    input$fea2 <- paste(input$fea, input$ProteinName, sep <- "_")
+    input$fea2 <- paste(input$fea, input$ProteinName, sep = "_")
     input$fea2 <- factor(input$fea2)
 
     count <- xtabs(~ fea2 + Run, input)
@@ -185,9 +185,9 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
 
     ## separate input by multiple measurements vs one measurement
     if (nrow(fea.multimeas) > 0) { ## if there is any feature issued.
-        fea.multimeas$issue <- paste(fea.multimeas$fea2, fea.multimeas$Run, sep <- "_")
-        input$issue <- paste(input$fea2, input$Run, sep <- "_")
-        keepinfo.select <-NULL # store the final data
+        fea.multimeas$issue <- paste(fea.multimeas$fea2, fea.multimeas$Run, sep = "_")
+        input$issue <- paste(input$fea2, input$Run, sep = "_")
+        keepinfo.select <- NULL # store the final data
 
         ## keep rows with no issue
         input.no <- input[-which(input$issue %in% unique(fea.multimeas$issue)), ]
@@ -221,7 +221,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
                     stop("summaryforMultipleRows can only be sum or max! ")
                 }
 
-                sub2$totalmea <- apply(sub2[, channels], 1, function(x) summaryforMultipleRows(x, na.rm <- TRUE))
+                sub2$totalmea <- apply(sub2[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
                 sub3 <- sub2[sub2$totalmea == max(sub2$totalmea), ]
                 sub3 <- sub3[, which(colnames(sub2) != "totalmea")]
 
@@ -236,7 +236,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
                         summaryforMultipleRows <- sum
                     }
 
-                    sub2$totalmea <- apply(sub2[, channels], 1, function(x) summaryforMultipleRows(x, na.rm <- TRUE))
+                    sub2$totalmea <- apply(sub2[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
                     sub3 <- sub2[sub2$totalmea == max(sub2$totalmea), ]
                     sub3 <- sub3[, which(colnames(sub2) != "totalmea")]
                     keepinfo.select <- rbind(keepinfo.select, sub3)
@@ -257,11 +257,11 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
     }
 
     # make long format
-    input.long <- melt(input.new, id <- c('ProteinName',
+    input.long <- melt(input.new, id = c('ProteinName',
                                        'PeptideSequence','Charge',
                                        'Run'),
-                       variable.name <- "Channel",
-                       value.name <- "Intensity")
+                       variable.name = "Channel",
+                       value.name = "Intensity")
 
     # make sure no dupliate rows
     input.long <- input.long[!is.na(input.long$Intensity), ]
@@ -281,7 +281,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
         stop("Please check the annotation file. The channel name must be matched with that in input data ")
     }
 
-    input <- merge(input, annotation, by <- c("Run", "Channel"), all.x <- TRUE)
+    input <- merge(input, annotation, by = c("Run", "Channel"), all.x = TRUE)
 
     ## check whether there is any missing 'Condition'
     noruninfo <- unique(input[is.na(input$Condition), c("Run", "Channel")])
@@ -294,16 +294,16 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
         stop('** Please add them to annotation file.')
     }
 
-    input.final <- data.frame("ProteinName" <- input$ProteinName,
-                              "PeptideSequence" <- input$PeptideSequence,
-                              "Charge" <- input$Charge,
-                              "PSM" <- paste(input$PeptideSequence, input$Charge, sep <- "_"),
-                              "Channel" <- as.factor(input$Channel),
-                              "Condition" <- input$Condition,
-                              "BioReplicate" <- input$BioReplicate,
-                              "Run" <- input$Run,
-                              "Mixture" <- input$Mixture,
-                              "Intensity" <- input$Intensity)
+    input.final <- data.frame("ProteinName" = input$ProteinName,
+                              "PeptideSequence" = input$PeptideSequence,
+                              "Charge" = input$Charge,
+                              "PSM" = paste(input$PeptideSequence, input$Charge, sep = "_"),
+                              "Channel" = as.factor(input$Channel),
+                              "Condition" = input$Condition,
+                              "BioReplicate" = input$BioReplicate,
+                              "Run" = input$Run,
+                              "Mixture" = input$Mixture,
+                              "Intensity" = input$Intensity)
 
     input <- input.final
     rm(input.final)
@@ -316,7 +316,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
         ## remove protein which has only one peptide
         tmp <- unique(input[, c("ProteinName", 'PSM')])
         tmp$ProteinName <- factor(tmp$ProteinName)
-        count <- xtabs( ~ ProteinName, data <- tmp)
+        count <- xtabs( ~ ProteinName, data = tmp)
         lengthtotalprotein <- length(count)
 
         removepro <- names(count[count <= 1])

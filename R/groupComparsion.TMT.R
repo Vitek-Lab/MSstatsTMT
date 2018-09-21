@@ -12,26 +12,30 @@
 #' @return data.frame with result of inference
 #' @examples
 #' quant.msstats <- protein.summarization(input.pd,
-#'                                          method="msstats",
-#'                                          normalization=TRUE)
+#'                                        method="msstats",
+#'                                        normalization=TRUE)
 #'
 #' test.pairwise <- groupComparison.TMT(quant.msstats)
 #'
 #' # Only compare condition 0.125 and 1
 #' levels(quant.msstats$Condition)
+#'
 #' # 'Norm' should be not considered in the contrast
 #' comparison<-matrix(c(-1,0,0,1),nrow=1)
+#'
 #' # Set the names of each row
 #' row.names(comparison)<-"1-0.125"
+#'
 #' # Set the column names
 #' colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
 #' test.contrast <- groupComparison.TMT(data = quant.msstats, contrast.matrix = comparison)
+#'
 
 groupComparison.TMT <- function(data,
-                                contrast.matrix <- 'pairwise',
-                                remove_norm_channel <- TRUE,
-                                moderated <- TRUE,
-                                adj.method <- "BH"){
+                                contrast.matrix = 'pairwise',
+                                remove_norm_channel = TRUE,
+                                moderated = TRUE,
+                                adj.method = "BH"){
 
     ## save process output in each step
     allfiles <- list.files()
@@ -50,14 +54,14 @@ groupComparison.TMT <- function(data,
         while (is.element(finalfile, allfiles)) {
             num <- num + 1
             lastfilename <- finalfile ## in order to rea
-            finalfile <- paste(paste(filenaming, num, sep<-"-"), ".log", sep<-"")
+            finalfile <- paste(paste(filenaming, num, sep<-"-"), ".log", sep = "")
         }
 
         finalfile <- lastfilename
-        processout <- as.matrix(read.table(finalfile, header <- TRUE, sep <- "\t"))
+        processout <- as.matrix(read.table(finalfile, header <- TRUE, sep = "\t"))
     }
 
-    processout <- rbind(processout, as.matrix(c(" ", " ", "MSstatsTMT - groupComparison.TMT function"," "), ncol <- 1))
+    processout <- rbind(processout, as.matrix(c(" ", " ", "MSstatsTMT - groupComparison.TMT function"," "), ncol = 1))
 
 
     ## check input data
@@ -66,7 +70,7 @@ groupComparison.TMT <- function(data,
     if (!all(required.info %in% colnames(data))) {
 
         missedAnnotation <- which(!(required.info %in% colnames(data)))
-        missedAnnotation.comb <- paste(required.info[missedAnnotation], collapse <- ", ")
+        missedAnnotation.comb <- paste(required.info[missedAnnotation], collapse = ", ")
         if (length(missedAnnotation) == 1) {
             stop(paste("Please check the required input. ** columns :",
                        missedAnnotation.comb, "is missed."))
@@ -85,7 +89,7 @@ groupComparison.TMT <- function(data,
     processout <- rbind(processout, c(paste("Remove 'Norm' channels before inference:", remove_norm_channel)))
     processout <- rbind(processout, c(paste("Moderated t-stat :", moderated)))
 
-    write.table(processout, file <- finalfile, row.names <- FALSE)
+    write.table(processout, file = finalfile, row.names = FALSE)
 
     ## remove 'Norm' column : It should not used for inference
     if (remove_norm_channel & is.element('Norm', unique(data$Group))) {
