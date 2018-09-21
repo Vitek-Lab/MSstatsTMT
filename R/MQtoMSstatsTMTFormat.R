@@ -40,7 +40,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
                                  rmProtein_with1Feature = FALSE,
                                  summaryforMultipleRows = sum){
 
-    PeptideSequence <- fea2 <- Run <- NULL
+    PeptideSequence <- ProteinName <- fea2 <- Run <- NULL
     ## evidence.txt file
     input <- evidence
 
