@@ -12,22 +12,19 @@ dataProcessPlots.TMT(data.psm = data.psm,
   originalPlot = TRUE, summaryPlot = TRUE, address = "")
 }
 \arguments{
-\item{data.psm}{name of the data with PSM-level,
-which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}},
-\code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).}
+\item{data.psm}{name of the data with PSM-level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).}
 
-\item{data.summarization}{name of the data with protein-level,
-which can be the output of (\code{\link{protein.summarization}}) function.}
+\item{data.summarization}{name of the data with protein-level, which can be the output of (\code{\link{protein.summarization}}) function.}
 
 \item{type}{choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 "QCPlot" represents box plots of log intensities across channels and MS runs.}
 
 \item{ylimUp}{upper limit for y-axis in the log scale.
-FALSE(Default) for Profile Plot and QC Plot uses the upper limit as rounded off maximum of log2(intensities) after normalization + 3.}
+FALSE(Default) for Profile Plot and QC Plot uses the upper limit as rounded off maximum of log2(intensities) after normalization + 3..}
 
-\item{ylimDown}{lower limit for y-axis in the log scale. FALSE(Default) for Profile Plot and QC Plot uses 0.}
+\item{ylimDown}{lower limit for y-axis in the log scale. FALSE(Default) for Profile Plot and QC Plot uses 0..}
 
-\item{x.axis.size}{size of x-axis labeling for "Run" and "channel" in Profile Plot and QC Plot.}
+\item{x.axis.size}{size of x-axis labeling for "Run" and "channel in Profile Plot and QC Plot.}
 
 \item{y.axis.size}{size of y-axis labels. Default is 10.}
 
@@ -35,11 +32,11 @@ FALSE(Default) for Profile Plot and QC Plot uses the upper limit as rounded off 
 
 \item{text.angle}{angle of labels represented each condition at the top of Profile plot and QC plot. Default is 0.}
 
-\item{legend.size}{size of legend above graph in Profile plot. Default is 7.}
+\item{legend.size}{size of legend above Profile plot. Default is 7.}
 
 \item{dot.size.profile}{size of dots in Profile plot. Default is 2.}
 
-\item{ncol.guide}{number of columns for legends at the top of Profile plot. Default is 5.}
+\item{ncol.guide}{number of columns for legends at the top of plot. Default is 5.}
 
 \item{width}{width of the saved pdf file. Default is 10.}
 
@@ -50,7 +47,7 @@ Default is "all", which generates all plots for each protein. For QC plot, "allo
 
 \item{originalPlot}{TRUE(default) draws original profile plots, without normalization.}
 
-\item{summaryPlot}{TRUE(default) draws profile plots with overlayed protein summarization for each channel and MS run.}
+\item{summaryPlot}{TRUE(default) draws profile plots with protein summarization for each channel and MS run.}
 
 \item{address}{the name of folder that will store the results. Default folder is the current working directory.
 The other assigned folder has to be existed under the current working directory.
@@ -75,7 +72,8 @@ input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
 quant.msstats <- protein.summarization(input.pd,
                                          method="msstats",
                                          normalization=TRUE)
-## Prfile plots
+
+## Profile plot
 dataProcessPlots.TMT(data.psm=input.pd,
                      data.summarization=quant.msstats,
                      type='ProfilePlot',

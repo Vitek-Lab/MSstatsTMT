@@ -27,8 +27,8 @@ Experimental design of case-control study (patients are not repeatedly measured)
 }
 \examples{
 quant.msstats <- protein.summarization(input.pd,
-                                         method="msstats",
-                                         normalization=TRUE)
+                                       method="msstats",
+                                       normalization=TRUE)
 
 test.pairwise <- groupComparison.TMT(quant.msstats)
 
@@ -44,4 +44,5 @@ row.names(comparison)<-"1-0.125"
 # Set the column names
 colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
 test.contrast <- groupComparison.TMT(data = quant.msstats, contrast.matrix = comparison)
+
 }

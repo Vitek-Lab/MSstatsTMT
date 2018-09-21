@@ -325,7 +325,7 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
                         axis.ticks = element_line(colour = "black"),
                         axis.title.x = element_text(size = x.axis.size + 5, vjust = -0.4),
                         axis.title.y = element_text(size = y.axis.size + 5, vjust = 0.3),
-                        title = element_text(size = x.axis.size = 8, vjust = 1.5),
+                        title = element_text(size = x.axis.size + 8, vjust = 1.5),
                         legend.position = "top",
                         legend.text = element_text(size = legend.size)) +
                     guides(color = guide_legend(title = paste("# peptide:", nlevels(sub$PeptideSequence)),

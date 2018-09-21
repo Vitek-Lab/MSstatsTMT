@@ -9,10 +9,12 @@
 proteinGroups
 }
 \description{
-Example of proteinGroup.txt file from MaxQuant, which is identified protein group information file.
+Example of proteinGroup.txt file from MaxQuant,
+which is identified protein group information file.
 It is the input for MaxQtoMSstatsTMTFormat function, with evidence.txt
- and annotation file.
-It includes identified protein groups for 10 proteins among 15 MS runs with TMT10.
+and annotation file.
+It includes identified protein groups for 10 proteins
+among 15 MS runs with TMT10.
 The important variables are as follows:
 }
 \details{

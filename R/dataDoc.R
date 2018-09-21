@@ -4,7 +4,8 @@
 #' Example of Proteome discover PSM sheet.
 #' It is the input for PDtoMSstatsTMTFormat function, with annotation file.
 #' Annotation file should be made by users.
-#' It includes peak intensities for 10 proteins among 15 MS runs with TMT-10plex.
+#' It includes peak intensities for 10 proteins
+#' among 15 MS runs with TMT-10plex.
 #' The variables are as follows:
 #'
 #' \itemize{
@@ -24,7 +25,8 @@
 #'
 "raw.pd"
 
-#' Example of annotation file for raw.pd, which is the PSM output of Proteome Discoverer
+#' Example of annotation file for raw.pd,
+#' which is the PSM output of Proteome Discoverer
 #'
 #' Annotation of example data, raw.pd, in this package.
 #' It should be prepared by users.
@@ -77,10 +79,12 @@
 
 #' Example of proteinGroups file from MaxQuant for TMT-10plex experiments.
 #'
-#' Example of proteinGroup.txt file from MaxQuant, which is identified protein group information file.
+#' Example of proteinGroup.txt file from MaxQuant,
+#' which is identified protein group information file.
 #' It is the input for MaxQtoMSstatsTMTFormat function, with evidence.txt
 #' and annotation file.
-#' It includes identified protein groups for 10 proteins among 15 MS runs with TMT10.
+#' It includes identified protein groups for 10 proteins
+#' among 15 MS runs with TMT10.
 #' The important variables are as follows:
 #'
 #' \itemize{
@@ -124,7 +128,8 @@
 #' Example of output from SpectroMine for TMT-6plex experiments.
 #'
 #' Example of SpectroMine PSM sheet.
-#' It is the output of SpectroMine and the input for SpectroMinetoMSstatsTMTFormat function, with annotation file.
+#' It is the output of SpectroMine and the input for SpectroMinetoMSstatsTMTFormat function,
+#' with annotation file.
 #' Annotation file should be made by users.
 #' It includes peak intensities for 10 proteins among 12 MS runs with TMT-6plex.
 #' The important variables are as follows:

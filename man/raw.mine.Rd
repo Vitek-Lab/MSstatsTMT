@@ -10,7 +10,8 @@ raw.mine
 }
 \description{
 Example of SpectroMine PSM sheet.
-It is the output of SpectroMine and the input for SpectroMinetoMSstatsTMTFormat function, with annotation file.
+It is the output of SpectroMine and the input for SpectroMinetoMSstatsTMTFormat function,
+with annotation file.
 Annotation file should be made by users.
 It includes peak intensities for 10 proteins among 12 MS runs with TMT-6plex.
 The important variables are as follows:

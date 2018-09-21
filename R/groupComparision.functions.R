@@ -233,6 +233,6 @@ estimate.prior.var <- function(data){
     fit <- lmFit(data.mat, design)
     fit2 <- eBayes(fit)
 
-    return(list(df.prior <- fit2$df.prior,
-                s2.prior <- fit2$s2.prior))
+    return(list(df.prior = fit2$df.prior,
+                s2.prior = fit2$s2.prior))
 }

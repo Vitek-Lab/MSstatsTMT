@@ -12,7 +12,8 @@ raw.pd
 Example of Proteome discover PSM sheet.
 It is the input for PDtoMSstatsTMTFormat function, with annotation file.
 Annotation file should be made by users.
-It includes peak intensities for 10 proteins among 15 MS runs with TMT-10plex.
+It includes peak intensities for 10 proteins
+among 15 MS runs with TMT-10plex.
 The variables are as follows:
 }
 \details{

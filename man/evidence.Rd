@@ -11,7 +11,7 @@ evidence
 \description{
 Example of evidence.txt from MaxQuant.
 It is the input for MaxQtoMSstatsTMTFormat function, with proteinGroups.txt
- and annotation file. Annotation file should be made by users.
+and annotation file. Annotation file should be made by users.
 It includes peak intensities for 10 proteins among 15 MS runs with TMT10.
 The important variables are as follows:
 }

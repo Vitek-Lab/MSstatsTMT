@@ -4,10 +4,8 @@
 \alias{protein.summarization}
 \title{Summarizing PSM level quantification to protein level quantification}
 \usage{
-protein.summarization(data, method = "msstats",
-  normalization = TRUE,
-  MBimpute = TRUE,
-  maxQuantileforCensored = NULL)
+protein.summarization(data, method = "msstats", normalization = TRUE,
+  MBimpute = TRUE, maxQuantileforCensored = NULL)
 }
 \arguments{
 \item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, Mixture, Run, Channel, Condition, BioReplicate, Intensity}

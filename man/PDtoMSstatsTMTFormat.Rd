@@ -11,7 +11,7 @@ PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
   summaryforMultipleRows = sum)
 }
 \arguments{
-\item{input}{data name of Proteome discover PSM output. Read PSM sheet.}
+\item{input}{data name of Proteome discover PSM output.}
 
 \item{annotation}{data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.}
 
