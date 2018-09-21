@@ -37,7 +37,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
                                           rmProtein_with1Feature = FALSE,
                                           summaryforMultipleRows = sum){
 
-
+  PeptideSequence <- ProteinName <- v <- Channel <- Run.Protein <- NULL
     ################################################
     ## 0. check input for annotation
     ################################################

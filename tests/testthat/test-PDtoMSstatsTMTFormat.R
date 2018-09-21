@@ -2,13 +2,12 @@ context("PDtoMSstatsTMTFormat")
 # context("MaxQtoMSstatsTMTFormat")
 # context("SpectroMinetoMSstatsTMTFormat")
 
-test_that("PDtoMSstatsTMTFormatn works", {
+test_that("PDtoMSstatsTMTFormat works", {
   
   output <- PDtoMSstatsTMTFormat(input = MSstatsTMT::raw.pd, annotation = MSstatsTMT::annotation.pd)
   expect_equal(output,MSstatsTMT::input.pd)
   
 })
-
 # test_that("MaxQtoMSstatsTMTFormat", {
 #   
 #   output <- MaxQtoMSstatsTMTFormat(evidence = MSstatsTMT::evidence, proteinGroups = MSstatsTMT::proteinGroups, annotation = MSstatsTMT::annotation.mq)
