@@ -6,5 +6,5 @@ proteinGroups
 raw.mine
 raw.pd
 input.pd
-quant.msstats
+quant.pd.msstats
 test.pairwise

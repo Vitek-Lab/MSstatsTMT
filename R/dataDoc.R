@@ -219,9 +219,9 @@
 #'
 #' @format A data frame with 100 rows and 7 variables.
 #' @examples
-#' head(quant.msstats)
+#' head(quant.pd.msstats)
 #'
-"quant.msstats"
+"quant.pd.msstats"
 
 #' Example of output from groupComparison.TMT function
 #'
