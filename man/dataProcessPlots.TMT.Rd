@@ -5,11 +5,10 @@
 \title{Visualization for explanatory data analysis - TMT experiment}
 \usage{
 dataProcessPlots.TMT(data.psm = data.psm,
-  data.summarization = data.summarization, type = type,
-  ylimUp = FALSE, ylimDown = FALSE, x.axis.size = 10,
-  y.axis.size = 10, text.size = 4, text.angle = 90,
-  legend.size = 7, dot.size.profile = 2, ncol.guide = 5,
-  width = 10, height = 10, which.Protein = "all",
+  data.summarization = data.summarization, type = type, ylimUp = FALSE,
+  ylimDown = FALSE, x.axis.size = 10, y.axis.size = 10, text.size = 4,
+  text.angle = 90, legend.size = 7, dot.size.profile = 2,
+  ncol.guide = 5, width = 10, height = 10, which.Protein = "all",
   originalPlot = TRUE, summaryPlot = TRUE, address = "")
 }
 \arguments{

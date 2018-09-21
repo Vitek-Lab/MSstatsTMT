@@ -397,7 +397,7 @@ PDtoMSstatsTMTFormat <- function(input,
 ## data: PSM level data, which has columns Protein, PSM, BioReplicate, Run, Channel, Intensity, Mixture
 combine.fractions <- function(data){
 
-    Mixture <- Intensity <- fea <-  Run <- tions <- . <- NULL
+    Mixture <- Intensity <- fea <-  Run <- . <- NULL
 
     # combine fractions for each mixture
     mixtures <- unique(data$Mixture)

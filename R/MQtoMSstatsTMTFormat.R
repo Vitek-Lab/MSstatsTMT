@@ -220,7 +220,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     message('** PSMs, that have all zero intensities across channels in each run, are removed.')
 
     # replace zero with NA
-    input.int <- input[,channels]
+    input.int <- input[, channels]
     input.int[input.int == 0] <- NA
     input[, channels] <- input.int
 
