@@ -188,7 +188,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
 
     ## columns which include inputlevel
     channels <- colnames(input)[grep(inputlevel, colnames(input))]
-
+    input<-as.data.frame(input)
     input <- input[, which(colnames(input) %in% c(which.pro,
                                                   'Modified.sequence', 'Charge',
                                                   'Raw.file',
