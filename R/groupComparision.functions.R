@@ -32,7 +32,7 @@ proposed.model <- function(data,
     }
 
     groups <- as.character(unique(data$Group)) # groups
-    if(length(groups) > 1){
+    if(length(groups) < 2){
         stop("Please check the Condition column in annotation file. There must be at least two conditions!")
     }
 
