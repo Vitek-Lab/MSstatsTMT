@@ -9,16 +9,16 @@
 quant.msstats
 }
 \description{
-It is calculated from input.pd.
-It is the output of protein.summarization function
-It should includes the required columns as below.
+It is made from \code{\link{input.pd}}.
+It is the output of protein.summarization function.
+It should include the required columns as below.
 The variables are as follows:
 }
 \details{
 \itemize{
   \item Run : MS run ID
   \item Protein : Protein ID
-  \item Abundance: Protein Abundance
+  \item Abundance: Protein-level summarized abundance
   \item Channel : Labeling information (126, ... 131)
   \item Condition : Condition (ex. Healthy, Cancer, Time0)
   \item BioReplicate : Unique ID for biological subject.

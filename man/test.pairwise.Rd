@@ -9,9 +9,9 @@
 test.pairwise
 }
 \description{
-It is calculated from the result of protein.summarizaiton function with contrast.matrix = 'pairwise'.
-It is the output of groupComparison.TMT function
-It should includes the required columns as below.
+It is the output of groupComparison.TMT function,
+which is the result of group comparions with the output of protein.summarization function.
+It should include the columns as below.
 The variables are as follows:
 }
 \details{

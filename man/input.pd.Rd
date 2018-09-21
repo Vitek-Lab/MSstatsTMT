@@ -9,9 +9,9 @@
 input.pd
 }
 \description{
-It is calculated from raw.pd and annotation.pd
-It is the output of PDtoMSstatsTMTFormat function
-It should includes the required columns as below.
+It is made from \code{\link{raw.pd}} and \code{\link{annotation.pd}},
+which is the output of PDtoMSstatsTMTFormat function.
+It should include the required columns as below.
 The variables are as follows:
 }
 \details{

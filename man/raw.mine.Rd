@@ -3,15 +3,16 @@
 \docType{data}
 \name{raw.mine}
 \alias{raw.mine}
-\title{Example of output from SpectroMine for TMT6 experiments.}
+\title{Example of output from SpectroMine for TMT-6plex experiments.}
 \format{A data frame with 170 rows and 28 variables.}
 \usage{
 raw.mine
 }
 \description{
 Example of SpectroMine PSM sheet.
-It is the input for SpectroMinetoMSstatsTMTFormat function, with annotation file.
-It includes peak intensities for 10 proteins among 12 MS runs with TMT6.
+It is the output of SpectroMine and the input for SpectroMinetoMSstatsTMTFormat function, with annotation file.
+Annotation file should be made by users.
+It includes peak intensities for 10 proteins among 12 MS runs with TMT-6plex.
 The important variables are as follows:
 }
 \details{

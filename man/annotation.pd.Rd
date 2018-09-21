@@ -3,7 +3,7 @@
 \docType{data}
 \name{annotation.pd}
 \alias{annotation.pd}
-\title{Example of annotation file for raw.pd}
+\title{Example of annotation file for raw.pd, which is the PSM output of Proteome Discoverer}
 \format{A data frame with 150 rows and 5 variables.}
 \usage{
 annotation.pd

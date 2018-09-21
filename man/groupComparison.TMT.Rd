@@ -34,10 +34,13 @@ test.pairwise <- groupComparison.TMT(quant.msstats)
 
 # Only compare condition 0.125 and 1
 levels(quant.msstats$Condition)
+
 # 'Norm' should be not considered in the contrast
 comparison<-matrix(c(-1,0,0,1),nrow=1)
+
 # Set the names of each row
 row.names(comparison)<-"1-0.125"
+
 # Set the column names
 colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
 test.contrast <- groupComparison.TMT(data = quant.msstats, contrast.matrix = comparison)

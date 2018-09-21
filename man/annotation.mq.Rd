@@ -3,7 +3,7 @@
 \docType{data}
 \name{annotation.mq}
 \alias{annotation.mq}
-\title{Example of annotation file for raw.mq}
+\title{Example of annotation file for raw.mq, which is the output of MaxQuant.}
 \format{A data frame with 150 rows and 5 variables.}
 \usage{
 annotation.mq

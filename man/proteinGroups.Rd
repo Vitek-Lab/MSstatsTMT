@@ -3,13 +3,13 @@
 \docType{data}
 \name{proteinGroups}
 \alias{proteinGroups}
-\title{Example of proteinGroups file from MaxQuant for TMT10 experiments.}
+\title{Example of proteinGroups file from MaxQuant for TMT-10plex experiments.}
 \format{A data frame with 1075 rows and 105 variables.}
 \usage{
 proteinGroups
 }
 \description{
-Example of MaxQuant identified protein group information file.
+Example of proteinGroup.txt file from MaxQuant, which is identified protein group information file.
 It is the input for MaxQtoMSstatsTMTFormat function, with evidence.txt
  and annotation file.
 It includes identified protein groups for 10 proteins among 15 MS runs with TMT10.

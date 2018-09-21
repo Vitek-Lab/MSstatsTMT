@@ -3,7 +3,7 @@
 \docType{data}
 \name{annotation.mine}
 \alias{annotation.mine}
-\title{Example of annotation file for raw.mine}
+\title{Example of annotation file for raw.mine, which is the output of SpectroMine.}
 \format{A data frame with 72 rows and 5 variables.}
 \usage{
 annotation.mine

@@ -1,14 +1,5 @@
-CHANGES IN VERSION 0.99.0 [2018-09-19]
+CHANGES IN VERSION 0.99.0 [2018-09-21]
 -------------------------
-   BUG FIXES
-	- The converter for PD works for version 2.2, instead of 2.1.
-
-   NEW FEATURES
-	- It provides converters for three software, including PD, MQ and SM.
-	- It has four different robust methods for protein summarization from precursor level data. They are MSstats, median polish, median and logSum.
-	- It does normalization between different TMT runs.
-	- It fits linear model based on the underlying design of input data and does statistical testing from the fitted linear model.
-	- It uses empirical Bayes method to moderate the testing procedure. It is especially helpful when the sample size is small.
-	- It provides function to visualize the input precursor data and summarized protein data (profile plot).
+   + Submitted to Bioconductor
 
 

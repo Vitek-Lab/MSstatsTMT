@@ -12,9 +12,12 @@ dataProcessPlots.TMT(data.psm = data.psm,
   originalPlot = TRUE, summaryPlot = TRUE, address = "")
 }
 \arguments{
-\item{data.psm}{name of the data with PSM-level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).}
+\item{data.psm}{name of the data with PSM-level,
+which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}},
+\code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).}
 
-\item{data.summarization}{name of the data with protein-level, which can be the output of (\code{\link{protein.summarization}}) function.}
+\item{data.summarization}{name of the data with protein-level,
+which can be the output of (\code{\link{protein.summarization}}) function.}
 
 \item{type}{choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 "QCPlot" represents quality control plot of log intensities across MS runs.}
@@ -72,13 +75,14 @@ input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
 quant.msstats <- protein.summarization(input.pd,
                                          method="msstats",
                                          normalization=TRUE)
-
+## Prfile plots
 dataProcessPlots.TMT(data.psm=input.pd,
                      data.summarization=quant.msstats,
                      type='ProfilePlot',
                      width = 21,
                      height = 7)
 
+## QC plot
 dataProcessPlots.TMT(data.psm=input.pd,
                      data.summarization=quant.msstats,
                      type='QCPlot',

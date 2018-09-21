@@ -3,7 +3,7 @@
 \docType{data}
 \name{raw.pd}
 \alias{raw.pd}
-\title{Example of output from Proteome Discoverer 2.2 for TMT10 experiments.}
+\title{Example of output from Proteome Discoverer 2.2 for TMT-10plex experiments.}
 \format{A data frame with 2858 rows and 50 variables.}
 \usage{
 raw.pd
@@ -11,7 +11,8 @@ raw.pd
 \description{
 Example of Proteome discover PSM sheet.
 It is the input for PDtoMSstatsTMTFormat function, with annotation file.
-It includes peak intensities for 10 proteins among 15 MS runs with TMT10.
+Annotation file should be made by users.
+It includes peak intensities for 10 proteins among 15 MS runs with TMT-10plex.
 The variables are as follows:
 }
 \details{
