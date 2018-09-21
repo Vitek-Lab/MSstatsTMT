@@ -22,7 +22,7 @@
 #' \dontrun{
 #' head(raw.mine)
 #' head(annotation.mine)
-#' input.mine <- PDtoMSstatsTMTFormat(raw.mine, annotation.mine)
+#' input.mine <- SpectroMinetoMSstatsTMTFormat(raw.mine, annotation.mine)
 #' head(input.mine)
 #' }
 

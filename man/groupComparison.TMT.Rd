@@ -26,14 +26,14 @@ Tests for significant changes in protein abundance across conditions based on a 
 Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
 }
 \examples{
-quant.msstats <- protein.summarization(input.pd,
+quant.pd.msstats <- protein.summarization(input.pd,
                                        method="msstats",
                                        normalization=TRUE)
 
-test.pairwise <- groupComparison.TMT(quant.msstats)
+test.pairwise <- groupComparison.TMT(quant.pd.msstats)
 
 # Only compare condition 0.125 and 1
-levels(quant.msstats$Condition)
+levels(quant.pd.msstats$Condition)
 
 # 'Norm' should be not considered in the contrast
 comparison<-matrix(c(-1,0,0,1),nrow=1)
@@ -43,6 +43,6 @@ row.names(comparison)<-"1-0.125"
 
 # Set the column names
 colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
-test.contrast <- groupComparison.TMT(data = quant.msstats, contrast.matrix = comparison)
+test.contrast <- groupComparison.TMT(data = quant.pd.msstats, contrast.matrix = comparison)
 
 }

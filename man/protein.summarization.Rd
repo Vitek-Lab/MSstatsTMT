@@ -28,8 +28,8 @@ After all, normalization between MS runs using normalization channels will be im
 \examples{
 head(input.pd)
 str(input.pd)
-quant.msstats <- protein.summarization(input.pd,
+quant.pd.msstats <- protein.summarization(input.pd,
                                          method="msstats",
                                          normalization=TRUE)
-head(quant.msstats)
+head(quant.pd.msstats)
 }
