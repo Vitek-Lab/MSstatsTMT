@@ -130,9 +130,8 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
         pepcount$PeptideSequence <- factor(pepcount$PeptideSequence)
 
         ## count how many proteins are assigned for each peptide
-        structure <- pepcount %>% group_by(PeptideSequence) %>% summarise(length = length(ProteinName))
-
-        remove_peptide <- structure[structure$length != 1, ]
+        structure <- pepcount %>% group_by(PeptideSequence) %>% summarise(length = n_distinct(ProteinName))
+        remove_peptide <- structure[structure$length > 1, ]
 
         ## remove the peptides which are used in more than one protein
         if(nrow(remove_peptide) != 0){
@@ -142,7 +141,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
         } else {
             message('** All peptides are unique peptides in proteins.')
         }
-
+        rm(pepcount)
         rm(structure)
         rm(remove_peptide)
     }

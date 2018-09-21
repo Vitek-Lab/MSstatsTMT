@@ -150,22 +150,25 @@ PDtoMSstatsTMTFormat <- function(input,
         # make sure Quan.Info has 'unique' value
         if('Unique' %in% unique(input$Quan.Info)){
             input <- input[input$Quan.Info == 'Unique', ]
-
-            ## double check
-            pepcount <- unique(input[, c("ProteinName", "PeptideSequence")])
-            pepcount$PeptideSequence <- factor(pepcount$PeptideSequence)
-
-            ## count how many proteins are assigned for each peptide
-            structure <- aggregate(ProteinName ~., data = pepcount, length)
-            remove_peptide <- structure[structure$ProteinName != 1, ]
-
-            ## remove the peptides which are used in more than one protein
-            if (sum(remove_peptide$ProteinName != 1) != 0) {
-                input <- input[-which(input$PeptideSequence %in% remove_peptide$PeptideSequence), ]
-
-                message('** Peptides, that are used in more than one proteins, are removed.')
-            }
         }
+
+        ## double check
+        pepcount <- unique(input[, c("ProteinName", "PeptideSequence")])
+        pepcount$PeptideSequence <- factor(pepcount$PeptideSequence)
+
+        ## count how many proteins are assigned for each peptide
+        structure <- aggregate(ProteinName ~., data = pepcount, length)
+        remove_peptide <- structure[structure$ProteinName > 1, ]
+
+        ## remove the peptides which are used in more than one protein
+        if (sum(remove_peptide$ProteinName != 1) != 0) {
+            input <- input[-which(input$PeptideSequence %in% remove_peptide$PeptideSequence), ]
+
+            message('** Peptides, that are used in more than one proteins, are removed.')
+        }
+        rm(pepcount)
+        rm(structure)
+        rm(remove_peptide)
     }
 
     ##############################

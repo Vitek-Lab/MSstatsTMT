@@ -235,7 +235,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
         pepcount$PeptideSequence <- factor(pepcount$PeptideSequence)
 
         ## count how many proteins are assigned for each peptide
-        structure <- pepcount %>% group_by(PeptideSequence) %>% summarise(npro = n())
+        structure <- pepcount %>% group_by(PeptideSequence) %>% summarise(npro = n_distinct(ProteinName))
         remove_peptide <- structure[structure$npro > 1, ]
 
         ## remove the peptides which are used in more than one protein
@@ -244,7 +244,9 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
 
             message('** Peptides, that are used in more than one proteins, are removed.')
         }
+        rm(pepcount)
         rm(structure)
+        rm(remove_peptide)
     }
 
     ##############################
