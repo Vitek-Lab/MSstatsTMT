@@ -91,8 +91,6 @@ protein.summarization.function <- function(data,
             res <- protein.normalization(res)
         }
 
-        return(res)
-
     } else if (method == "MedianPolish"){
         #Method MedianPolish
         #add NAs to make every protein appear in all the channels
@@ -143,9 +141,6 @@ protein.summarization.function <- function(data,
             res <- protein.normalization(res)
         }
         res$Protein <- res$ProteinName
-        res <- res[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
-                       "Condition", "Mixture")]
-        return(res)
 
     } else if (method == "LogSum"){
 
@@ -164,9 +159,6 @@ protein.summarization.function <- function(data,
             res <- protein.normalization(res)
         }
         res$Protein <- res$ProteinName
-        res <- res[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
-                       "Condition", "Mixture")]
-        return(res)
 
     } else if (method == "Median"){
         #Method Median
@@ -184,10 +176,17 @@ protein.summarization.function <- function(data,
             res <- protein.normalization(res)
         }
         res$Protein <- res$ProteinName
-        res <- res[,c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
-                    "Condition", "Mixture")]
-        return(res)
     }
+
+    res <- res[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
+                   "Condition", "Mixture")]
+
+    res$Run <- as.factor(res$Run) # make sure Run is factor
+    res$Channel <- as.factor(res$Channel) # make sure Channel is factor
+    res$Condition <- as.factor(res$Condition) # make sure Condition is factor
+    res$Mixture <- as.factor(res$Mixture) # make sure mixture is factor
+
+    return(res)
 }
 
 

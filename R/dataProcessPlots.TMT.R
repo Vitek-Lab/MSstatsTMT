@@ -87,6 +87,10 @@ dataProcessPlots.TMT <- function(data.psm = data.psm,
     datafeature$Protein <- factor(datafeature$Protein)
     datarun$Protein <- factor(datarun$Protein)
 
+    # make sure condition is factor
+    datafeature$Condition <- factor(datafeature$Condition)
+    datarun$Condition <- factor(datarun$Condition)
+
     ## feature level data : log2 transform
     datafeature$abundance <- log2(datafeature$Intensity)
     datafeature[!is.na(datafeature$Intensity) &

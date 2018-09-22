@@ -31,6 +31,7 @@ proposed.model <- function(data,
         contrast.pairwise <- FALSE
     }
 
+    data$Group <- as.factor(data$Group) # make sure group is factor
     groups <- as.character(unique(data$Group)) # groups
     if(length(groups) < 2){
         stop("Please check the Condition column in annotation file. There must be at least two conditions!")
@@ -52,22 +53,22 @@ proposed.model <- function(data,
 
     res <- as.data.frame(matrix(rep(0, 6 * length(proteins) * ncomp), ncol = 6)) ## store the inference results
     colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF")
-    data <- as.data.table(data) ## make suree the input data is with data table format
+    data$Mixture <- as.factor(data$Mixture) # make sure mixture is factor
     count <- 0
     ## do inference for each protein individually
     for(i in 1:length(proteins)) {
         message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
-        sub_data <- data[Protein == proteins[i]] ## data for protein i
+        sub_data <- data %>% filter(Protein == proteins[i]) ## data for protein i
         sub_data <- na.omit(sub_data)
         tag <- FALSE ## Indicate whether there are enough measurements to train the linear model
 
         ## linear mixed model
-        fit.mixed <- try(lmer(Abundance ~ 1 + (1|Mixture) + Group, data <- sub_data), TRUE)
+        fit.mixed <- try(lmer(Abundance ~ 1 + (1|Mixture) + Group, data = sub_data), TRUE)
 
         if(!inherits(fit.mixed, "try-error")){
 
             ## train linear model
-            fit.fixed <- lm(Abundance ~ 1 + Mixture + Group, data <- sub_data)
+            fit.fixed <- lm(Abundance ~ 1 + Mixture + Group, data = sub_data)
 
             ## Get estimated fold change from mixed model
             coeff <- fixed.effects(fit.mixed)
@@ -87,7 +88,7 @@ proposed.model <- function(data,
 
         } else {
             ## if there is only one run in the data, then train one-way anova
-            fit.fixed <- try(lm(Abundance ~ Group, data <- sub_data), TRUE)
+            fit.fixed <- try(lm(Abundance ~ 1 + Group, data = sub_data), TRUE)
 
             if(!inherits(fit.fixed, "try-error")){
                 ## Get estimated fold change from mixed model
@@ -127,7 +128,7 @@ proposed.model <- function(data,
                         res[count, "log2FC"] <- FC
                         ## Calculate the t statistic
                         t <- FC/sqrt(variance) ## t statistic
-                        p <- 2*pt(-abs(t), df <- df.post) ## p value
+                        p <- 2*pt(-abs(t), df = df.post) ## p value
                         res[count, "pvalue"] <- p
                         res[count, "SE"] <- sqrt(variance) ## se
                         res[count, "DF"] <- df.post
@@ -175,7 +176,7 @@ proposed.model <- function(data,
             }
         }
     }
-    res <- data.frame(res)
+    res <- as.data.frame(res)
     res$log2FC <- as.numeric(as.character(res$log2FC))
     res$pvalue <- as.numeric(as.character(res$pvalue))
     res$adjusted.pvalue <- NA
@@ -228,7 +229,6 @@ estimate.prior.var <- function(data){
         design <- model.matrix(~0+group+biomix)
     }
 
-    data.mat <- na.omit(data.mat)
     ## Fit linear model
     fit <- lmFit(data.mat, design)
     fit2 <- eBayes(fit)

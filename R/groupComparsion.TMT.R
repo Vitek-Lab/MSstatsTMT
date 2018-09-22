@@ -82,7 +82,12 @@ groupComparison.TMT <- function(data,
     }
 
     ## change some column names as used in group comparison function
-    colnames(data)[colnames(data) == 'BioReplicate'] <- 'Subject'
+    ## Ting: need to change later for time course design
+    # colnames(data)[colnames(data) == 'BioReplicate'] <- 'Subject'
+    data$runchannel <- paste(as.numeric(as.factor(data$Run)),
+                             as.numeric(as.factor(data$Channel)),
+                             sep = "_")
+    colnames(data)[colnames(data) == 'runchannel'] <- 'Subject'
     colnames(data)[colnames(data) == 'Condition'] <- 'Group'
 
     ## report which options are used.
@@ -95,10 +100,6 @@ groupComparison.TMT <- function(data,
     if (remove_norm_channel & is.element('Norm', unique(data$Group))) {
         data <- data[data$Group != "Norm",]
         data$Group <- factor(data$Group)
-    } else{
-        if (remove_norm_channel & !is.element('Norm', unique(data$Group))) {
-            stop("Please check the annotation file. The input data does not have normalization channels!")
-        }
     }
 
     ## Inference

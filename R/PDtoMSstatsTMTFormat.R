@@ -350,10 +350,10 @@ PDtoMSstatsTMTFormat <- function(input,
                               "Charge" = input$Charge,
                               "PSM" = paste(input$PeptideSequence, input$Charge, sep = "_"),
                               "Channel" = as.factor(input$Channel),
-                              "Condition" = input$Condition,
-                              "BioReplicate" = input$BioReplicate,
-                              "Run" = input$Run,
-                              "Mixture" = input$Mixture,
+                              "Condition" = as.factor(input$Condition),
+                              "BioReplicate" = as.factor(input$BioReplicate),
+                              "Run" = as.factor(input$Run),
+                              "Mixture" = as.factor(input$Mixture),
                               "Intensity" = input$Intensity)
 
     input <- input.final
