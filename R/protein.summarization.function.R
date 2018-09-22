@@ -110,10 +110,10 @@ protein.summarization.function <- function(data,
         dt <- as.data.frame(t(mat))
         anno <- cbind(anno, dt)#attach channels to each run and protein
 
-        anno <- anno %>% unite("Run.Protein", Run,ProteinName) %>%
+        anno <- anno %>% unite("Run.Protein", Run,ProteinName,sep = " ") %>%
             gather(v, Channel, -Run.Protein) %>%
-            separate(Run.Protein, into = c("Run", "ProteinName"))
-        anno$Run <- as.numeric(as.character(anno$Run))
+            separate(Run.Protein, into = c("Run", "ProteinName"),sep = " ")
+        anno$Run <- as.character(anno$Run)
         data <- right_join(data, anno)
 
         #Create a annotation to make sure there are no missing PSMs for each Run and Protein
