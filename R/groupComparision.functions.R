@@ -183,7 +183,7 @@ proposed.model <- function(data,
     comps <- unique(res$Comparison)
 
     ## Adjust multiple tests for each comparison
-    for(i in 1:ncomp){
+    for(i in 1:length(comps)){
         res[res$Comparison == comps[i], "adjusted.pvalue"] <- p.adjust(res[res$Comparison == comps[i], "pvalue"], adj.method)
     }
 
@@ -228,6 +228,10 @@ estimate.prior.var <- function(data){
     } else{ ## there are multiple mixtures
         design <- model.matrix(~0+group+biomix)
     }
+
+    # Ting: need to discuss it later
+    # remove the proteins with missing values across all the runs
+    # data.mat <- na.omit(data.mat)
 
     ## Fit linear model
     fit <- lmFit(data.mat, design)

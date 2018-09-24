@@ -19,12 +19,10 @@
 #' @param summaryforMultipleRows sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.
 #' @return input for protein.summarization function
 #' @examples
-#' \dontrun{
 #' head(raw.mine)
 #' head(annotation.mine)
 #' input.mine <- SpectroMinetoMSstatsTMTFormat(raw.mine, annotation.mine)
 #' head(input.mine)
-#' }
 
 SpectroMinetoMSstatsTMTFormat <- function(input,
                                           annotation,

@@ -20,13 +20,11 @@
 #' @param summaryforMultipleRows sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.
 #' @return input for protein.summarization function
 #' @examples
-#' \dontrun{
 #' head(evidence)
 #' head(proteinGroups)
 #' head(annotation.mq)
 #' input.mq <- MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
 #' head(input.mq)
-#' }
 
 MaxQtoMSstatsTMTFormat <- function(evidence,
                                  proteinGroups,

@@ -40,11 +40,9 @@ input for protein.summarization function
 Convert MaxQuant output into the required input format for MSstatsTMT.
 }
 \examples{
-\dontrun{
 head(evidence)
 head(proteinGroups)
 head(annotation.mq)
 input.mq <- MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
 head(input.mq)
-}
 }
