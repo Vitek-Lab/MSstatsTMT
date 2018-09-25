@@ -205,19 +205,19 @@ If address=FALSE, plot will be not saved as pdf file but showed in window.
 
 ### Example
 ```{r}
-# Profile plot
+## Profile plot
 dataProcessPlots.TMT(data.psm = input.pd,
                      data.summarization = quant.msstats,
                      type = 'ProfilePlot',
                      width = 21, # adjust the figure width since there are 15 TMT runs. 
                      height = 7)
 
-# Quality control plot 
-dataProcessPlots.TMT(data.psm=input.pd,
-                     data.summarization=quant.msstats, 
-                     type='QCPlot',
-                     width = 21, # adjust the figure width since there are 15 TMT runs. 
-                     height = 7)
+## Quality control plot 
+# dataProcessPlots.TMT(data.psm=input.pd,
+                     # data.summarization=quant.msstats, 
+                     # type='QCPlot',
+                     # width = 21, # adjust the figure width since there are 15 TMT runs. 
+                     # height = 7)
 ```
 
 ## groupComparison.TMT

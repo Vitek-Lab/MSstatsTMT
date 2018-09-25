@@ -53,12 +53,12 @@
 #'                      width = 21,
 #'                      height = 7)
 #'
-#' ## QC plot
-#' dataProcessPlots.TMT(data.psm=input.pd,
-#'                      data.summarization=quant.msstats,
-#'                      type='QCPlot',
-#'                      width = 21,
-#'                      height = 7)
+#' ## NottoRun: QC plot
+#' # dataProcessPlots.TMT(data.psm=input.pd,
+#'                     # data.summarization=quant.msstats,
+#'                     # type='QCPlot',
+#'                     # width = 21,
+#'                     # height = 7)
 
 dataProcessPlots.TMT <- function(data.psm = data.psm,
                                  data.summarization = data.summarization,
