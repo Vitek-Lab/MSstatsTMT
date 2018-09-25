@@ -121,8 +121,8 @@ proposed.model <- function(data,
                     res[count, "Comparison"] <- paste(groups[j], groups[k], sep = "-") ## comparison
 
                     if(!tag){
-                        g1_df <- nrow(sub_data[Group == groups[j]]) ## size of group 1
-                        g2_df <- nrow(sub_data[Group == groups[k]]) ## size of group 2
+                        g1_df <- nrow(sub_data %>% dplyr::filter(Group == groups[j])) ## size of group 1
+                        g2_df <- nrow(sub_data %>% dplyr::filter(Group == groups[k])) ## size of group 2
                         variance <- s2.post*sum(1/g1_df + 1/g2_df) ## variance of diff
                         FC <- coeff[groups[j]] - coeff[groups[k]] ## fold change
                         res[count, "log2FC"] <- FC
@@ -208,11 +208,11 @@ estimate.prior.var <- function(data){
     data.mat <- data[, c("Protein", "Subject", "Abundance")]
 
     ## long to wide format
-    data.mat <- data.mat %>% spread(Subject, Abundance)
+    data.mat <- data.mat %>% tidyr::spread(Subject, Abundance)
 
     ## Assign the row names
     rownames(data.mat) <- data.mat$Protein
-    data.mat <- data.mat %>% select(-Protein)
+    data.mat <- data.mat %>% dplyr::select(-Protein)
 
     ## Extract the group information
     Annotation <- unique(data[, c("Subject", "Group", "Run", "Mixture")])
