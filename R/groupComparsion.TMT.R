@@ -11,10 +11,12 @@
 #' @param adj.method adjusted method for multiple comparison. "BH" is default.
 #' @return data.frame with result of inference
 #' @examples
+#' data(input.pd)
+#' # use protein.summarization() to get protein abundance data
 #' quant.pd.msstats <- protein.summarization(input.pd,
 #'                                        method="msstats",
 #'                                        normalization=TRUE)
-#'
+#' 
 #' test.pairwise <- groupComparison.TMT(quant.pd.msstats)
 #'
 #' # Only compare condition 0.125 and 1

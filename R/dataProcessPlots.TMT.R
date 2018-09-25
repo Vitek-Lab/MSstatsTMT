@@ -39,9 +39,7 @@
 #' If address=FALSE, plot will be not saved as pdf file but showed in window.
 #' @return plot or pdf
 #' @examples
-#' head(raw.pd)
-#' head(annotation.pd)
-#' input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
+#' data(input.pd)
 #' quant.msstats <- protein.summarization(input.pd,
 #'                                          method="msstats",
 #'                                          normalization=TRUE)
