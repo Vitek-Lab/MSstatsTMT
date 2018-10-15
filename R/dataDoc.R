@@ -215,10 +215,10 @@
 #'
 "input.pd"
 
-#' Example of output from protein.summarizaiton function
+#' Example of output from proteinSummarizaiton function
 #'
 #' It is made from \code{\link{input.pd}}.
-#' It is the output of protein.summarization function.
+#' It is the output of proteinSummarization function.
 #' It should include the required columns as below.
 #' The variables are as follows:
 #'
@@ -238,10 +238,10 @@
 #'
 "quant.pd.msstats"
 
-#' Example of output from groupComparison.TMT function
+#' Example of output from groupComparisonTMT function
 #'
-#' It is the output of groupComparison.TMT function,
-#' which is the result of group comparions with the output of protein.summarization function.
+#' It is the output of groupComparisonTMT function,
+#' which is the result of group comparions with the output of proteinSummarization function.
 #' It should include the columns as below.
 #' The variables are as follows:
 #'

@@ -3,14 +3,14 @@
 \docType{data}
 \name{test.pairwise}
 \alias{test.pairwise}
-\title{Example of output from groupComparison.TMT function}
+\title{Example of output from groupComparisonTMT function}
 \format{A data frame with 60 rows and 7 variables.}
 \usage{
 test.pairwise
 }
 \description{
-It is the output of groupComparison.TMT function,
-which is the result of group comparions with the output of protein.summarization function.
+It is the output of groupComparisonTMT function,
+which is the result of group comparions with the output of proteinSummarization function.
 It should include the columns as below.
 The variables are as follows:
 }

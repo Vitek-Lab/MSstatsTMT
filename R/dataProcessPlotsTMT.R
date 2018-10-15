@@ -1,7 +1,7 @@
 #' Visualization for explanatory data analysis - TMT experiment
 #'
 #' To illustrate the quantitative data and quality control of MS runs,
-#' dataProcessPlots.TMT takes the quantitative data from converter functions (\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}) as input
+#' dataProcessPlotsTMT takes the quantitative data from converter functions (\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}) as input
 #' and generate two types of figures in pdf files as output :
 #' (1) profile plot (specify "ProfilePlot" in option type), to identify the potential sources of variation for each protein;
 #' (2) quality control plot (specify "QCPlot" in option type), to evaluate the systematic bias between MS runs.
@@ -13,7 +13,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom reshape2 dcast
 #' @param data.psm name of the data with PSM-level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).
-#' @param data.summarization name of the data with protein-level, which can be the output of (\code{\link{protein.summarization}}) function.
+#' @param data.summarization name of the data with protein-level, which can be the output of \code{\link{proteinSummarization}} function.
 #' @param type choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 #' "QCPlot" represents box plots of log intensities across channels and MS runs.
 #' @param ylimUp upper limit for y-axis in the log scale.
@@ -40,25 +40,25 @@
 #' @return plot or pdf
 #' @examples
 #' data(input.pd)
-#' quant.msstats <- protein.summarization(input.pd,
+#' quant.msstats <- proteinSummarization(input.pd,
 #'                                          method="msstats",
 #'                                          normalization=TRUE)
 #'
 #' ## Profile plot
-#' dataProcessPlots.TMT(data.psm=input.pd,
+#' dataProcessPlotsTMT(data.psm=input.pd,
 #'                      data.summarization=quant.msstats,
 #'                      type='ProfilePlot',
 #'                      width = 21,
 #'                      height = 7)
 #'
 #' ## NottoRun: QC plot
-#' # dataProcessPlots.TMT(data.psm=input.pd,
+#' # dataProcessPlotsTMT(data.psm=input.pd,
 #'                     # data.summarization=quant.msstats,
 #'                     # type='QCPlot',
 #'                     # width = 21,
 #'                     # height = 7)
 
-dataProcessPlots.TMT <- function(data.psm = data.psm,
+dataProcessPlotsTMT <- function(data.psm = data.psm,
                                  data.summarization = data.summarization,
                                  type = type,
                                  ylimUp = FALSE,

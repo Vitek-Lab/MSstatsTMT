@@ -4,7 +4,7 @@
 #' Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
 #'
 #' @export
-#' @param data Name of the output of protein.summarization function. It should have columns named Protein, Mixture, Run, Channel, Condition, BioReplicate, Abundance.
+#' @param data Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, Run, Channel, Condition, BioReplicate, Abundance.
 #' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 #' @param remove_norm_channel TRUE(default) removes 'Norm' channels for inference step.
 #' @param moderated TRUE (default) will moderate t statistic will be calculated; otherwise, ordinary t statistic will be used.
@@ -13,11 +13,11 @@
 #' @examples
 #' data(input.pd)
 #' # use protein.summarization() to get protein abundance data
-#' quant.pd.msstats <- protein.summarization(input.pd,
+#' quant.pd.msstats <- proteinSummarization(input.pd,
 #'                                        method="msstats",
 #'                                        normalization=TRUE)
 #' 
-#' test.pairwise <- groupComparison.TMT(quant.pd.msstats)
+#' test.pairwise <- groupComparisonTMT(quant.pd.msstats)
 #'
 #' # Only compare condition 0.125 and 1
 #' levels(quant.pd.msstats$Condition)
@@ -30,10 +30,10 @@
 #'
 #' # Set the column names
 #' colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
-#' test.contrast <- groupComparison.TMT(data = quant.pd.msstats, contrast.matrix = comparison)
+#' test.contrast <- groupComparisonTMT(data = quant.pd.msstats, contrast.matrix = comparison)
 #'
 
-groupComparison.TMT <- function(data,
+groupComparisonTMT <- function(data,
                                 contrast.matrix = 'pairwise',
                                 remove_norm_channel = TRUE,
                                 moderated = TRUE,
@@ -63,7 +63,7 @@ groupComparison.TMT <- function(data,
         processout <- as.matrix(read.table(finalfile, header <- TRUE, sep = "\t"))
     }
 
-    processout <- rbind(processout, as.matrix(c(" ", " ", "MSstatsTMT - groupComparison.TMT function"," "), ncol = 1))
+    processout <- rbind(processout, as.matrix(c(" ", " ", "MSstatsTMT - groupComparisonTMT function"," "), ncol = 1))
 
 
     ## check input data

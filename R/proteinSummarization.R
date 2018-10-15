@@ -15,12 +15,12 @@
 #' @examples
 #' data(input.pd)
 #'
-#' quant.pd.msstats <- protein.summarization(input.pd,
+#' quant.pd.msstats <- proteinSummarization(input.pd,
 #'                                          method="msstats",
 #'                                          normalization=TRUE)
 #' head(quant.pd.msstats)
 
-protein.summarization <- function(data,
+proteinSummarization <- function(data,
                                   method = 'msstats',
                                   normalization = TRUE,
                                   MBimpute = TRUE,
@@ -47,7 +47,7 @@ protein.summarization <- function(data,
     write.table(processout, file = finalfile, row.names = FALSE)
 
     processout <- rbind(processout,
-                        as.matrix(c(" ", " ", "MSstatsTMT - protein.summarization function", " "),
+                        as.matrix(c(" ", " ", "MSstatsTMT - proteinSummarization function", " "),
                                   ncol = 1))
 
 

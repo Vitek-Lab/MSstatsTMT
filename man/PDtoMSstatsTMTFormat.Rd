@@ -32,7 +32,7 @@ PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
 \item{summaryforMultipleRows}{sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.}
 }
 \value{
-input for protein.summarization function
+input for \code{\link{proteinSummarization}} function
 }
 \description{
 Convert Proteome discoverer output into the required input format for MSstatsTMT.

@@ -3,14 +3,14 @@
 \docType{data}
 \name{quant.pd.msstats}
 \alias{quant.pd.msstats}
-\title{Example of output from protein.summarizaiton function}
+\title{Example of output from proteinSummarizaiton function}
 \format{A data frame with 100 rows and 7 variables.}
 \usage{
 quant.pd.msstats
 }
 \description{
 It is made from \code{\link{input.pd}}.
-It is the output of protein.summarization function.
+It is the output of proteinSummarization function.
 It should include the required columns as below.
 The variables are as follows:
 }

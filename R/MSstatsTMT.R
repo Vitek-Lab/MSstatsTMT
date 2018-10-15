@@ -7,9 +7,9 @@
 #'   \item \code{\link{PDtoMSstatsTMTFormat}} : generates MSstatsTMT required input format for Proteome discoverer output.
 #'   \item \code{\link{MaxQtoMSstatsTMTFormat}} : generates MSstatsTMT required input format for MaxQuant output.
 #'   \item \code{\link{SpectroMinetoMSstatsTMTFormat}} : generates MSstatsTMT required input format for SpectroMine output.
-#'   \item \code{\link{protein.summarization}} : summarizes PSM level quantification to protein level quantification.
-#'   \item \code{\link{dataProcessPlots.TMT}} : visualizes for explanatory data analysis.
-#'   \item \code{\link{groupComparison.TMT}} : tests for significant changes in protein abundance across conditions.
+#'   \item \code{\link{proteinSummarization}} : summarizes PSM level quantification to protein level quantification.
+#'   \item \code{\link{dataProcessPlotsTMT}} : visualizes for explanatory data analysis.
+#'   \item \code{\link{groupComparisonTMT}} : tests for significant changes in protein abundance across conditions.
 #' }
 #'
 #' @docType package

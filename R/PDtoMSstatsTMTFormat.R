@@ -17,7 +17,7 @@
 #' @param rmPSM_withfewMea_withinRun only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
 #' @param rmProtein_with1Feature TRUE will remove the proteins which have only 1 peptide and charge. Defaut is FALSE.
 #' @param summaryforMultipleRows sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.
-#' @return input for protein.summarization function
+#' @return input for \code{\link{proteinSummarization}} function
 #' @examples
 #' head(raw.pd)
 #' head(annotation.pd)
