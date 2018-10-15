@@ -4,7 +4,7 @@
 #' @importFrom stats aggregate anova coef lm median medpolish model.matrix na.omit p.adjust pt t.test xtabs
 #' @keywords internal
 
-proposed.model <- function(data,
+.proposed.model <- function(data,
                            moderated = TRUE,
                            contrast.matrix = "pairwise",
                            adj.method = "BH") {
@@ -13,7 +13,7 @@ proposed.model <- function(data,
 
     if(moderated){ ## moderated t statistic
         ## Estimate the prior variance and degree freedom
-        para <- estimate.prior.var(data)
+        para <- .estimate.prior.var(data)
         s2.prior <- para$s2.prior
         df.prior <- para$df.prior
     } else { ## ordinary t statistic
@@ -199,7 +199,7 @@ proposed.model <- function(data,
 
 #' @import limma
 #' @keywords internal
-estimate.prior.var <- function(data){
+.estimate.prior.var <- function(data){
 
     Subject <- Abundance <- Protein <- NULL
 

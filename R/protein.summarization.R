@@ -79,7 +79,7 @@ protein.summarization <- function(data,
 
     write.table(processout, file = finalfile, row.names = FALSE)
 
-    return(protein.summarization.function(data,
+    return(.protein.summarization.function(data,
                                           method,
                                           normalization,
                                           MBimpute,

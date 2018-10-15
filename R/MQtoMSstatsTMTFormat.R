@@ -45,7 +45,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     ################################################
     ## 0. check input for annotation
     ################################################
-    check.annotation(annotation)
+    .check.annotation(annotation)
 
     if (!all(unique(annotation$Run) %in% unique(input$Raw.file))) {
 
@@ -443,7 +443,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     ##############################
 
     if (fraction) {
-        input <- combine.fractions(input)
+        input <- .combine.fractions(input)
         ## change data.table to data.frame, in order to make the same class for input, without fraction
         input <- as.data.frame(input)
         message('** Fractions belonging to same mixture have been combined.')

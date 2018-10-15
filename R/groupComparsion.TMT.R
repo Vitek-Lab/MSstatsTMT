@@ -105,7 +105,7 @@ groupComparison.TMT <- function(data,
     }
 
     ## Inference
-    result <- proposed.model(data, moderated, contrast.matrix, adj.method)
+    result <- .proposed.model(data, moderated, contrast.matrix, adj.method)
 
     ### check column name in order to use groupComparisonPlot from MSstats
     colnames(result)[colnames(result) == 'Comparison'] <- 'Label'

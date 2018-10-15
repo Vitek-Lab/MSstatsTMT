@@ -38,11 +38,11 @@ PDtoMSstatsTMTFormat <- function(input,
     ################################################
     ## 0. check input for annotation
     ################################################
-    check.annotation(annotation)
+    .check.annotation(annotation)
 
     if (!all(unique(annotation$Run) %in% unique(input$Spectrum.File))) {
 
-        stop("Please check the annotation file. 'Run' must be matched with 'R.FileName'. ")
+        stop("Please check the annotation file. 'Run' must be matched with 'Spectrum.File'. ")
     }
 
     ################################################
@@ -387,7 +387,7 @@ PDtoMSstatsTMTFormat <- function(input,
     ##############################
 
     if (fraction) {
-        input <- combine.fractions(input)
+        input <- .combine.fractions(input)
         ## change data.table to data.frame, in order to make the same class for input, without fraction
         input <- as.data.frame(input)
         message('** Fractions belonging to same mixture have been combined.')
@@ -398,7 +398,7 @@ PDtoMSstatsTMTFormat <- function(input,
 
 ## Remove the peptide ions overlapped among multiple fractions of same biological mixture
 ## data: PSM level data, which has columns Protein, PSM, BioReplicate, Run, Channel, Intensity, Mixture
-combine.fractions <- function(data){
+.combine.fractions <- function(data){
 
     Mixture <- Intensity <- fea <-  Run <- . <- NULL
 
@@ -454,7 +454,7 @@ combine.fractions <- function(data){
 }
 
 ## Check whether the annotation file matches with the input
-check.annotation <- function(annotation){
+.check.annotation <- function(annotation){
 
     required.annotation <- c("Run", "Channel", "Condition", "BioReplicate", "Mixture")
 

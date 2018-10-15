@@ -9,7 +9,7 @@
 #' @importFrom matrixStats colMedians
 #' @importFrom data.table :=
 
-protein.summarization.function <- function(data,
+.protein.summarization.function <- function(data,
                                            method,
                                            normalization,
                                            MBimpute,
@@ -88,7 +88,7 @@ protein.summarization.function <- function(data,
         }
 
         if (normalization & length(runs) > 1) { # Do normalization based on group 'Norm'
-            res <- protein.normalization(res)
+            res <- .protein.normalization(res)
         }
 
     } else if (method == "MedianPolish"){
@@ -128,7 +128,7 @@ protein.summarization.function <- function(data,
         anno3 <- anno3[order(anno3$Run, anno3$ProteinName), ]
 
         #Computer by each Run and ProteinName
-        res <- data[, .(MedianPolish = MedianPolishFunction(log2Intensity,
+        res <- data[, .(MedianPolish = .medianPolish(log2Intensity,
                                                            channel.len)), by = .(Run, ProteinName)]
         colnames(res) <- c("Run", "ProteinName", "Abundance")
         res$runchannel <- anno3$runchannel
@@ -138,7 +138,7 @@ protein.summarization.function <- function(data,
         #Protein Normalization
         if (normalization & length(runs) > 1) {
             # Do normalization based on group 'Norm'
-            res <- protein.normalization(res)
+            res <- .protein.normalization(res)
         }
         res$Protein <- res$ProteinName
 
@@ -156,7 +156,7 @@ protein.summarization.function <- function(data,
 
         if (normalization & length(runs) > 1) {
             # Do normalization based on group 'Norm'
-            res <- protein.normalization(res)
+            res <- .protein.normalization(res)
         }
         res$Protein <- res$ProteinName
 
@@ -173,7 +173,7 @@ protein.summarization.function <- function(data,
 
         if (normalization & length(runs) > 1) {
             # Do normalization based on group 'Norm'
-            res <- protein.normalization(res)
+            res <- .protein.normalization(res)
         }
         res$Protein <- res$ProteinName
     }
@@ -197,7 +197,7 @@ protein.summarization.function <- function(data,
 ## Normalization are based on the channels which have group 'Norm'.
 ## data: protein level data, which has columns Protein, Group, Subject, Run, Channel, Abundance
 
-protein.normalization <- function(data) {
+.protein.normalization <- function(data) {
 
     Run <- Abundance <- . <- Condition <- Protein <- NULL
 
@@ -254,7 +254,7 @@ protein.normalization <- function(data) {
 ## depend on "stats:medpolish"
 ## input: a vector of log2intensity per Protein, Run; number of channels
 
-MedianPolishFunction <- function(c, num.channels){
+.medianPolish <- function(c, num.channels){
     #take a vector
     #transfor to a matrix
     #perform MedianPolish
