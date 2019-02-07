@@ -297,7 +297,6 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
             # message("Row ", i)
             sub <- input[input$issue == unique(fea.multimeas$issue)[i], ]
             sub <- unique(sub)
-            subfea <- fea.multimeas[fea.multimeas$issue == unique(fea.multimeas$issue)[i], ]
 
             if (nrow(sub) < 2) {
                 keepinfo.select <- rbind(keepinfo.select, sub)
@@ -379,7 +378,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
                        value.name = "Intensity")
 
     # make sure no dupliate rows
-    input.long <- input.long[!is.na(input.long$Intensity), ]
+    # input.long <- input.long[!is.na(input.long$Intensity), ]
     input <- input.long
     rm(input.long)
     rm(input.new)
@@ -393,7 +392,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     input <- merge(input, annotation, by = c("Run", "Channel"), all.x = TRUE)
 
     ## check whether there is any missing 'Condition'
-    noruninfo <- unique(input[is.na(input$Condition), c("Run", "Channel")])
+    noruninfo <- unique(input[is.na(input$Condition) & !is.na(input$Intensity), c("Run", "Channel")])
 
     if (nrow(noruninfo) > 0) {
         for(i in 1:nrow(noruninfo)){
@@ -423,7 +422,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     if (rmProtein_with1Feature) {
 
         ## remove protein which has only one peptide
-        tmp <- unique(input[, c("ProteinName", 'PSM')])
+        tmp <- unique(input[!is.na(input$Intensity), c("ProteinName", 'PSM')])
         tmp$ProteinName <- factor(tmp$ProteinName)
         count <- xtabs( ~ ProteinName, data = tmp)
         lengthtotalprotein <- length(count)
