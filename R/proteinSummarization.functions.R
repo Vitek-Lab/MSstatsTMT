@@ -191,7 +191,7 @@
 
 .protein.normalization <- function(data) {
 
-    Run <- Abundance <- . <- Condition <- Protein <- NULL
+    Run <- Abundance <- Mixture <- Channel <- BioReplicate <- . <- Condition <- Protein <- NULL
 
     ## check whethere there are 'Norm' info or not.
     group.info <- unique(data$Condition)
