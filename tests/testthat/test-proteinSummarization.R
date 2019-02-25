@@ -4,7 +4,7 @@ test_that("proteinSummarization works", {
   
   output<-proteinSummarization(MSstatsTMT::input.pd, 
                                 method = "msstats", normalization = TRUE)
-  expect_equal(output, quant.pd.msstats)
+  expect_equal(output, quant.pd.msstats, , tolerance=1e-4)
   
 })
 
