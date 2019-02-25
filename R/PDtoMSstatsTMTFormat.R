@@ -221,7 +221,7 @@ PDtoMSstatsTMTFormat <- function(input,
             # message("Row ", i)
             sub <- input[input$issue == unique(fea.multimeas$issue)[i], ]
             sub <- unique(sub)
-            subfea <- fea.multimeas[fea.multimeas$issue == unique(fea.multimeas$issue)[i], ]
+            #subfea <- fea.multimeas[fea.multimeas$issue == unique(fea.multimeas$issue)[i], ]
 
             if (nrow(sub) < 2) {
                 keepinfo.select <- rbind(keepinfo.select, sub)
@@ -250,8 +250,8 @@ PDtoMSstatsTMTFormat <- function(input,
                     next()
                 } else {
                     ## decision 3 : keep the row with higher identification score
-                    if("Ions.Score" %in% names(sub2) & (sum(is.na(sub2$Ions.Score)) == 0)){ # make sure Ions.Score is available
-                        sub4 <- sub3[sub2$Ions.Score == max(sub2$Ions.Score), ] ## which.max choose only one row
+                    if("Ions.Score" %in% names(sub3) & (sum(is.na(sub3$Ions.Score)) == 0)){ # make sure Ions.Score is available
+                        sub4 <- sub3[sub3$Ions.Score == max(sub3$Ions.Score), ] ## which.max choose only one row
                     } else {
                         sub4 <- sub3
                     }
@@ -315,7 +315,7 @@ PDtoMSstatsTMTFormat <- function(input,
                        value.name = "Intensity")
 
     # make sure no dupliate rows
-    input.long <- input.long[!is.na(input.long$Intensity), ]
+    # input.long <- input.long[!is.na(input.long$Intensity), ]
     input <- input.long
     rm(input.long)
     rm(input.new)
@@ -335,7 +335,7 @@ PDtoMSstatsTMTFormat <- function(input,
     input <- merge(input, annotation, by = c("Run", "Channel"), all.x = TRUE)
 
     ## check whether there is any missing 'Condition'
-    noruninfo <- unique(input[is.na(input$Condition), c("Run", "Channel")])
+    noruninfo <- unique(input[is.na(input$Condition) & !is.na(input$Intensity), c("Run", "Channel")])
 
     if (nrow(noruninfo) > 0) {
         for(i in 1:nrow(noruninfo)){
@@ -367,7 +367,7 @@ PDtoMSstatsTMTFormat <- function(input,
     if (rmProtein_with1Feature) {
 
         ## remove protein which has only one peptide
-        tmp <- unique(input[, c("ProteinName", 'PSM')])
+        tmp <- unique(input[!is.na(input$Intensity), c("ProteinName", 'PSM')])
         tmp$Protein <- factor(tmp$ProteinName)
         count <- xtabs( ~ ProteinName, data = tmp)
         lengthtotalprotein <- length(count)
@@ -410,13 +410,12 @@ PDtoMSstatsTMTFormat <- function(input,
     all.data <- list()
     for (i in 1: length(mixtures)) {
         sub_data <- data[Mixture == mixtures[i]]
-        sub_data <- sub_data[!is.na(Intensity)]
         sub_data$fea <- paste(sub_data$PSM, sub_data$ProteinName, sep = "_")
         sub_data$fea <- factor(sub_data$fea)
         sub_data$id <- paste(sub_data$fea, sub_data$Run, sep = "_")
 
         ## count how many fractions are assigned for each peptide ion
-        structure <- aggregate(Run ~ . , data = unique(sub_data[, .(fea, Run)]), length)
+        structure <- aggregate(Run ~ . , data = unique(sub_data[!is.na(Intensity), .(fea, Run)]), length)
         ## 1. first, keep features which are measured in one fraction
         remove_peptide_ion <- structure[structure$Run > 1, ]
 
