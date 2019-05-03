@@ -8,7 +8,7 @@ proteinSummarization(data, method = "msstats", normalization = TRUE,
   MBimpute = TRUE, maxQuantileforCensored = NULL)
 }
 \arguments{
-\item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, Mixture, Run, Channel, Condition, BioReplicate, Intensity}
+\item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity}
 
 \item{method}{Four different summarization methods to protein-level can be performed : "msstats"(default), "MedianPolish", "Median", "LogSum".}
 

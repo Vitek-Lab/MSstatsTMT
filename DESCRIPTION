@@ -1,21 +1,22 @@
 Package: MSstatsTMT
 Title: Protein Significance Analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling
-Version: 1.0.3
-Date: 2019-02-07
+Version: 1.2.1
+Date: 2019-05-03
 Description: Tools for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling.
 Authors@R: c(person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut","cre")),
 	person("Meena", "Choi", email = "mnchoi67@gmail.com", role="aut"),
-	person("Sicheng", "Hao", email = "hao.sic@husky.neu.edu", role = "aut"))
+	person("Sicheng", "Hao", email = "hao.sic@husky.neu.edu", role = "aut"),
+	person("Olga", "Vitek", email = "o.vitek@northeastern.edu", role = "aut"))
 Maintainer: Ting Huang <thuang0703@gmail.com>
 License: Artistic-2.0
-Depends: R (>= 3.5)
-Imports: limma, lme4, dplyr, tidyr, nlme, 
+Depends: R (>= 3.6)
+Imports: limma, lme4, dplyr, tidyr, nlme, statmod,
     reshape2, data.table, matrixStats, stats, utils, ggplot2, grDevices, graphics, MSstats
 Suggests: BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
-biocViews: MassSpectrometry, Proteomics, Software
+biocViews: ImmunoOncology, MassSpectrometry, Proteomics, Software
 Encoding: UTF-8
 LazyData: true
 URL: http://msstats.org/msstatstmt/
 BugReports: https://groups.google.com/forum/#!forum/msstats
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1

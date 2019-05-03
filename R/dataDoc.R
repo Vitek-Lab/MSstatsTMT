@@ -38,18 +38,19 @@
 #'   \item Channel : Labeling information (126, ... 131). It should be
 #'   consistent with the channel columns in raw.pd.
 #'   \item Condition : Condition (ex. Healthy, Cancer, Time0)
-#'   \item Mixture : Mixture of samples with different TMT reagents, which can be analyzed in
+#'   \item Mixture : Mixture of samples labeled with different TMT reagents, which can be analyzed in
 #'   a single mass spectrometry experiment.
-#'   The mixture may be fractionated into multiple fractions to increase the analytical depth.
-#'   Then one mixture should correspond to multuple MS runs (One fraction is one MS run).
-#'   For example, if 'Run' = 1, 2, 3 are three fractions of one TMT mixture of biological samples,
-#'   then they should have same 'Mixture' value. Another special case is technical replicate.
-#'   For example, if 'Run' = 4, 5, 6 are three technical replicates of one mixture, then they should match
+#'   \item TechRepMixture : Technical replicate of one mixture. One mixture may have multiple technical replicates.
+#'   For example, if 'TechRepMixture' = 1, 2 are the two technical replicates of one mixture, then they should match
 #'   with same 'Mixture' value.
+#'   \item Fraction : Fraction ID. One technical replicate of one mixture may be fractionated into multiple fractions to increase the analytical depth.
+#'   Then one technical replicate of one mixture should correspond to multuple fractions.
+#'   For example, if 'Fraction' = 1, 2, 3 are three fractions of the first technical replicate of one TMT mixture of biological subjects,
+#'   then they should have same 'TechRepMixture'  and 'Mixture' value.
 #'   \item BioReplicate : Unique ID for biological subject
 #' }
 #'
-#' @format A data frame with 150 rows and 5 variables.
+#' @format A data frame with 150 rows and 7 variables.
 #' @examples
 #' head(annotation.pd)
 #'
@@ -118,18 +119,19 @@
 #'   \item Channel : Labeling information (channel.0, ..., channel.9).
 #'   The channel index should be consistent with the channel columns in raw.mq.
 #'   \item Condition : Condition (ex. Healthy, Cancer, Time0)
-#'   \item Mixture : Mixture of samples with different TMT reagents, which can be analyzed in
+#'   \item Mixture : Mixture of samples labeled with different TMT reagents, which can be analyzed in
 #'   a single mass spectrometry experiment.
-#'   The mixture may be fractionated into multiple fractions to increase the analytical depth.
-#'   Then one mixture should correspond to multuple MS runs (One fraction is one MS run).
-#'   For example, if 'Run' = 1, 2, 3 are three fractions of one TMT mixture of biological samples,
-#'   then they should have same 'Mixture' value. Another special case is technical replicate.
-#'   For example, if 'Run' = 4, 5, 6 are three technical replicates of one mixture, then they should match
+#'   \item TechRepMixture : Technical replicate of one mixture. One mixture may have multiple technical replicates.
+#'   For example, if 'TechRepMixture' = 1, 2 are the two technical replicates of one mixture, then they should match
 #'   with same 'Mixture' value.
+#'   \item Fraction : Fraction ID. One technical replicate of one mixture may be fractionated into multiple fractions to increase the analytical depth.
+#'   Then one technical replicate of one mixture should correspond to multuple fractions.
+#'   For example, if 'Fraction' = 1, 2, 3 are three fractions of the first technical replicate of one TMT mixture of biological subjects,
+#'   then they should have same 'TechRepMixture'  and 'Mixture' value.
 #'   \item BioReplicate : Unique ID for biological subject
 #' }
 #'
-#' @format A data frame with 150 rows and 5 variables.
+#' @format A data frame with 150 rows and 7 variables.
 #' @examples
 #' head(annotation.mq)
 #'
@@ -172,18 +174,19 @@
 #'   \item Channel : Labeling information (TMT6_126, ..., TMT6_131).
 #'   The channels should be consistent with the channel columns in raw.mine.
 #'   \item Condition : Condition (ex. Healthy, Cancer, Time0)
-#'   \item Mixture : Mixture of samples with different TMT reagents, which can be analyzed in
+#'   \item Mixture : Mixture of samples labeled with different TMT reagents, which can be analyzed in
 #'   a single mass spectrometry experiment.
-#'   The mixture may be fractionated into multiple fractions to increase the analytical depth.
-#'   Then one mixture should correspond to multuple MS runs (One fraction is one MS run).
-#'   For example, if 'Run' = 1, 2, 3 are three fractions of one TMT mixture of biological samples,
-#'   then they should have same 'Mixture' value. Another special case is technical replicate.
-#'   For example, if 'Run' = 4, 5, 6 are three technical replicates of one mixture, then they should match
+#'   \item TechRepMixture : Technical replicate of one mixture. One mixture may have multiple technical replicates.
+#'   For example, if 'TechRepMixture' = 1, 2 are the two technical replicates of one mixture, then they should match
 #'   with same 'Mixture' value.
+#'   \item Fraction : Fraction ID. One technical replicate of one mixture may be fractionated into multiple fractions to increase the analytical depth.
+#'   Then one technical replicate of one mixture should correspond to multuple fractions.
+#'   For example, if 'Fraction' = 1, 2, 3 are three fractions of the first technical replicate of one TMT mixture of biological subjects,
+#'   then they should have same 'TechRepMixture'  and 'Mixture' value.
 #'   \item BioReplicate : Unique ID for biological subject
 #' }
 #'
-#' @format A data frame with 72 rows and 5 variables.
+#' @format A data frame with 72 rows and 7 variables.
 #' @examples
 #' head(annotation.mine)
 #'
@@ -206,10 +209,11 @@
 #'   \item BioReplicate : Unique ID for biological subject.
 #'   \item Run : MS run ID
 #'   \item Mixture : Unique ID for TMT mixture.
+#'   \item TechRepMixture : Unique ID for technical replicate of one TMT mixture.
 #'   \item Intensity: Protein Abundance
 #' }
 #'
-#' @format A data frame with 20110 rows and 10 variables.
+#' @format A data frame with 20110 rows and 11 variables.
 #' @examples
 #' head(input.pd)
 #'
@@ -229,10 +233,11 @@
 #'   \item Channel : Labeling information (126, ... 131)
 #'   \item Condition : Condition (ex. Healthy, Cancer, Time0)
 #'   \item BioReplicate : Unique ID for biological subject.
+#'   \item TechRepMixture : Unique ID for technical replicate of one TMT mixture.
 #'   \item Mixture : Unique ID for TMT mixture.
 #' }
 #'
-#' @format A data frame with 100 rows and 7 variables.
+#' @format A data frame with 100 rows and 8 variables.
 #' @examples
 #' head(quant.pd.msstats)
 #'

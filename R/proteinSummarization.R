@@ -6,7 +6,7 @@
 #'
 #' @export
 #' @importFrom utils read.table sessionInfo write.table
-#' @param data Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named Protein, PSM, Mixture, Run, Channel, Condition, BioReplicate, Intensity
+#' @param data Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity
 #' @param method Four different summarization methods to protein-level can be performed : "msstats"(default), "MedianPolish", "Median", "LogSum".
 #' @param normalization Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step. If data only has one run, then normalization=FALSE.
 #' @param MBimpute only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each PSM.
@@ -52,8 +52,9 @@ proteinSummarization <- function(data,
 
 
     ## check input
-    required.info <- c('ProteinName', 'PSM', 'PeptideSequence', 'Charge',
-                       'Channel', 'BioReplicate', 'Run', 'Mixture', 'Condition', 'Intensity')
+    required.info <- c("ProteinName", "PeptideSequence", "Charge", "PSM",
+                       "Mixture", "TechRepMixture", "Run",
+                       "Channel", "Condition", "BioReplicate", "Intensity")
 
     if (!all(required.info %in% colnames(data))) {
 

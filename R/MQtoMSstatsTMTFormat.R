@@ -1,4 +1,4 @@
-#' Generate MSstatsTMT required input format for MaxQuant output
+#' Generate MSstatsTMT required input format from MaxQuant output
 #'
 #' Convert MaxQuant output into the required input format for MSstatsTMT.
 #'
@@ -9,9 +9,8 @@
 #' @importFrom data.table as.data.table setkey rbindlist
 #' @param evidence name of 'evidence.txt' data, which includes feature-level data.
 #' @param proteinGroups name of 'proteinGroups.txt' data.
-#' @param annotation data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.
-#' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.
-#' @param which.proteinid Use 'Proteins'(default) column for protein name. 'Leading.proteins' or 'Leading.razor.proteins' can be used instead. However, those can potentially have the shared peptides.
+#' @param annotation data frame which contains column Run, Fraction, TechRepMixture, Mixture, Channel, BioReplicate, Condition. Refer to the example 'annotation.mq' for the meaning of each column.
+#' @param which.proteinid Use 'Proteins'(default) column for protein name. 'Leading.proteins' or 'Leading.razor.proteins' or 'Gene.names' can be used instead to get the protein ID with single protein. However, those can potentially have the shared peptides.
 #' @param rmProt_Only.identified.by.site TRUE will remove proteins with '+' in 'Only.identified.by.site' column from proteinGroups.txt, which was identified only by a modification site. FALSE is the default.
 #' @param useUniquePeptide TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
 #' @param rmPSM_withMissing_withinRun TRUE will remove PSM with any missing value within each Run. Defaut is FALSE.
@@ -29,7 +28,6 @@
 MaxQtoMSstatsTMTFormat <- function(evidence,
                                  proteinGroups,
                                  annotation,
-                                 fraction = FALSE,
                                  which.proteinid = 'Proteins',
                                  rmProt_Only.identified.by.site = FALSE,
                                  useUniquePeptide = TRUE,
@@ -38,7 +36,8 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
                                  rmProtein_with1Feature = FALSE,
                                  summaryforMultipleRows = sum){
 
-    PeptideSequence <- ProteinName <- fea2 <- Run <- NULL
+    PeptideSequence <- ProteinName <- NULL
+     
     ## evidence.txt file
     input <- evidence
 
@@ -49,7 +48,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
 
     if (!all(unique(annotation$Run) %in% unique(input$Raw.file))) {
 
-        stop("Please check the annotation file. 'Run' must be matched with 'R.FileName'. ")
+        stop("Please check the annotation file. 'Run' must be matched with 'Raw.file'. ")
     }
 
     ################################################
@@ -142,6 +141,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     ## 1) Proteins
     ## 2) Leading.proteins
     ## 3) Leading.razor.protein
+    ## 4) Gene.names
     ################################################
     ## default : Protein
     which.pro <- NULL
@@ -152,11 +152,14 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
         which.pro <- 'Leading.proteins'
     } else if (which.proteinid == 'Leading.razor.protein') {
         which.pro <- 'Leading.razor.protein'
+    } else if (which.proteinid == 'Gene.names') {
+        which.pro <- 'Gene.names'
     }
 
-    if (is.null(which.pro)) {
-        stop('** Please select which columns should be used for protein ids,
-             among three options (Proteins, Leading.proteins, Leading.razor.protein).')
+    if (which.pro == 'Gene.names' & !is.element('Gene.names', colnames(input))) {
+
+        which.pro <- 'Leading.razor.protein'
+        message('** Use Leading.razor.protein instead of Gene.names.')
     }
 
     if (which.pro == 'Leading.razor.protein' & !is.element('Leading.razor.protein', colnames(input))) {
@@ -170,12 +173,11 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
         which.pro <- 'Proteins'
         message('** Use Proteins instead of Leading.proteins.')
     }
-
     ## at least 'Proteins' should be in the evidence.txt
 
     if (!is.element(which.pro, colnames(input))) {
         stop('** Please select which columns should be used for protein ids,
-             among three options (Proteins, Leading.proteins, Leading.razor.protein).')
+             among four options (Proteins, Leading.proteins, Leading.razor.protein, Gene.names).')
     }
 
     ################################################
@@ -196,6 +198,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     colnames(input)[colnames(input) == 'Proteins'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Leading.proteins'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Leading.razor.protein'] <- 'ProteinName'
+    colnames(input)[colnames(input) == 'Gene.names'] <- 'ProteinName'
 
     colnames(input)[colnames(input) == 'Modified.sequence'] <- 'PeptideSequence'
     colnames(input)[colnames(input) == 'Raw.file'] <- 'Run'
@@ -209,7 +212,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     ################################################
 
     tmp <- input[, channels]
-    tmp.count <- apply(tmp, 1, function(x) sum(x == 0))
+    tmp.count <- apply(tmp, 1, function(x) sum(x == 0, na.rm = TRUE))
     nchannel <- ncol(tmp)
 
     ## remove row with all zero
@@ -221,6 +224,8 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     input.int <- input[, channels]
     input.int[input.int == 0] <- NA
     input[, channels] <- input.int
+
+    rm(input.int)
 
     ################################################
     ## 6. remove peptides which are used in more than one protein
@@ -336,7 +341,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
 
                     if (nrow(sub4) < 2) {
                         keepinfo.select <- rbind(keepinfo.select, sub4)
-
+                        next()
                     } else {
                         # sum up or maximum abundances among intensities for identical features within one run
                         if(identical(summaryforMultipleRows, sum)){
@@ -399,7 +404,7 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
             message( paste0('** Annotation for Run : ', noruninfo[i, "Run"],
                             ", Channel : ", noruninfo[i, "Channel"], " are missed.") )
         }
-        stop('** Please add them to annotation file.')
+        stop('** Please add them to annotation file. If the channal doesn\'t have sample, please add NA.')
     }
 
     input.final <- data.frame("ProteinName" = input$ProteinName,
@@ -409,20 +414,22 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
                               "Channel" = as.factor(input$Channel),
                               "Condition" = as.factor(input$Condition),
                               "BioReplicate" = as.factor(input$BioReplicate),
-                              "Run" = as.factor(input$Run),
                               "Mixture" = as.factor(input$Mixture),
+                              "TechRepMixture" = as.factor(input$TechRepMixture),
+                              "Fraction" = as.factor(input$Fraction),
+                              "Run" = as.factor(input$Run),
                               "Intensity" = input$Intensity)
 
     input <- input.final
     rm(input.final)
 
     ##############################
-    ## 11. remove proteins with only one peptide and charge per protein
+    ## 10. remove proteins with only one peptide and charge per protein
     ##############################
     if (rmProtein_with1Feature) {
 
         ## remove protein which has only one peptide
-        tmp <- unique(input[!is.na(input$Intensity), c("ProteinName", 'PSM')])
+        tmp <- unique(input[, c("ProteinName", 'PSM')])
         tmp$ProteinName <- factor(tmp$ProteinName)
         count <- xtabs( ~ ProteinName, data = tmp)
         lengthtotalprotein <- length(count)
@@ -438,15 +445,18 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
     }
 
     ##############################
-    ## 12. combine fractios within each mixture
+    ## 11. combine fractios within each mixture
     ##############################
-
-    if (fraction) {
+    fractions <- unique(annotation$Fraction) # check the number of fractions in the input data
+    if (length(fractions) > 1) { # combine fractions
         input <- .combine.fractions(input)
         ## change data.table to data.frame, in order to make the same class for input, without fraction
         input <- as.data.frame(input)
         message('** Fractions belonging to same mixture have been combined.')
     }
 
+    input <- input[,c("ProteinName", "PeptideSequence", "Charge", "PSM",
+                      "Mixture", "TechRepMixture", "Run",
+                      "Channel", "BioReplicate", "Condition", "Intensity")]
     return(input)
 }

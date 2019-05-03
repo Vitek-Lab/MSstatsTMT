@@ -5,16 +5,16 @@
 \title{Finding differentially abundant proteins across conditions in TMT experiment}
 \usage{
 groupComparisonTMT(data, contrast.matrix = "pairwise",
-  remove_norm_channel = TRUE, moderated = TRUE, adj.method = "BH")
+  remove_norm_channel = TRUE, moderated = FALSE, adj.method = "BH")
 }
 \arguments{
-\item{data}{Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, Run, Channel, Condition, BioReplicate, Abundance.}
+\item{data}{Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Abundance.}
 
 \item{contrast.matrix}{Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.}
 
 \item{remove_norm_channel}{TRUE(default) removes 'Norm' channels for inference step.}
 
-\item{moderated}{TRUE (default) will moderate t statistic will be calculated; otherwise, ordinary t statistic will be used.}
+\item{moderated}{TRUE will moderate t statistic; FALSE (default) uses ordinary t statistic.}
 
 \item{adj.method}{adjusted method for multiple comparison. "BH" is default.}
 }
@@ -32,7 +32,7 @@ quant.pd.msstats <- proteinSummarization(input.pd,
                                        method="msstats",
                                        normalization=TRUE)
 
-test.pairwise <- groupComparisonTMT(quant.pd.msstats)
+test.pairwise <- groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
 
 # Only compare condition 0.125 and 1
 levels(quant.pd.msstats$Condition)
@@ -45,6 +45,7 @@ row.names(comparison)<-"1-0.125"
 
 # Set the column names
 colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
-test.contrast <- groupComparisonTMT(data = quant.pd.msstats, contrast.matrix = comparison)
-
+test.contrast <- groupComparisonTMT(data = quant.pd.msstats,
+contrast.matrix = comparison,
+moderated = TRUE)
 }

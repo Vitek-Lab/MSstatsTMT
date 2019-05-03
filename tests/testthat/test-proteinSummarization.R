@@ -8,7 +8,6 @@ test_that("proteinSummarization works", {
   
 })
 
-
 test_that("proteinSummarization can handle missing data", {
   #Peptide Sequence and Charge did not throw error
   expect_error(proteinSummarization(MSstatsTMT::input.pd[,-1],

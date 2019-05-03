@@ -1,4 +1,4 @@
-#' Generate MSstatsTMT required input format for Proteome discoverer output
+#' Generate MSstatsTMT required input format from Proteome discoverer output
 #'
 #' Convert Proteome discoverer output into the required input format for MSstatsTMT.
 #'
@@ -8,9 +8,8 @@
 #' @importFrom reshape2 melt
 #' @importFrom data.table as.data.table setkey rbindlist
 #' @param input data name of Proteome discover PSM output.
-#' @param annotation data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.
-#' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.
-#' @param which.proteinid Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead.
+#' @param annotation data frame which contains column Run, Fraction, TechRepMixture, Mixture, Channel, BioReplicate, Condition. Refer to the example 'annotation.pd' for the meaning of each column.
+#' @param which.proteinid Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead to get the protein name with single protein.
 #' @param useNumProteinsColumn TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.
 #' @param useUniquePeptide TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
 #' @param rmPSM_withMissing_withinRun TRUE will remove PSM with any missing value within each Run. Defaut is FALSE.
@@ -26,7 +25,6 @@
 
 PDtoMSstatsTMTFormat <- function(input,
                                  annotation,
-                                 fraction = FALSE,
                                  which.proteinid = 'Protein.Accessions',
                                  useNumProteinsColumn = TRUE,
                                  useUniquePeptide = TRUE,
@@ -271,7 +269,7 @@ PDtoMSstatsTMTFormat <- function(input,
 
                         if (nrow(sub5) < 2) {
                             keepinfo.select <- rbind(keepinfo.select, sub5)
-
+                            next()
                         } else {
                             # sum up or maximum abundances among intensities for identical features within one run
                             if(identical(summaryforMultipleRows, sum)){
@@ -309,7 +307,8 @@ PDtoMSstatsTMTFormat <- function(input,
 
     # make long format
     input.long <- melt(input.new, id = c('ProteinName',
-                                       'PeptideSequence','Charge',
+                                       'PeptideSequence',
+                                       'Charge',
                                        'Run'),
                        variable.name = "Channel",
                        value.name = "Intensity")
@@ -321,7 +320,7 @@ PDtoMSstatsTMTFormat <- function(input,
     rm(input.new)
 
     ##############################
-    ## 7. add annotation
+    ## 10. add annotation
     ##############################
     # match the channels from input with that in annotation file
     input$Channel <- gsub(check.column.start, "", input$Channel)
@@ -342,7 +341,7 @@ PDtoMSstatsTMTFormat <- function(input,
             message( paste0('** Annotation for Run : ', noruninfo[i, "Run"],
                             ", Channel : ", noruninfo[i, "Channel"], " are missed.") )
         }
-        stop('** Please add them to annotation file.')
+        stop('** Please add them to annotation file. If the channal doesn\'t have sample, please add NA.')
     }
 
     input.final <- data.frame("ProteinName" = input$ProteinName,
@@ -352,23 +351,23 @@ PDtoMSstatsTMTFormat <- function(input,
                               "Channel" = as.factor(input$Channel),
                               "Condition" = as.factor(input$Condition),
                               "BioReplicate" = as.factor(input$BioReplicate),
-                              "Run" = as.factor(input$Run),
                               "Mixture" = as.factor(input$Mixture),
+                              "TechRepMixture" = as.factor(input$TechRepMixture),
+                              "Fraction" = as.factor(input$Fraction),
+                              "Run" = as.factor(input$Run),
                               "Intensity" = input$Intensity)
 
     input <- input.final
     rm(input.final)
-    ## N, C order before, but, after re-factoring, C, N : might need to check.
 
     ##############################
-    ## 8. remove proteins with only one peptide and charge per protein
+    ## 10. remove proteins with only one peptide and charge per protein
     ##############################
-
     if (rmProtein_with1Feature) {
 
         ## remove protein which has only one peptide
-        tmp <- unique(input[!is.na(input$Intensity), c("ProteinName", 'PSM')])
-        tmp$Protein <- factor(tmp$ProteinName)
+        tmp <- unique(input[, c("ProteinName", 'PSM')])
+        tmp$ProteinName <- factor(tmp$ProteinName)
         count <- xtabs( ~ ProteinName, data = tmp)
         lengthtotalprotein <- length(count)
 
@@ -383,39 +382,46 @@ PDtoMSstatsTMTFormat <- function(input,
     }
 
     ##############################
-    ## 9. combine fractions within each mixture
+    ## 11. combine fractios within each mixture
     ##############################
-
-    if (fraction) {
+    fractions <- unique(annotation$Fraction) # check the number of fractions in the input data
+    if (length(fractions) > 1) { # combine fractions
         input <- .combine.fractions(input)
         ## change data.table to data.frame, in order to make the same class for input, without fraction
         input <- as.data.frame(input)
         message('** Fractions belonging to same mixture have been combined.')
     }
-    return(input)
 
+    input <- input[,c("ProteinName", "PeptideSequence", "Charge", "PSM",
+                      "Mixture", "TechRepMixture", "Run",
+                      "Channel", "Condition", "BioReplicate", "Intensity")]
+    return(input)
 }
 
 ## Remove the peptide ions overlapped among multiple fractions of same biological mixture
-## data: PSM level data, which has columns Protein, PSM, BioReplicate, Run, Channel, Intensity, Mixture
+## data: peptide level data, which has columns Protein, PSM, Channel, Condition, BioReplicate,
+## Mixture, TechRepMixture, Fraction, Run, Intensity
 .combine.fractions <- function(data){
 
-    Mixture <- Intensity <- fea <-  Run <- . <- NULL
+    Mixture <- techrun <- ProteinName <- PeptideSequence <- Charge <- PSM <- TechRepMixture <- Channel <-
+      Condition <- BioReplicate <- Intensity <- fea <-  Run <- . <- NULL
 
-    # combine fractions for each mixture
-    mixtures <- unique(data$Mixture)
-    data <- as.data.table(data)
+    # combine fractions for each technical replcate and each mixture
+    data$techrun <- paste(data$Mixture, data$TechRepMixture, sep = "_")
+    techruns <- unique(data$techrun)
+    data <- as.data.table(data) # make sure data format
     data$Run <- as.character(data$Run)
 
     all.data <- list()
-    for (i in 1: length(mixtures)) {
-        sub_data <- data[Mixture == mixtures[i]]
+    for (i in 1: length(techruns)) { # for each technical replicate
+        sub_data <- data[techrun == techruns[i]]
+        sub_data <- sub_data[!is.na(Intensity)] # remove the NAs
         sub_data$fea <- paste(sub_data$PSM, sub_data$ProteinName, sep = "_")
-        sub_data$fea <- factor(sub_data$fea)
+        sub_data$fea <- factor(sub_data$fea) # make the feature
         sub_data$id <- paste(sub_data$fea, sub_data$Run, sep = "_")
 
         ## count how many fractions are assigned for each peptide ion
-        structure <- aggregate(Run ~ . , data = unique(sub_data[!is.na(Intensity), .(fea, Run)]), length)
+        structure <- aggregate(Run ~ . , data = unique(sub_data[, .(fea, Run)]), length)
         ## 1. first, keep features which are measured in one fraction
         remove_peptide_ion <- structure[structure$Run > 1, ]
 
@@ -423,39 +429,41 @@ PDtoMSstatsTMTFormat <- function(input,
         ## use the fractions with maximum average.
         ## remove_peptide_ion : features that are measured in multiple fractions
         if (nrow(remove_peptide_ion) > 0) {
-            # select the rows for overlapped PSM
-            tmp <- sub_data[which(sub_data$fea %in% remove_peptide_ion$fea), ]
-            tmp <- tmp[!is.na(tmp$Intensity), ]
+            # select the rows for the features that are measured in multiple fractions
+            tmp <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion$fea)
 
             # keep the fractions with maximum average PSM abundance
-            mean.frac.feature <- tmp %>% group_by(fea, id) %>% summarise(mean = mean(Intensity, na.rm = TRUE))
-            remove.fraction <- mean.frac.feature %>% group_by(fea) %>% filter(mean != max(mean))
-            filtered_sub_data <- sub_data %>% filter(!id %in% remove.fraction$id)
+            mean.frac.feature <- tmp %>% dplyr::group_by(fea, id) %>% dplyr::summarise(mean = mean(Intensity, na.rm = TRUE))
+            remove.fraction <- mean.frac.feature %>% dplyr::group_by(fea) %>% dplyr::filter(mean != max(mean))
+            filtered_sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction$id)
 
             rm(mean.frac.feature)
             rm(remove.fraction)
             rm(tmp)
-            message('** For peptides overlapped between fractions of ', mixtures[i],
+            message('** For peptides overlapped between fractions of ', techruns[i],
                     ', use the fraction with maximal average abundance.')
         } else{
             filtered_sub_data <- sub_data
         }
         # Remove unnecessary columns
-        filtered_sub_data <- filtered_sub_data[, -which(colnames(filtered_sub_data) %in% c('id', 'fea'))]
+        filtered_sub_data <- filtered_sub_data %>%
+            select(ProteinName, PeptideSequence, Charge, PSM,
+                   Mixture, TechRepMixture, Run,
+                   Channel, Condition, BioReplicate, Intensity)
+
         all.data[[i]] <- as.data.table(filtered_sub_data)
     }
 
     data.shared.pep.rm <- rbindlist(all.data)
-    data.shared.pep.rm$Run <- data.shared.pep.rm$Mixture
-    ## The fractions have been combined.
-    data.shared.pep.rm$Mixture <- "1"
+    # The fractions have been combined
+    data.shared.pep.rm$Run <- paste(data.shared.pep.rm$Mixture, data.shared.pep.rm$TechRepMixture, sep = "_")
     return(data.shared.pep.rm)
 }
 
 ## Check whether the annotation file matches with the input
 .check.annotation <- function(annotation){
 
-    required.annotation <- c("Run", "Channel", "Condition", "BioReplicate", "Mixture")
+    required.annotation <- c("Run", "TechRepMixture", "Fraction", "Mixture", "Channel", "Condition", "BioReplicate")
 
     if (!all(required.annotation %in% colnames(annotation))) {
 

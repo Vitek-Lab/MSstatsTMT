@@ -34,7 +34,7 @@
 
     ## Record the group information
     annotation <- unique(data[!is.na(data$log2Intensity) , c('Run', 'Channel', 'BioReplicate',
-                                   'Condition', 'Mixture', 'runchannel')])
+                                   'Condition', 'Mixture', 'TechRepMixture', 'runchannel')])
 
     # Prepare the information for protein summarization
     runs <- unique(na.omit(data$Run)) # record runs
@@ -42,7 +42,11 @@
     runchannel.id <- unique(na.omit(data$runchannel)) # record runs X channels
     data$PSM <- as.character(data$PSM)
 
+    ################################################
+    ### 1, by MSstats
+    ################################################
     if (method == 'msstats'){
+
         ## need to change the column for MSstats
         colnames(data)[colnames(data) == 'Charge'] <- 'PrecursorCharge'
         colnames(data)[colnames(data) == 'Run'] <- 'MSRun'
@@ -80,19 +84,22 @@
             res.sub <- res.sub[, -which(colnames(res.sub) %in% 'runchannel')]
             res <- rbind(res, res.sub)
 
-        }
+            ## message
+            message("** Protein-level summarization done by MSstats.")
 
-        if (normalization & length(runs) > 1) { # Do normalization based on group 'Norm'
-            res <- .protein.normalization(res)
         }
 
     } else if (method == "MedianPolish"){
-        #Method MedianPolish
+
+        ################################################
+        ### 2, by TMP
+        ################################################
+
         #add NAs to make every protein appear in all the channels
 
         ## add more annotation and block
-        data <- data[!is.na(data$log2Intensity), c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel',
-                         'BioReplicate', 'runchannel')]
+        data <- data[!is.na(data$log2Intensity), c('ProteinName', 'PSM', 'log2Intensity',
+                                                   'Run', 'Channel', 'BioReplicate', 'runchannel')]
         channels <- as.character(unique(data$Channel))
 
         #Create a annotation to make sure there are no missing Channels for each protein in data
@@ -103,9 +110,9 @@
         dt <- as.data.frame(t(mat))
         anno <- cbind(anno, dt)#attach channels to each run and protein
 
-        anno <- anno %>% unite("Run.Protein", Run,ProteinName,sep = " ") %>%
+        anno <- anno %>% unite("Run.Protein", Run, ProteinName, sep = " ") %>%
             gather(v, Channel, -Run.Protein) %>%
-            separate(Run.Protein, into = c("Run", "ProteinName"),sep = " ")
+            separate(Run.Protein, into = c("Run", "ProteinName"), sep = " ")
         anno$Run <- as.character(anno$Run)
         data <- right_join(data, anno)
 
@@ -130,16 +137,17 @@
         res <- left_join(res, annotation, by = 'runchannel')
         res$Run <- res$Run.x #delete x and y
 
-        #Protein Normalization
-        if (normalization & length(runs) > 1) {
-            # Do normalization based on group 'Norm'
-            res <- .protein.normalization(res)
-        }
+        ## message
+        message("** Protein-level summarization done by median polish.")
 
     } else if (method == "LogSum"){
 
-        #Method LogSum
-        data <- data[!is.na(data$log2Intensity), c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel',
+        ################################################
+        ### 3. Log (sum)
+        ################################################
+
+        data <- data[!is.na(data$log2Intensity), c('ProteinName', 'PSM', 'log2Intensity',
+                                                   'Run', 'Channel',
                          'BioReplicate', 'runchannel')]
         res <- data[, .(LogSum = log2(sum(2^log2Intensity))), by = .(Run,ProteinName,
                                                                    runchannel)] # calculate the logsum for each protein and channel
@@ -148,34 +156,48 @@
         # add the annotation information to the results
         res$Run <- res$Run.x #delete x and y
 
-        if (normalization & length(runs) > 1) {
-            # Do normalization based on group 'Norm'
-            res <- .protein.normalization(res)
-        }
+        ## message
+        message("** Protein-level summarization done by log(sum of intensities).")
 
     } else if (method == "Median"){
-        #Method Median
-        data <- data[!is.na(data$log2Intensity), c('ProteinName', 'PSM', 'log2Intensity', 'Run', 'Channel',
+
+        ################################################
+        ### 4. Median
+        ################################################
+
+        data <- data[!is.na(data$log2Intensity), c('ProteinName', 'PSM', 'log2Intensity',
+                                                   'Run', 'Channel',
                          'BioReplicate', 'runchannel')]
-        res <- data[, .(Median = median(log2Intensity)), by = .(Run,ProteinName,
-                                                              runchannel)] # calculate the median for each protein and channel
+        res <- data[, .(Median = median(log2Intensity)),
+                    by = .(Run,ProteinName, runchannel)] # calculate the median for each protein and channel
         colnames(res) <- c("Run", "Protein", "runchannel", "Abundance")
         res <- left_join(res, annotation, by = 'runchannel')
+
         # add the annotation information to the results
         res$Run <- res$Run.x #delete x and y
 
-        if (normalization & length(runs) > 1) {
-            # Do normalization based on group 'Norm'
-            res <- .protein.normalization(res)
-        }
+        ## message
+        message("** Protein-level summarization done by median.")
     }
 
+    ##################################33
+    ## Protein-level Normalization
+    ##################################33
+
+    if (normalization & length(runs) > 1) {
+
+        # Do normalization based on group 'Norm'
+        res <- .protein.normalization(res)
+    }
+
+    ## subtract the required information
     res <- res[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
-                   "Condition", "Mixture")]
+                   "Condition", 'TechRepMixture', "Mixture")]
 
     res$Run <- as.factor(res$Run) # make sure Run is factor
     res$Channel <- as.factor(res$Channel) # make sure Channel is factor
     res$Condition <- as.factor(res$Condition) # make sure Condition is factor
+    res$TechRepMixture <- as.factor(res$TechRepMixture) # make sure TechRepMixture is factor
     res$Mixture <- as.factor(res$Mixture) # make sure mixture is factor
 
     return(res)
@@ -191,7 +213,7 @@
 
 .protein.normalization <- function(data) {
 
-    Run <- Abundance <- Mixture <- Channel <- BioReplicate <- . <- Condition <- Protein <- NULL
+    Run <- Abundance <- Mixture <- TechRepMixture <- Channel <- BioReplicate <- . <- Condition <- Protein <- NULL
 
     ## check whethere there are 'Norm' info or not.
     group.info <- unique(data$Condition)
@@ -210,18 +232,18 @@
         norm.data <- list()
 
         # do inference for each protein individually
-        for (i in 1:length(proteins)) { 
+        for (i in 1:length(proteins)) {
 
             message(paste("Normalization between MS runs for Protein :",
                           proteins[i] , "(", i, " of ", num.protein, ")"))
             sub_data <- data[Protein == proteins[i]] # data for protein i
             sub_data <- na.omit(sub_data)
-            
+
             if(length(unique(sub_data$Run)) > 1){ # multiple runs
               norm.channel <- sub_data[Condition == "Norm"]
               norm.channel <- norm.channel[, .(Abundance = mean(Abundance, na.rm = TRUE)),
                                            by = .(Protein, Run)] # calculate the mean over multiple normalization channels
-              
+
               norm.channel$diff <- median(norm.channel$Abundance, na.rm = TRUE) -
                 norm.channel$Abundance
               setkey(sub_data, Run)
@@ -229,16 +251,16 @@
               norm.sub_data <- merge(sub_data, norm.channel[, .(Run, diff)], all.x = TRUE)
               norm.sub_data$Abundance <- norm.sub_data$Abundance + norm.sub_data$diff
               norm.sub_data[, diff:=NULL]
-              norm.data[[proteins[i]]] <- norm.sub_data[,.(Mixture, Run, Channel, Protein, Abundance, BioReplicate, Condition)]
+              norm.data[[proteins[i]]] <- norm.sub_data[,.(Mixture, TechRepMixture, Run, Channel, Protein, Abundance, BioReplicate, Condition)]
             } else{ # only one run
-              
-              norm.data[[proteins[i]]] <- sub_data[,.(Mixture, Run, Channel, Protein, Abundance, BioReplicate, Condition)]
+
+              norm.data[[proteins[i]]] <- sub_data[,.(Mixture, TechRepMixture, Run, Channel, Protein, Abundance, BioReplicate, Condition)]
             }
         }
         norm.data <- rbindlist(norm.data)
 
     } else {
-      
+
         message("** 'Norm' information in Condition is required for normalization.
                 Please check it. At this moment, normalization is not performed.")
         norm.data <- data

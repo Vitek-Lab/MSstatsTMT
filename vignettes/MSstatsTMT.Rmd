@@ -1,6 +1,6 @@
 ---
 title: "MSstatsTMT : A package for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling"
-author: "Ting Huang (<thuang0703@gmail.com>), Meena Choi (<mnchoi67@gmail.com>), Sicheng Hao (<hao.sic@husky.neu.edu>)"
+author: "Ting Huang (<thuang0703@gmail.com>), Meena Choi (<mnchoi67@gmail.com>), Sicheng Hao (<hao.sic@husky.neu.edu>), Olga Vitek(<o.vitek@northeastern.edu>)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -43,8 +43,7 @@ Preprocess PSM data from Proteome Discoverer and convert into the required input
 #### Arguments
 
 * `input` : data name of Proteome discover PSM output. Read PSM sheet.
-* `annotation` : data frame which contains column `Run`, `Channel`, `Condition`, `BioReplicate`, `Mixture`.
-* `fraction` : indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.
+* `annotation` : data frame which contains column `Run`, `Fraction`, `TechRepMixture`, `Channel`, `Condition`, `BioReplicate`, `Mixture`.
 * `which.proteinid` : Use `Protein.Accessions`(default) column for protein name. `Master.Protein.Accessions` can be used instead.
 * `useNumProteinsColumn` : TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.
 * `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
@@ -84,8 +83,7 @@ Preprocess PSM-level data from MaxQuant and convert into the required input form
 
 * `evidence` : name of `evidence.txt` data, which includes PSM-level data.
 * `proteinGroups` : name of `proteinGroups.txt` data, which contains the detailed information of protein identifications.
-* `annotation` : data frame which contains column `Run`, `Channel`, `Condition`, `BioReplicate`, `Mixture`.
-* `fraction` : indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.
+* `annotation` : data frame which contains column `Run`, `Fraction`, `TechRepMixture`, `Channel`, `Condition`, `BioReplicate`, `Mixture`.
 * `which.proteinid` : Use `Proteins`(default) column for protein name. `Leading.proteins` or `Leading.razor.proteins` can be used instead. However, those can potentially have the shared peptides.
 * `rmProt_Only.identified.by.site` : TRUE will remove proteins with '+' in 'Only.identified.by.site' column from proteinGroups.txt, which was identified only by a modification site. FALSE is the default.
 * `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
@@ -117,8 +115,7 @@ Preprocess PSM data from SpectroMine and convert into the required input format 
 #### Arguments
 
 * `input` : data name of SpectroMine PSM output. Read PSM sheet.
-* `annotation` : data frame which contains column `Run`, `Channel`, `Condition`, `BioReplicate`, `Mixture`.
-* `fraction` : indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each biological mixture.
+* `annotation` : data frame which contains column `Run`, `Fraction`, `TechRepMixture`, `Channel`, `Condition`, `BioReplicate`, `Mixture`.
 * `filter_with_Qvalue` : TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with NA and will be considered as censored missing values for imputation purpose.
 * `qvalue_cutoff` : Cutoff for EG.Qvalue. default is 0.01.
 * `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
@@ -150,7 +147,7 @@ In particular, protein summarization method `MSstats` assumes missing values are
 
 #### Arguments
 
-* `data` : Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named `Protein`, `PSM`, `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Intensity`.
+* `data` : Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named `Protein`, `PSM`, `TechRepMixture`, `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Intensity`.
 * `method` : Four different summarization methods to protein-level can be performed : `msstats`(default), `MedianPolish`, `Median`, `LogSum`.
 * `normalization` : Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by `Norm` in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.
 * `MBimpute` : only for `method = "msstats"`. TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each PSM.
@@ -233,10 +230,10 @@ Tests for significant changes in protein abundance across conditions based on a 
 
 ### Arguments
 
-* `data` : Name of the output of proteinSummarization function. It should have columns named `Protein`, `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Abundance`.
+* `data` : Name of the output of proteinSummarization function. It should have columns named `Protein`, `TechRepMixture`,  `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Abundance`.
 * `contrast.matrix` : Comparison between conditions of interests. 1) default is `pairwise`, which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 * `remove_norm_channel` : TRUE(default) removes `Norm` channels for inference step.
-* `moderated` : Only for model = `proposed`. If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.
+* `moderated` : If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.
 * `adj.method` : adjusted method for multiple comparison. 'BH` is default.
 
 

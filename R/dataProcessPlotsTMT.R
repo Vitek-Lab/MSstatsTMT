@@ -77,7 +77,8 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
                                  summaryPlot = TRUE,
                                  address = "") {
 
-    Condition <- Run <- xorder <- Channel <- groupAxis <- cumGroupAxis <- abundance <- analysis <- NULL
+    Condition = Run = xorder = Channel = NULL
+    groupAxis = cumGroupAxis = abundance = analysis = NULL
     datafeature <- data.psm
     datarun <- data.summarization
 

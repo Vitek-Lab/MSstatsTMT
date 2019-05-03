@@ -1,5 +1,13 @@
-CHANGES IN VERSION 0.99.0 [2018-09-21]
+CHANGES IN VERSION 1.2.0 [2019-05-03]
+-------------------------
+    UPDATED FEATURES
+	 - Update the format of annotation file
+	 - Remove the 'fraction' option from coverter functions
+	 - Update the linear modeling in groupComparisonTMT() function
+
+	UPDATED FEATURES
+	 - Fix bugs in groupComparisonTMT() when using lm() function
+
+CHANGES IN VERSION 1.0.0 [2018-09-21]
 -------------------------
    + Submitted to Bioconductor
-
-
