@@ -4,10 +4,10 @@
 #' Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
 #'
 #' @export
-#' @param data Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, Run, Channel, Condition, BioReplicate, Abundance.
+#' @param data Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Abundance.
 #' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 #' @param remove_norm_channel TRUE(default) removes 'Norm' channels for inference step.
-#' @param moderated TRUE (default) will moderate t statistic will be calculated; otherwise, ordinary t statistic will be used.
+#' @param moderated TRUE will moderate t statistic; FALSE (default) uses ordinary t statistic.
 #' @param adj.method adjusted method for multiple comparison. "BH" is default.
 #' @return data.frame with result of inference
 #' @examples
@@ -16,8 +16,8 @@
 #' quant.pd.msstats <- proteinSummarization(input.pd,
 #'                                        method="msstats",
 #'                                        normalization=TRUE)
-#' 
-#' test.pairwise <- groupComparisonTMT(quant.pd.msstats)
+#'
+#' test.pairwise <- groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
 #'
 #' # Only compare condition 0.125 and 1
 #' levels(quant.pd.msstats$Condition)
@@ -30,13 +30,14 @@
 #'
 #' # Set the column names
 #' colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
-#' test.contrast <- groupComparisonTMT(data = quant.pd.msstats, contrast.matrix = comparison)
-#'
+#' test.contrast <- groupComparisonTMT(data = quant.pd.msstats,
+#' contrast.matrix = comparison,
+#' moderated = TRUE)
 
 groupComparisonTMT <- function(data,
                                 contrast.matrix = 'pairwise',
                                 remove_norm_channel = TRUE,
-                                moderated = TRUE,
+                                moderated = FALSE,
                                 adj.method = "BH"){
 
     ## save process output in each step
@@ -67,7 +68,7 @@ groupComparisonTMT <- function(data,
 
 
     ## check input data
-    required.info <- c('Protein', 'BioReplicate', 'Abundance', 'Run', 'Channel', 'Condition', 'Mixture')
+    required.info <- c('Protein', 'BioReplicate', 'Abundance', 'Run', 'Channel', 'Condition', 'TechRepMixture', 'Mixture')
 
     if (!all(required.info %in% colnames(data))) {
 
@@ -85,11 +86,11 @@ groupComparisonTMT <- function(data,
 
     ## change some column names as used in group comparison function
     ## Ting: need to change later for time course design
-    # colnames(data)[colnames(data) == 'BioReplicate'] <- 'Subject'
-    data$runchannel <- paste(as.numeric(as.factor(data$Run)),
-                             as.numeric(as.factor(data$Channel)),
-                             sep = "_")
-    colnames(data)[colnames(data) == 'runchannel'] <- 'Subject'
+    colnames(data)[colnames(data) == 'BioReplicate'] <- 'Subject'
+    # data$runchannel <- paste(as.numeric(as.factor(data$Run)),
+                             # as.numeric(as.factor(data$Channel)),
+                             # sep = "_")
+    # colnames(data)[colnames(data) == 'runchannel'] <- 'Subject'
     colnames(data)[colnames(data) == 'Condition'] <- 'Group'
 
     ## report which options are used.

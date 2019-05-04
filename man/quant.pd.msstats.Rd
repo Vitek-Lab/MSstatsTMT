@@ -4,7 +4,7 @@
 \name{quant.pd.msstats}
 \alias{quant.pd.msstats}
 \title{Example of output from proteinSummarizaiton function}
-\format{A data frame with 100 rows and 7 variables.}
+\format{A data frame with 100 rows and 8 variables.}
 \usage{
 quant.pd.msstats
 }
@@ -22,6 +22,7 @@ The variables are as follows:
   \item Channel : Labeling information (126, ... 131)
   \item Condition : Condition (ex. Healthy, Cancer, Time0)
   \item BioReplicate : Unique ID for biological subject.
+  \item TechRepMixture : Unique ID for technical replicate of one TMT mixture.
   \item Mixture : Unique ID for TMT mixture.
 }
 }

@@ -4,7 +4,7 @@
 \alias{SpectroMinetoMSstatsTMTFormat}
 \title{Generate MSstatsTMT required input format for SpectroMine output}
 \usage{
-SpectroMinetoMSstatsTMTFormat(input, annotation, fraction = FALSE,
+SpectroMinetoMSstatsTMTFormat(input, annotation,
   filter_with_Qvalue = TRUE, qvalue_cutoff = 0.01,
   useUniquePeptide = TRUE, rmPSM_withMissing_withinRun = FALSE,
   rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE,
@@ -13,9 +13,7 @@ SpectroMinetoMSstatsTMTFormat(input, annotation, fraction = FALSE,
 \arguments{
 \item{input}{data name of SpectroMine PSM output. Read PSM sheet.}
 
-\item{annotation}{data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.}
-
-\item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.}
+\item{annotation}{data frame which contains column Run, Fraction, TechRepMixture, Mixture, Channel, BioReplicate, Condition. Refer to the example 'annotation.mine' for the meaning of each column.}
 
 \item{filter_with_Qvalue}{TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with NA and will be considered as censored missing values for imputation purpose.}
 

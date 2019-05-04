@@ -4,7 +4,7 @@
 \name{input.pd}
 \alias{input.pd}
 \title{Example of output from PDtoMSstatsTMTFormat function}
-\format{A data frame with 20110 rows and 10 variables.}
+\format{A data frame with 20110 rows and 11 variables.}
 \usage{
 input.pd
 }
@@ -25,6 +25,7 @@ The variables are as follows:
   \item BioReplicate : Unique ID for biological subject.
   \item Run : MS run ID
   \item Mixture : Unique ID for TMT mixture.
+  \item TechRepMixture : Unique ID for technical replicate of one TMT mixture.
   \item Intensity: Protein Abundance
 }
 }

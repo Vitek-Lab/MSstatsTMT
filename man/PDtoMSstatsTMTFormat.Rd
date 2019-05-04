@@ -2,9 +2,9 @@
 % Please edit documentation in R/PDtoMSstatsTMTFormat.R
 \name{PDtoMSstatsTMTFormat}
 \alias{PDtoMSstatsTMTFormat}
-\title{Generate MSstatsTMT required input format for Proteome discoverer output}
+\title{Generate MSstatsTMT required input format from Proteome discoverer output}
 \usage{
-PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
+PDtoMSstatsTMTFormat(input, annotation,
   which.proteinid = "Protein.Accessions", useNumProteinsColumn = TRUE,
   useUniquePeptide = TRUE, rmPSM_withMissing_withinRun = FALSE,
   rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE,
@@ -13,11 +13,9 @@ PDtoMSstatsTMTFormat(input, annotation, fraction = FALSE,
 \arguments{
 \item{input}{data name of Proteome discover PSM output.}
 
-\item{annotation}{data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.}
+\item{annotation}{data frame which contains column Run, Fraction, TechRepMixture, Mixture, Channel, BioReplicate, Condition. Refer to the example 'annotation.pd' for the meaning of each column.}
 
-\item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.}
-
-\item{which.proteinid}{Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead.}
+\item{which.proteinid}{Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead to get the protein name with single protein.}
 
 \item{useNumProteinsColumn}{TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.}
 

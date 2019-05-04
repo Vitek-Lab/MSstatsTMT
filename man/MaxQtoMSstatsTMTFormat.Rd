@@ -2,9 +2,9 @@
 % Please edit documentation in R/MQtoMSstatsTMTFormat.R
 \name{MaxQtoMSstatsTMTFormat}
 \alias{MaxQtoMSstatsTMTFormat}
-\title{Generate MSstatsTMT required input format for MaxQuant output}
+\title{Generate MSstatsTMT required input format from MaxQuant output}
 \usage{
-MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation, fraction = FALSE,
+MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation,
   which.proteinid = "Proteins", rmProt_Only.identified.by.site = FALSE,
   useUniquePeptide = TRUE, rmPSM_withMissing_withinRun = FALSE,
   rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE,
@@ -15,11 +15,9 @@ MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation, fraction = FALSE,
 
 \item{proteinGroups}{name of 'proteinGroups.txt' data.}
 
-\item{annotation}{data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.}
+\item{annotation}{data frame which contains column Run, Fraction, TechRepMixture, Mixture, Channel, BioReplicate, Condition. Refer to the example 'annotation.mq' for the meaning of each column.}
 
-\item{fraction}{indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.}
-
-\item{which.proteinid}{Use 'Proteins'(default) column for protein name. 'Leading.proteins' or 'Leading.razor.proteins' can be used instead. However, those can potentially have the shared peptides.}
+\item{which.proteinid}{Use 'Proteins'(default) column for protein name. 'Leading.proteins' or 'Leading.razor.proteins' or 'Gene.names' can be used instead to get the protein ID with single protein. However, those can potentially have the shared peptides.}
 
 \item{rmProt_Only.identified.by.site}{TRUE will remove proteins with '+' in 'Only.identified.by.site' column from proteinGroups.txt, which was identified only by a modification site. FALSE is the default.}
 

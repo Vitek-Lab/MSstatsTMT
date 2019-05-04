@@ -8,8 +8,7 @@
 #' @importFrom reshape2 melt
 #' @importFrom data.table as.data.table setkey rbindlist
 #' @param input data name of SpectroMine PSM output. Read PSM sheet.
-#' @param annotation data frame which contains column Run, Channel, Condition, BioReplicate, Mixture.
-#' @param fraction indicates whether the data has fractions. If there are fractions, then overlapped peptide ions will be removed and then fractions are combined for each mixture.
+#' @param annotation data frame which contains column Run, Fraction, TechRepMixture, Mixture, Channel, BioReplicate, Condition. Refer to the example 'annotation.mine' for the meaning of each column.
 #' @param filter_with_Qvalue TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with NA and will be considered as censored missing values for imputation purpose.
 #' @param qvalue_cutoff Cutoff for EG.Qvalue. default is 0.01.
 #' @param useUniquePeptide TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
@@ -26,7 +25,6 @@
 
 SpectroMinetoMSstatsTMTFormat <- function(input,
                                           annotation,
-                                          fraction = FALSE,
                                           filter_with_Qvalue = TRUE,
                                           qvalue_cutoff = 0.01,
                                           useUniquePeptide = TRUE,
@@ -40,7 +38,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
     ## 0. check input for annotation
     ################################################
     .check.annotation(annotation)
-    
+
     if (!all(unique(annotation$Run) %in% unique(input$R.FileName))) {
 
         stop("Please check the annotation file. 'Run' must be matched with 'R.FileName'. ")
@@ -288,7 +286,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
             message( paste0('** Annotation for Run : ', noruninfo[i, "Run"],
                             ", Channel : ", noruninfo[i, "Channel"], " are missed.") )
         }
-        stop('** Please add them to annotation file.')
+        stop('** Please add them to annotation file. If the channal doesn\'t have sample, please add NA.')
     }
 
     input.final <- data.frame("ProteinName" = input$ProteinName,
@@ -298,8 +296,10 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
                               "Channel" = as.factor(input$Channel),
                               "Condition" = as.factor(input$Condition),
                               "BioReplicate" = as.factor(input$BioReplicate),
-                              "Run" = as.factor(input$Run),
                               "Mixture" = as.factor(input$Mixture),
+                              "TechRepMixture" = as.factor(input$TechRepMixture),
+                              "Fraction" = as.factor(input$Fraction),
+                              "Run" = as.factor(input$Run),
                               "Intensity" = input$Intensity)
 
     input <- input.final
@@ -329,14 +329,16 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
     ##############################
     ## 10. combine fractions within each mixture
     ##############################
-    if (fraction) {
-
+    fractions <- unique(annotation$Fraction) # check the number of fractions in the input data
+    if (length(fractions) > 1) { # combine fractions
         input <- .combine.fractions(input)
         ## change data.table to data.frame, in order to make the same class for input, without fraction
         input <- as.data.frame(input)
         message('** Fractions belonging to same mixture have been combined.')
     }
 
+    input <- input[,c("ProteinName", "PeptideSequence", "Charge", "PSM",
+                      "Mixture", "TechRepMixture", "Run",
+                      "Channel", "BioReplicate", "Condition", "Intensity")]
     return(input)
 }
-
