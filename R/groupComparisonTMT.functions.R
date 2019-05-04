@@ -162,25 +162,26 @@
 
             } else{
                 if(!singleRun){# not single run case
-                    # single run case
+                    # run single run case as backup method
                     fit <- fit_reduced_model_onerun(sub_data) # fit linear model
 
-                    ## Get estimated fold change from mixed model
-                    coeff <- coef(fit$fixed)
-                    coeff[-1] <- coeff[-1] + coeff[1]
-
-                    ## Find the group name for baseline
-                    names(coeff) <- gsub("Group", "", names(coeff))
-                    names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
-
-                    ## Estimate the group variance from fixed model
-                    av <- anova(fit$fixed)
-                    MSE <- av["Residuals", "Mean Sq"]
-                    df <- av["Residuals", "Df"]
-                    s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
-                    df.post <- df + df.prior
-                    testable <- TRUE # mark the protein is testable
-
+                    if(!is.null(fit)){ # linear model is fittable
+                      ## Get estimated fold change from mixed model
+                      coeff <- coef(fit)
+                      coeff[-1] <- coeff[-1] + coeff[1]
+                      
+                      ## Find the group name for baseline
+                      names(coeff) <- gsub("Group", "", names(coeff))
+                      names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
+                      
+                      ## Estimate the group variance from fixed model
+                      av <- anova(fit)
+                      MSE <- av["Residuals", "Mean Sq"]
+                      df <- av["Residuals", "Df"]
+                      s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
+                      df.post <- df + df.prior
+                      testable <- TRUE # mark the protein is testable
+                    }
                 }
             }
 
