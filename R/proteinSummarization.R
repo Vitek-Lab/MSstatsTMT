@@ -80,9 +80,12 @@ proteinSummarization <- function(data,
 
     write.table(processout, file = finalfile, row.names = FALSE)
 
-    return(.protein.summarization.function(data,
-                                          method,
-                                          normalization,
-                                          MBimpute,
-                                          maxQuantileforCensored))
+    norm.protein.data <- .protein.summarization.function(data,
+                                                         method,
+                                                         normalization,
+                                                         MBimpute,
+                                                         maxQuantileforCensored)
+    
+    norm.protein.data <- norm.protein.data[norm.protein.data$Condition!="Empty",]
+    return(norm.protein.data)
 }

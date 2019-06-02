@@ -116,8 +116,8 @@ PDtoMSstatsTMTFormat <- function(input,
     colnames(input)[colnames(input) == 'Master.Protein.Accessions'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Protein.Accessions'] <- 'ProteinName'
 
-    colnames(input)[colnames(input) == 'X..Proteins'] <- 'numProtein'
-    colnames(input)[colnames(input) == 'X..Protein.Groups'] <- 'numProtein'
+    colnames(input)[colnames(input) %in% c('X..Proteins', '#.Proteins')] <- 'numProtein'
+    colnames(input)[colnames(input) %in% c('X..Protein.Groups', '#.Protein.Groups')] <- 'numProtein'
 
     colnames(input)[colnames(input) == 'Annotated.Sequence'] <- 'PeptideSequence'
     colnames(input)[colnames(input) == 'Spectrum.File'] <- 'Run'
@@ -136,6 +136,7 @@ PDtoMSstatsTMTFormat <- function(input,
     ################################################
     if (useNumProteinsColumn) {
 
+      
         ## remove rows with #proteins is not 1
         input <- input[input$numProtein == '1', ]
 
@@ -341,7 +342,7 @@ PDtoMSstatsTMTFormat <- function(input,
             message( paste0('** Annotation for Run : ', noruninfo[i, "Run"],
                             ", Channel : ", noruninfo[i, "Channel"], " are missed.") )
         }
-        stop('** Please add them to annotation file. If the channal doesn\'t have sample, please add NA.')
+        stop('** Please add them to annotation file. If the channal doesn\'t have sample, please add \'Empty\'.')
     }
 
     input.final <- data.frame("ProteinName" = input$ProteinName,
@@ -404,7 +405,7 @@ PDtoMSstatsTMTFormat <- function(input,
 .combine.fractions <- function(data){
 
     Mixture <- techrun <- ProteinName <- PeptideSequence <- Charge <- PSM <- TechRepMixture <- Channel <-
-      Condition <- BioReplicate <- Intensity <- fea <-  Run <- . <- NULL
+    Condition <- BioReplicate <- Intensity <- fea <-  Run <- . <- NULL
 
     # combine fractions for each technical replcate and each mixture
     data$techrun <- paste(data$Mixture, data$TechRepMixture, sep = "_")
@@ -430,28 +431,66 @@ PDtoMSstatsTMTFormat <- function(input,
         ## remove_peptide_ion : features that are measured in multiple fractions
         if (nrow(remove_peptide_ion) > 0) {
             # select the rows for the features that are measured in multiple fractions
-            tmp <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion$fea)
+            overlapped.feas <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion$fea)
 
-            # keep the fractions with maximum average PSM abundance
-            mean.frac.feature <- tmp %>% dplyr::group_by(fea, id) %>% dplyr::summarise(mean = mean(Intensity, na.rm = TRUE))
-            remove.fraction <- mean.frac.feature %>% dplyr::group_by(fea) %>% dplyr::filter(mean != max(mean))
-            filtered_sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction$id)
-
+            # keep the fractions with maximum average reporter ion abundance
+            mean.frac.feature <- overlapped.feas %>% 
+              dplyr::group_by(fea, id) %>% 
+              dplyr::summarise(mean = mean(Intensity, na.rm = TRUE))
+            remove.fraction <- mean.frac.feature %>% 
+              dplyr::group_by(fea) %>% 
+              dplyr::filter(mean != max(mean))
+            
+            # filter out the unused fractions
+            sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction$id)
+            
+            sub_structure <- sub_data %>% dplyr::select(fea, Run) %>% 
+              dplyr::group_by(fea) %>% 
+              dplyr::summarise(n = n_distinct(Run))
+            
+            structure_2 <- aggregate(Run ~ . , 
+                                       data = unique(as.data.table(sub_data)[,.(fea, Run)]), 
+                                       length)
+            
+            ## check if there are features which have same mean intensities across runs
+            remove_peptide_ion_2 <- structure_2[structure_2$Run > 1, ]
+            if(nrow(remove_peptide_ion_2) > 0) {
+              
+              # select the rows for the features that are measured in multiple fractions
+              overlapped.feas.2 <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion_2$fea)
+              
+              # keep the fractions with maximum summation reporter ion abundance
+              sum.frac.feature <- overlapped.feas.2 %>% 
+                dplyr::group_by(fea, id) %>% 
+                dplyr::summarise(sum = sum(Intensity, na.rm = TRUE))
+              remove.fraction.2 <- sum.frac.feature %>% 
+                dplyr::group_by(fea) %>% 
+                dplyr::filter(sum != max(sum))
+              
+              # filter out the unused fractions
+              sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction.2$id)
+              
+              rm(sum.frac.feature)
+              rm(remove.fraction.2)
+              rm(overlapped.feas.2)
+              
+            }
+            
             rm(mean.frac.feature)
             rm(remove.fraction)
-            rm(tmp)
+            rm(overlapped.feas)
+            
             message('** For peptides overlapped between fractions of ', techruns[i],
                     ', use the fraction with maximal average abundance.')
-        } else{
-            filtered_sub_data <- sub_data
-        }
+        } 
+        
         # Remove unnecessary columns
-        filtered_sub_data <- filtered_sub_data %>%
-            select(ProteinName, PeptideSequence, Charge, PSM,
+        sub_data <- sub_data %>%
+          dplyr::select(ProteinName, PeptideSequence, Charge, PSM,
                    Mixture, TechRepMixture, Run,
                    Channel, Condition, BioReplicate, Intensity)
 
-        all.data[[i]] <- as.data.table(filtered_sub_data)
+        all.data[[i]] <- as.data.table(sub_data)
     }
 
     data.shared.pep.rm <- rbindlist(all.data)

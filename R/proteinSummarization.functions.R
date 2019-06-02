@@ -119,7 +119,7 @@
         #Create a annotation to make sure there are no missing PSMs for each Run and Protein
         anno1 <- unique(data[, c("Run", "ProteinName", "PSM")])
         anno2 <- full_join(anno,anno1) %>%
-            select("Run", "ProteinName", "Channel", "PSM")
+          dplyr::select("Run", "ProteinName", "Channel", "PSM")
         data <- right_join(data, anno2) #runchannel+1 after this line
 
         #Create a annotation for "runchannel" sorted by Run and ProteinName
@@ -287,7 +287,7 @@
     # }
     #print(num.channels)
     mat <- as.matrix(c)
-    dim(mat) <- c(len / num.channels,num.channels)
+    dim(mat) <- c(len/num.channels, num.channels)
     meddata  <-  stats::medpolish(mat, na.rm = TRUE, trace.iter = FALSE)
     tmpresult <- meddata$overall + meddata$col
     return(tmpresult)

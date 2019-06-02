@@ -286,7 +286,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
             message( paste0('** Annotation for Run : ', noruninfo[i, "Run"],
                             ", Channel : ", noruninfo[i, "Channel"], " are missed.") )
         }
-        stop('** Please add them to annotation file. If the channal doesn\'t have sample, please add NA.')
+        stop('** Please add them to annotation file. If the channal doesn\'t have sample, please add \'Empty\'.')
     }
 
     input.final <- data.frame("ProteinName" = input$ProteinName,

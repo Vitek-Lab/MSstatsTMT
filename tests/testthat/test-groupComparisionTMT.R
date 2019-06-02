@@ -2,7 +2,7 @@ context("groupComparision")
 
 test_that("groupComparision works", {
   
-  output<-groupComparisonTMT(data = MSstatsTMT::quant.pd.msstats)
+  output<-groupComparisonTMT(data = MSstatsTMT::quant.pd.msstats, moderated = TRUE)
   expect_equal(output, MSstatsTMT::test.pairwise, tolerance=1e-5)
   
 })

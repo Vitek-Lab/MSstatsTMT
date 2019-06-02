@@ -132,7 +132,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
 
                 ## message if name of Protein is wrong.
                 if (length(levels(datafeature$Protein)) < max(which.Protein)) {
-                    stop(paste0("Please check your selection of proteins. There are ",
+                    stop(paste0("Please check your ion of proteins. There are ",
                                 length(levels(datafeature$Protein))," proteins in this dataset."))
                 }
             }
@@ -189,12 +189,12 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
         ## count # per condition per Run
         #groupline <- unique(datafeature[, c('Condition', 'Run')])
         #groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
-        groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis = n())
-        groupline <- groupline %>% select(-xorder, -Channel)
+        groupline <- tempGroupName %>% dplyr::group_by(Condition, Run) %>% dplyr::mutate(groupAxis = n())
+        groupline <- groupline %>% dplyr::select(-xorder, -Channel)
         groupline <- groupline[!duplicated(groupline), ]
 
         ## make accumurated # as condition increase
-        groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis = cumsum(groupAxis))
+        groupline <- groupline %>% dplyr::group_by(Run) %>% dplyr::mutate(cumGroupAxis = cumsum(groupAxis))
 
         groupline$cumGroupAxis <- groupline$cumGroupAxis + 0.5
 
@@ -572,12 +572,12 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
         ## count # per condition per Run
         #groupline <- unique(datafeature[, c('Condition', 'Run')])
         #groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
-        groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis = n())
-        groupline <- groupline %>% select(-xorder, -Channel)
+        groupline <- tempGroupName %>% dplyr::group_by(Condition, Run) %>% dplyr::mutate(groupAxis = n())
+        groupline <- groupline %>% dplyr::select(-xorder, -Channel)
         groupline <- groupline[!duplicated(groupline), ]
 
         ## make accumurated # as condition increase
-        groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis = cumsum(groupAxis))
+        groupline <- groupline %>% dplyr::group_by(Run) %>% dplyr::mutate(cumGroupAxis = cumsum(groupAxis))
 
         groupline$cumGroupAxis <- groupline$cumGroupAxis + 0.5
 
@@ -664,7 +664,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
                     ## message if name of Protein is wrong.
                     if (length(levels(datafeature$Protein)) < max(which.Protein)) {
                         dev.off()
-                        stop(paste0("Please check your selection of proteins. There are ",
+                        stop(paste0("Please check your ion of proteins. There are ",
                                     length(levels(datafeature$Protein)), " proteins in this dataset."))
                     }
                 }
