@@ -5,7 +5,8 @@
 \title{Summarizing PSM level quantification to protein level quantification}
 \usage{
 proteinSummarization(data, method = "msstats", normalization = TRUE,
-  MBimpute = TRUE, maxQuantileforCensored = NULL)
+  MBimpute = TRUE, maxQuantileforCensored = NULL,
+  remove_norm_channel = TRUE, remove_empty_channel = TRUE)
 }
 \arguments{
 \item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity}
@@ -17,6 +18,10 @@ proteinSummarization(data, method = "msstats", normalization = TRUE,
 \item{MBimpute}{only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each PSM.}
 
 \item{maxQuantileforCensored}{We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.}
+
+\item{remove_norm_channel}{TRUE(default) removes 'Norm' channels from protein level data.}
+
+\item{remove_empty_channel}{TRUE(default) removes 'Empty' channels from protein level data.}
 }
 \value{
 data.frame with protein-level summarization for each run and channel

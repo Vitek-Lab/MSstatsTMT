@@ -11,6 +11,8 @@
 #' @param normalization Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step. If data only has one run, then normalization=FALSE.
 #' @param MBimpute only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each PSM.
 #' @param maxQuantileforCensored We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
+#' @param remove_norm_channel TRUE(default) removes 'Norm' channels from protein level data.
+#' @param remove_empty_channel TRUE(default) removes 'Empty' channels from protein level data.
 #' @return data.frame with protein-level summarization for each run and channel
 #' @examples
 #' data(input.pd)
@@ -21,10 +23,12 @@
 #' head(quant.pd.msstats)
 
 proteinSummarization <- function(data,
-                                  method = 'msstats',
-                                  normalization = TRUE,
-                                  MBimpute = TRUE,
-                                  maxQuantileforCensored = NULL){
+                                 method = 'msstats',
+                                 normalization = TRUE,
+                                 MBimpute = TRUE,
+                                 maxQuantileforCensored = NULL,
+                                 remove_norm_channel = TRUE,
+                                 remove_empty_channel = TRUE){
 
     ## save process output in each step
     allfiles <- list.files()
@@ -78,6 +82,9 @@ proteinSummarization <- function(data,
     processout <- rbind(processout,
                         c(paste("Normalization between MS runs :", normalization)))
 
+    processout <- rbind(processout, c(paste("Remove 'Norm' channels before inference:", remove_norm_channel)))
+    processout <- rbind(processout, c(paste("Remove 'Empty' channels before inference:", remove_empty_channel)))
+    
     write.table(processout, file = finalfile, row.names = FALSE)
 
     norm.protein.data <- .protein.summarization.function(data,
@@ -86,6 +93,17 @@ proteinSummarization <- function(data,
                                                          MBimpute,
                                                          maxQuantileforCensored)
     
-    norm.protein.data <- norm.protein.data[norm.protein.data$Condition!="Empty",]
+    ## remove 'Empty' column : It should not used for further analysis
+    if (remove_empty_channel & is.element('Empty', unique(norm.protein.data$Condition))) {
+      norm.protein.data <- norm.protein.data[norm.protein.data$Condition != "Empty",]
+      norm.protein.data$Condition <- factor(norm.protein.data$Condition)
+    }
+    
+    ## remove 'Norm' column : It should not used for further analysis
+    if (remove_norm_channel & is.element('Norm', unique(norm.protein.data$Condition))) {
+      norm.protein.data <- norm.protein.data[norm.protein.data$Condition != "Norm",]
+      norm.protein.data$Condition <- factor(norm.protein.data$Condition)
+    }
+    
     return(norm.protein.data)
 }

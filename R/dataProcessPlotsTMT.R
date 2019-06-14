@@ -79,16 +79,27 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
 
     Condition = Run = xorder = Channel = NULL
     groupAxis = cumGroupAxis = abundance = analysis = NULL
+    
     datafeature <- data.psm
     datarun <- data.summarization
 
-    colnames(datafeature)[colnames(datafeature) == 'ProteinName'] <- 'Protein'
-    datafeature$Protein <- factor(datafeature$Protein)
-    datarun$Protein <- factor(datarun$Protein)
-
+    # conditions in feature data
+    fea.conds <- as.character(unique(datafeature$Condition))
+    # conditions in protein data
+    run.conds <- as.character(unique(datarun$Condition))
+    
+    # only keep the overlapped conditions between feature data and protein data
+    shared.conds <- intersect(fea.conds, run.conds)
+    datafeature <- datafeature[datafeature$Condition %in% shared.conds,]
+    datarun <- datarun[datarun$Condition %in% shared.conds,]
+    
     # make sure condition is factor
     datafeature$Condition <- factor(datafeature$Condition)
     datarun$Condition <- factor(datarun$Condition)
+    
+    colnames(datafeature)[colnames(datafeature) == 'ProteinName'] <- 'Protein'
+    datafeature$Protein <- factor(datafeature$Protein)
+    datarun$Protein <- factor(datarun$Protein)
 
     ## feature level data : log2 transform
     datafeature$abundance <- log2(datafeature$Intensity)

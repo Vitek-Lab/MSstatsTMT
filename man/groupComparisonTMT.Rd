@@ -5,14 +5,12 @@
 \title{Finding differentially abundant proteins across conditions in TMT experiment}
 \usage{
 groupComparisonTMT(data, contrast.matrix = "pairwise",
-  remove_norm_channel = TRUE, moderated = FALSE, adj.method = "BH")
+  moderated = FALSE, adj.method = "BH")
 }
 \arguments{
 \item{data}{Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Abundance.}
 
 \item{contrast.matrix}{Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.}
-
-\item{remove_norm_channel}{TRUE(default) removes 'Norm' channels for inference step.}
 
 \item{moderated}{TRUE will moderate t statistic; FALSE (default) uses ordinary t statistic.}
 
@@ -37,7 +35,7 @@ test.pairwise <- groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
 # Only compare condition 0.125 and 1
 levels(quant.pd.msstats$Condition)
 
-# 'Norm' should be not considered in the contrast
+# Compare condition 1 and 0.125
 comparison<-matrix(c(-1,0,0,1),nrow=1)
 
 # Set the names of each row

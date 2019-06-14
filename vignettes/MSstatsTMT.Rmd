@@ -123,6 +123,8 @@ Preprocess PSM data from SpectroMine and convert into the required input format 
 * `rmPSM_withfewMea_withinRun` : only for `rmPSM_withMissing_withinRun = FALSE`. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
 * `removeProtein_with1Peptide` : TRUE will remove the proteins which have only 1 peptide and charge. Default is FALSE.
 * `summaryforMultipleRows` : sum(default) or max - when there are multiple measurements for certain PSM in certain run, select the PSM with the largest summation or maximal value.
+* `remove_norm_channel` : TRUE(default) removes `Norm` channels from protein level data.
+* `remove_empty_channel` : TRUE(default) removes `Empty` channels from protein level data.
 
 
 #### Example
@@ -209,12 +211,25 @@ If address=FALSE, plot will be not saved as pdf file but showed in window.
 
 #### Example
 ```{r}
-## Profile plot
+## Profile plot without norm channnels and empty channels
 dataProcessPlotsTMT(data.psm = input.pd,
                      data.summarization = quant.msstats,
                      type = 'ProfilePlot',
-                     width = 21, # adjust the figure width since there are 15 TMT runs. 
+                     width = 21, # adjust the figure width since there are 15 TMT runs.
                      height = 7)
+
+# ## Profile plot with all the channels
+# quant.msstats.all <- proteinSummarization(input.pd,
+#                                       method="msstats",
+#                                       normalization=TRUE,
+#                                       remove_norm_channel=FALSE,
+#                                       remove_empty_channel=FALSE)
+# 
+# dataProcessPlotsTMT(data.psm = input.pd,
+#                      data.summarization = quant.msstats.all,
+#                      type = 'ProfilePlot',
+#                      width = 21, # adjust the figure width since there are 15 TMT runs.
+#                      height = 7)
 
 ## Quality control plot 
 # dataProcessPlotsTMT(data.psm=input.pd,
@@ -232,7 +247,6 @@ Tests for significant changes in protein abundance across conditions based on a 
 
 * `data` : Name of the output of proteinSummarization function. It should have columns named `Protein`, `TechRepMixture`,  `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Abundance`.
 * `contrast.matrix` : Comparison between conditions of interests. 1) default is `pairwise`, which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
-* `remove_norm_channel` : TRUE(default) removes `Norm` channels for inference step.
 * `moderated` : If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.
 * `adj.method` : adjusted method for multiple comparison. 'BH` is default.
 
@@ -243,9 +257,9 @@ Tests for significant changes in protein abundance across conditions based on a 
 test.pairwise <- groupComparisonTMT(quant.msstats)
 head(test.pairwise)
 
-# Only compare condition 0.125 and 1
+# Check the conditions in the protein data
 levels(quant.msstats$Condition)
-# 'Norm' should be not considered in the contrast
+# Only compare condition 0.125 and 1
 comparison<-matrix(c(-1,0,0,1),nrow=1)
 # Set the names of each row
 row.names(comparison)<-"1-0.125"
