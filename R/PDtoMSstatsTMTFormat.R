@@ -283,6 +283,7 @@ PDtoMSstatsTMTFormat <- function(input,
                             sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
                             sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
                             keepinfo.select <- rbind(keepinfo.select, sub5)
+                            
                         }
                         rm(sub5)
                     }

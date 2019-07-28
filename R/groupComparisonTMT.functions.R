@@ -90,35 +90,33 @@
         df <- df.all[i]
         
         if(!is.null(fit)){ ## check the model is fittable 
-          if(!is.na(fit)){  
-            # the protein is testable
-            if(class(fit) == "lm"){# single run case 
-              ## Get estimated fold change from mixed model
-              coeff <- coef(fit)
-              coeff[-1] <- coeff[-1] + coeff[1]
-              
-              ## Find the group name for baseline
-              names(coeff) <- gsub("Group", "", names(coeff))
-              names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
-              
-              s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
-              df.post <- df + df.prior
-              testable <- TRUE # mark the protein is testable
-              
-            } else{ # multiple run case
-              ## Get estimated fold change from mixed model
-              coeff <- fixed.effects(fit$mixed)
-              coeff[-1] <- coeff[-1] + coeff[1]
-              
-              # Find the group name for baseline
-              names(coeff) <- gsub("Group", "", names(coeff))
-              names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
-              
-              s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
-              df.post <- df + df.prior
-              testable <- TRUE # mark the protein is testable
-              
-            }
+          # the protein is testable
+          if(class(fit) == "lm"){# single run case 
+            ## Get estimated fold change from mixed model
+            coeff <- coef(fit)
+            coeff[-1] <- coeff[-1] + coeff[1]
+            
+            ## Find the group name for baseline
+            names(coeff) <- gsub("Group", "", names(coeff))
+            names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
+            
+            s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
+            df.post <- df + df.prior
+            testable <- TRUE # mark the protein is testable
+            
+          } else{ # multiple run case
+            ## Get estimated fold change from mixed model
+            coeff <- fixed.effects(fit$mixed)
+            coeff[-1] <- coeff[-1] + coeff[1]
+            
+            # Find the group name for baseline
+            names(coeff) <- gsub("Group", "", names(coeff))
+            names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
+            
+            s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
+            df.post <- df + df.prior
+            testable <- TRUE # mark the protein is testable
+            
           }
         }
         

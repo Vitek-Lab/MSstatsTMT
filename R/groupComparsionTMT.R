@@ -1,7 +1,7 @@
 #' Finding differentially abundant proteins across conditions in TMT experiment
 #'
 #' Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment.
-#' Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
+#' Experimental design of case-control study (patients are not repeatedly measured) is automatically determined based on proper statistical model.
 #'
 #' @export
 #' @param data Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Abundance.
@@ -14,7 +14,8 @@
 #' # use protein.summarization() to get protein abundance data
 #' quant.pd.msstats <- proteinSummarization(input.pd,
 #'                                        method="msstats",
-#'                                        normalization=TRUE)
+#'                                        global_norm=TRUE,
+#'                                        reference_norm=TRUE)
 #'
 #' test.pairwise <- groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
 #'
@@ -34,9 +35,9 @@
 #' moderated = TRUE)
 
 groupComparisonTMT <- function(data,
-                                contrast.matrix = 'pairwise',
-                                moderated = FALSE,
-                                adj.method = "BH"){
+                               contrast.matrix = 'pairwise',
+                               moderated = FALSE,
+                               adj.method = 'BH'){
 
     ## save process output in each step
     allfiles <- list.files()
@@ -93,7 +94,8 @@ groupComparisonTMT <- function(data,
 
     ## report which options are used.
     processout <- rbind(processout, c(paste("Moderated t-stat :", moderated)))
-   
+    processout <- rbind(processout, c(paste("Adjust p-value :", adj.method)))
+
     write.table(processout, file = finalfile, row.names = FALSE)
 
     ## Inference

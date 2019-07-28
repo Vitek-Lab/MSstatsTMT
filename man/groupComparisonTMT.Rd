@@ -21,14 +21,15 @@ data.frame with result of inference
 }
 \description{
 Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment.
-Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
+Experimental design of case-control study (patients are not repeatedly measured) is automatically determined based on proper statistical model.
 }
 \examples{
 data(input.pd)
 # use protein.summarization() to get protein abundance data
 quant.pd.msstats <- proteinSummarization(input.pd,
                                        method="msstats",
-                                       normalization=TRUE)
+                                       global_norm=TRUE,
+                                       reference_norm=TRUE)
 
 test.pairwise <- groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
 

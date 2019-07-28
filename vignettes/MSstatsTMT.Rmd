@@ -143,32 +143,40 @@ head(input.mine)
 
 ### 2.1. proteinSummarization()
 
-Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
-Then, normalization between MS runs using normalization channels will be implemented.
-In particular, protein summarization method `MSstats` assumes missing values are censored and then imputes the missing values before summarizing PSM level data into protein level data. Other methods, including `MedianPolish`, `Median` and `LogSum`, do not impute missing values.
+Global median normalization is first applied to peptide level quantification data (equalizing the medians across all the channels and MS runs). Protein-level summarization from peptide level quantification should be performed before testing differentially abundant proteins. Then, normalization between MS runs using normalization channels will be implemented. In particular, protein summarization method `MSstats` assumes missing values are censored and then imputes the missing values before summarizing peptide level data into protein level data. Other methods, including `MedianPolish`, `Median` and `LogSum`, do not impute missing values.
 
 #### Arguments
 
-* `data` : Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns named `Protein`, `PSM`, `TechRepMixture`, `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Intensity`.
+* `data` : Name of the output of PDtoMSstatsTMTFormat function or peptide-level quantified data from other tools. It should have columns named `Protein`, `PSM`, `TechRepMixture`, `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Intensity`.
 * `method` : Four different summarization methods to protein-level can be performed : `msstats`(default), `MedianPolish`, `Median`, `LogSum`.
-* `normalization` : Normalization between MS runs. TRUE(default) needs at least normalization channel in each MS run, annotated by `Norm` in Group column. It will be performed after protein-level summarization. FALSE will not perform normalization step.
-* `MBimpute` : only for `method = "msstats"`. TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each PSM.
+* `global_norm` :  Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. It will be performed before protein-level summarization.
+* `reference_norm` :  Reference channel based normalization between MS runs. TRUE(default) needs at least one reference channel in each MS run, annotated by `Norm` in Condtion column. It will be performed after protein-level summarization. FALSE will not perform this normalization step. If data only has one run, then reference_norm=FALSE.
+* `remove_norm_channel` :  TRUE(default) removes `Norm` channels from protein level data.
+* `remove_empty_channel` :  TRUE(default) removes `Empty` channels from protein level data.
+* `MBimpute` : only for `method = "msstats"`. TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each peptide precursor ion.
 * `maxQuantileforCensored` : We assume missing values are censored. `maxQuantileforCensored` is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
 
 #### Example
 ```{r message = FALSE , warning = FALSE}
 # use MSstats for protein summarization
 quant.msstats <- proteinSummarization(input.pd,
-                                       method="msstats",
-                                       normalization=TRUE)
+                                      method="msstats",
+                                      global_norm=TRUE,
+                                      reference_norm=TRUE,
+                                      remove_norm_channel = TRUE,
+                                      remove_empty_channel = TRUE)
 head(quant.msstats)
 
 # use Median for protein summarization
 # since median method doesn't impute missing values, 
 # we need to use the input data without missing values
 quant.median <- proteinSummarization(input.pd.no.miss,
-                                       method="Median",
-                                       normalization=TRUE)
+                                     method="Median",
+                                     global_norm=TRUE,
+                                     reference_norm=TRUE,
+                                     remove_norm_channel = TRUE,
+                                     remove_empty_channel = TRUE)
+
 head(quant.median)
 ```
 
@@ -183,7 +191,7 @@ Visualization for explanatory data analysis. To illustrate the quantitative data
 
 #### Arguments
 
-* `data.psm` : name of the data with PSM-level, which can be the output of converter functions (`PDtoMSstatsTMTFormat`, `MQtoMSstatsTMTFormat` and `SpectroMinetoMSstatsTMTFormat`).
+* `data.peptide` : name of the data with peptide-level, which can be the output of converter functions (`PDtoMSstatsTMTFormat`, `MQtoMSstatsTMTFormat` and `SpectroMinetoMSstatsTMTFormat`).
 * `data.summarization` : name of the data with protein-level, which can be the output of `proteinSummarization` function.
 * `type` : choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 "QCPlot" represents quality control plot of log intensities across MS runs.
@@ -212,7 +220,7 @@ If address=FALSE, plot will be not saved as pdf file but showed in window.
 #### Example
 ```{r}
 ## Profile plot without norm channnels and empty channels
-dataProcessPlotsTMT(data.psm = input.pd,
+dataProcessPlotsTMT(data.peptide = input.pd,
                      data.summarization = quant.msstats,
                      type = 'ProfilePlot',
                      width = 21, # adjust the figure width since there are 15 TMT runs.
@@ -225,14 +233,14 @@ dataProcessPlotsTMT(data.psm = input.pd,
 #                                       remove_norm_channel=FALSE,
 #                                       remove_empty_channel=FALSE)
 # 
-# dataProcessPlotsTMT(data.psm = input.pd,
+# dataProcessPlotsTMT(data.peptide = input.pd,
 #                      data.summarization = quant.msstats.all,
 #                      type = 'ProfilePlot',
 #                      width = 21, # adjust the figure width since there are 15 TMT runs.
 #                      height = 7)
 
 ## Quality control plot 
-# dataProcessPlotsTMT(data.psm=input.pd,
+# dataProcessPlotsTMT(data.peptide=input.pd,
                      # data.summarization=quant.msstats, 
                      # type='QCPlot',
                      # width = 21, # adjust the figure width since there are 15 TMT runs. 

@@ -8,7 +8,7 @@
     temp$Group <- factor(temp$Group)
     temp$Mixture <- factor(temp$Mixture)
     temp1 <- xtabs(~ Mixture+Group, data=temp)
-    singleSubject <- all(temp1 == "1")
+    singleSubject <- all(temp1 <= "1")
 
     return(singleSubject)
 }
@@ -178,7 +178,9 @@ fit_reduced_model_onerun <- function(data) {
   linear.models <- list() # linear models
   s2.all <- NULL # sigma^2
   df.all <- NULL # degree freedom
+  pro.all <- NULL # testable proteins
   ## do inference for each protein individually
+  count = 0 # count the testable proteins
   for(i in 1:length(proteins)) {
     
     message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
@@ -273,6 +275,7 @@ fit_reduced_model_onerun <- function(data) {
       
       ## estimate variance and df from linear models
       if(!is.null(fit)){ # the model is fittable
+        count <- count + 1
         if(class(fit) == "lm"){# single run case 
           ## Estimate the group variance from fixed model
           av <- anova(fit)
@@ -310,23 +313,14 @@ fit_reduced_model_onerun <- function(data) {
           }
         }
         
-        linear.models[[i]] <- fit 
+        linear.models[[count]] <- fit 
+        pro.all <-  c(pro.all, proteins[i])
         s2.all <- c(s2.all, MSE)
         df.all <- c(df.all, df)
         
-      } else{ # if the model is not fittable
-        linear.models[[i]] <- NA 
-        s2.all <- c(s2.all, NA)
-        df.all <- c(df.all, NA)
-      }
-      
-    } else{ # if the protein data is empty
-      linear.models[[i]] <- NA 
-      s2.all <- c(s2.all, NA)
-      df.all <- c(df.all, NA)
-      
-    }
+      } 
+    } 
   } # for each protein
   
-  return(list(protein = proteins, model = linear.models, s2 = s2.all, df = df.all))
+  return(list(protein = pro.all, model = linear.models, s2 = s2.all, df = df.all))
 }

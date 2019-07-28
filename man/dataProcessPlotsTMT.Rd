@@ -4,8 +4,7 @@
 \alias{dataProcessPlotsTMT}
 \title{Visualization for explanatory data analysis - TMT experiment}
 \usage{
-dataProcessPlotsTMT(data.psm = data.psm,
-  data.summarization = data.summarization, type = type,
+dataProcessPlotsTMT(data.peptide, data.summarization, type,
   ylimUp = FALSE, ylimDown = FALSE, x.axis.size = 10,
   y.axis.size = 10, text.size = 4, text.angle = 90,
   legend.size = 7, dot.size.profile = 2, ncol.guide = 5,
@@ -13,7 +12,7 @@ dataProcessPlotsTMT(data.psm = data.psm,
   originalPlot = TRUE, summaryPlot = TRUE, address = "")
 }
 \arguments{
-\item{data.psm}{name of the data with PSM-level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).}
+\item{data.peptide}{name of the data with peptide level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).}
 
 \item{data.summarization}{name of the data with protein-level, which can be the output of \code{\link{proteinSummarization}} function.}
 
@@ -69,18 +68,19 @@ and generate two types of figures in pdf files as output :
 \examples{
 data(input.pd)
 quant.msstats <- proteinSummarization(input.pd,
-                                         method="msstats",
-                                         normalization=TRUE)
+                                      method="msstats",
+                                      global_norm=TRUE,
+                                      reference_norm=TRUE)
 
 ## Profile plot
-dataProcessPlotsTMT(data.psm=input.pd,
-                     data.summarization=quant.msstats,
-                     type='ProfilePlot',
-                     width = 21,
-                     height = 7)
+dataProcessPlotsTMT(data.peptide=input.pd,
+                   data.summarization=quant.msstats,
+                   type='ProfilePlot',
+                   width = 21,
+                   height = 7)
 
 ## NottoRun: QC plot
-# dataProcessPlotsTMT(data.psm=input.pd,
+# dataProcessPlotsTMT(data.peptide=input.pd,
                     # data.summarization=quant.msstats,
                     # type='QCPlot',
                     # width = 21,

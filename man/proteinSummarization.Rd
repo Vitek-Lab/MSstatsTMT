@@ -2,39 +2,43 @@
 % Please edit documentation in R/proteinSummarization.R
 \name{proteinSummarization}
 \alias{proteinSummarization}
-\title{Summarizing PSM level quantification to protein level quantification}
+\title{Summarizing peptide level quantification to protein level quantification}
 \usage{
-proteinSummarization(data, method = "msstats", normalization = TRUE,
-  MBimpute = TRUE, maxQuantileforCensored = NULL,
-  remove_norm_channel = TRUE, remove_empty_channel = TRUE)
+proteinSummarization(data, method = "msstats", global_norm = TRUE,
+  reference_norm = TRUE, remove_norm_channel = TRUE,
+  remove_empty_channel = TRUE, MBimpute = TRUE,
+  maxQuantileforCensored = NULL)
 }
 \arguments{
-\item{data}{Name of the output of PDtoMSstatsTMTFormat function or PSM-level quantified data from other tools. It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity}
+\item{data}{Name of the output of PDtoMSstatsTMTFormat function or peptide-level quantified data from other tools. It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity}
 
 \item{method}{Four different summarization methods to protein-level can be performed : "msstats"(default), "MedianPolish", "Median", "LogSum".}
 
-\item{normalization}{Normalization between MS runs. TRUE(default) needs at least one normalization channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform normalization step. If data only has one run, then normalization=FALSE.}
+\item{global_norm}{Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. It will be performed before protein-level summarization.}
 
-\item{MBimpute}{only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each PSM.}
-
-\item{maxQuantileforCensored}{We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.}
+\item{reference_norm}{Reference channel based normalization between MS runs. TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform this normalization step. If data only has one run, then reference_norm=FALSE.}
 
 \item{remove_norm_channel}{TRUE(default) removes 'Norm' channels from protein level data.}
 
 \item{remove_empty_channel}{TRUE(default) removes 'Empty' channels from protein level data.}
+
+\item{MBimpute}{only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each peptide precursor ion.}
+
+\item{maxQuantileforCensored}{We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.}
 }
 \value{
 data.frame with protein-level summarization for each run and channel
 }
 \description{
-We assume missing values are censored and then impute the missing values. Protein-level summarization from PSM level quantification should be performed before testing differentially abundant proteins.
-After all, normalization between MS runs using normalization channels will be implemented.
+We assume missing values are censored and then impute the missing values. Protein-level summarization from peptide level quantification are performed.
+After all, global median normalization on peptide level data and normalization between MS runs using reference channels will be implemented.
 }
 \examples{
 data(input.pd)
 
 quant.pd.msstats <- proteinSummarization(input.pd,
                                          method="msstats",
-                                         normalization=TRUE)
+                                         global_norm=TRUE,
+                                         reference_norm=TRUE)
 head(quant.pd.msstats)
 }
