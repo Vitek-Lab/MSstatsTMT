@@ -299,7 +299,7 @@ fit_reduced_model_onerun <- function(data) {
               # use subject variance for testing
               MSE <- varcomp[varcomp$grp == "Subject:Group:Mixture", "vcov"]
               av <- anova(fit$fixed)
-              df <- av["Subject:Group:Mixture", "Df"] # degree of freedom
+              df <- av[rownames(av)[grepl("Subject",  rownames(av))], "Df"] # degree of freedom
               
             } else{ # single biological mixture
               # Estimate the group variance and df
@@ -307,7 +307,7 @@ fit_reduced_model_onerun <- function(data) {
               # use subject variance for testing
               MSE <- varcomp[varcomp$grp == "Subject:Group", "vcov"]
               av <- anova(fit$fixed)
-              df <- av["Subject:Group", "Df"] # degree of freedom
+              df <- av[rownames(av)[grepl("Subject",  rownames(av))], "Df"] # degree of freedom
               
             }
           }

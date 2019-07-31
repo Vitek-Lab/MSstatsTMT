@@ -156,8 +156,31 @@
             res[count, "Protein"] <- proteins[i] ## protein names
             res[count, "Comparison"] <- row.names(contrast.matrix)[j] ## comparison
             
-            # make sure all the groups in the contrast exist
-            if(all(colnames(contrast.matrix)[contrast.matrix[j,]!=0] %in% sub_groups) & testable){
+            # groups with positive coefficients
+            positive.groups <- colnames(contrast.matrix)[contrast.matrix[j,]>0]
+            # groups with negative coefficients
+            negative.groups <- colnames(contrast.matrix)[contrast.matrix[j,]<0]
+            # make sure at least one group from each side of the contrast exist
+            if(any(positive.groups %in% sub_groups) & 
+               any(negative.groups %in% sub_groups) & 
+               testable){
+              
+              # if some groups not exist in the protein data
+              if(length(sub_groups) < ncol(contrast.matrix)){
+                ## tune the coefficients of positive groups so that their summation is 1
+                temp <- contrast.matrix[j,sub_groups][contrast.matrix[j,sub_groups] > 0]
+                temp <- temp*(1/sum(temp, na.rm = TRUE))
+                contrast.matrix[j,sub_groups][contrast.matrix[j,sub_groups] > 0] <- temp
+                
+                ## tune the coefficients of positive groups so that their summation is 1
+                temp2 <- contrast.matrix[j,sub_groups][contrast.matrix[j,sub_groups] < 0]
+                temp2 <- temp2*abs(1/sum(temp2, na.rm = TRUE))
+                contrast.matrix[j,sub_groups][contrast.matrix[j,sub_groups] < 0] <- temp2
+                
+                ## set the coefficients of non-existing groups to zero
+                contrast.matrix[j,setdiff(colnames(contrast.matrix), sub_groups)] <- 0
+              }
+              
               ## calculate the size of each group
               group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n = sum(!is.na(Abundance)))
               group_df$Group <- as.character(group_df$Group)
