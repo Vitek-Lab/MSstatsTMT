@@ -184,6 +184,7 @@ fit_reduced_model_onerun <- function(data) {
   for(i in 1:length(proteins)) {
     
     message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
+    TEST <-  FALSE
     sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
     sub_data <- na.omit(sub_data) 
     if(nrow(sub_data) != 0){
@@ -275,13 +276,13 @@ fit_reduced_model_onerun <- function(data) {
       
       ## estimate variance and df from linear models
       if(!is.null(fit)){ # the model is fittable
-        count <- count + 1
         if(class(fit) == "lm"){# single run case 
           ## Estimate the group variance from fixed model
           av <- anova(fit)
           # use error variance for testing
           MSE <- av["Residuals", "Mean Sq"]
           df <- av["Residuals", "Df"]
+          TEST <-  TRUE
           
         } else{ ## fit linear mixed model
           if(fit$subject=="None"){ # no technical replicates
@@ -291,33 +292,42 @@ fit_reduced_model_onerun <- function(data) {
             MSE <- varcomp[varcomp$grp == "Residual", "vcov"] 
             av <- anova(fit$fixed)
             df <- av["Residuals", "Df"] # degree of freedom
+            TEST <-  TRUE
             
           } else{ # multiple technical replicates
             if(fit$subject=="Subject:Group:Mixture"){ # multiple biological mixtures
               # Estimate the group variance and df
               varcomp <- as.data.frame(VarCorr(fit$mixed))
-              # use subject variance for testing
-              MSE <- varcomp[varcomp$grp == "Subject:Group:Mixture", "vcov"]
               av <- anova(fit$fixed)
-              df <- av[rownames(av)[grepl("Subject",  rownames(av))], "Df"] # degree of freedom
-              
+              if(any(grepl("Subject",  rownames(av)))){
+                # use subject variance for testing
+                MSE <- varcomp[varcomp$grp == "Subject:Group:Mixture", "vcov"]
+                df <- av[rownames(av)[grepl("Subject",  rownames(av))], "Df"] # degree of freedom
+                TEST <-  TRUE
+                
+              }
             } else{ # single biological mixture
               # Estimate the group variance and df
               varcomp <- as.data.frame(VarCorr(fit$mixed))
-              # use subject variance for testing
-              MSE <- varcomp[varcomp$grp == "Subject:Group", "vcov"]
               av <- anova(fit$fixed)
-              df <- av[rownames(av)[grepl("Subject",  rownames(av))], "Df"] # degree of freedom
-              
+              if(any(grepl("Subject",  rownames(av)))){
+                # use subject variance for testing
+                MSE <- varcomp[varcomp$grp == "Subject:Group", "vcov"]
+                df <- av[rownames(av)[grepl("Subject",  rownames(av))], "Df"] # degree of freedom
+                TEST <-  TRUE
+                
+              }
             }
           }
         }
         
-        linear.models[[count]] <- fit 
-        pro.all <-  c(pro.all, proteins[i])
-        s2.all <- c(s2.all, MSE)
-        df.all <- c(df.all, df)
-        
+        if(TEST){ # make sure all the parameters are estimable
+          count <- count + 1
+          linear.models[[count]] <- fit 
+          pro.all <-  c(pro.all, proteins[i])
+          s2.all <- c(s2.all, MSE)
+          df.all <- c(df.all, df)
+        }
       } 
     } 
   } # for each protein

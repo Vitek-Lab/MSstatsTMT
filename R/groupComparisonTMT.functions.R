@@ -78,7 +78,7 @@
       ## get the data for protein i
       sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
       sub_data <- na.omit(sub_data)
-      
+      ## record the contrast matrix for each protein
       sub.contrast.matrix <- contrast.matrix
       
       if(nrow(sub_data) != 0){
