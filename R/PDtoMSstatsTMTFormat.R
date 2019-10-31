@@ -84,9 +84,9 @@ PDtoMSstatsTMTFormat <- function(input,
 
     # Find the corresponding number of proteins or protein groups for each peptide ions
     if (which.pro == 'Protein.Accessions') {
-        which.NumProteins <- 'X..Proteins'
+        which.NumProteins <- c('X..Proteins', '#.Proteins', 'Number.of.Proteins')
     } else if ( which.pro == 'Master.Protein.Accessions') {
-        which.NumProteins <- 'X..Protein.Groups'
+        which.NumProteins <- c('X..Protein.Groups', '#.Protein.Groups', 'Number.of.Protein.Groups')
     }
 
     ################################################
@@ -96,7 +96,7 @@ PDtoMSstatsTMTFormat <- function(input,
     input <- as.data.frame(input)
 
     # For PD 2.2. It needs to update for new version of PD.
-    check.column.start <- 'Abundance..'
+    check.column.start <- 'Abundance'
     check.column.end <- ''
     if(sum(startsWith(colnames(input), check.column.start) &
            endsWith(colnames(input), check.column.end)) == 0) {
@@ -116,8 +116,8 @@ PDtoMSstatsTMTFormat <- function(input,
     colnames(input)[colnames(input) == 'Master.Protein.Accessions'] <- 'ProteinName'
     colnames(input)[colnames(input) == 'Protein.Accessions'] <- 'ProteinName'
 
-    colnames(input)[colnames(input) %in% c('X..Proteins', '#.Proteins')] <- 'numProtein'
-    colnames(input)[colnames(input) %in% c('X..Protein.Groups', '#.Protein.Groups')] <- 'numProtein'
+    colnames(input)[colnames(input) %in% which.NumProteins] <- 'numProtein'
+    colnames(input)[colnames(input) %in% which.NumProteins] <- 'numProtein'
 
     colnames(input)[colnames(input) == 'Annotated.Sequence'] <- 'PeptideSequence'
     colnames(input)[colnames(input) == 'Spectrum.File'] <- 'Run'
@@ -326,6 +326,7 @@ PDtoMSstatsTMTFormat <- function(input,
     ##############################
     # match the channels from input with that in annotation file
     input$Channel <- gsub(check.column.start, "", input$Channel)
+    input$Channel <- gsub("\\.", "", input$Channel)
     input$Channel <- gsub(check.column.end, "", input$Channel)
 
     if (!all(unique(annotation$Channel) %in% unique(input$Channel))) {
