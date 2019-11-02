@@ -1,12 +1,11 @@
 #' Finding differentially abundant proteins across conditions in TMT experiment
 #'
 #' Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment.
-#' Experimental design of case-control study (patients are not repeatedly measured) or time course study (patients are repeatedly measured) is automatically determined based on proper statistical model.
+#' Experimental design of case-control study (patients are not repeatedly measured) is automatically determined based on proper statistical model.
 #'
 #' @export
 #' @param data Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Abundance.
 #' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
-#' @param remove_norm_channel TRUE(default) removes 'Norm' channels for inference step.
 #' @param moderated TRUE will moderate t statistic; FALSE (default) uses ordinary t statistic.
 #' @param adj.method adjusted method for multiple comparison. "BH" is default.
 #' @return data.frame with result of inference
@@ -15,14 +14,15 @@
 #' # use protein.summarization() to get protein abundance data
 #' quant.pd.msstats <- proteinSummarization(input.pd,
 #'                                        method="msstats",
-#'                                        normalization=TRUE)
+#'                                        global_norm=TRUE,
+#'                                        reference_norm=TRUE)
 #'
 #' test.pairwise <- groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
 #'
 #' # Only compare condition 0.125 and 1
 #' levels(quant.pd.msstats$Condition)
 #'
-#' # 'Norm' should be not considered in the contrast
+#' # Compare condition 1 and 0.125
 #' comparison<-matrix(c(-1,0,0,1),nrow=1)
 #'
 #' # Set the names of each row
@@ -35,10 +35,9 @@
 #' moderated = TRUE)
 
 groupComparisonTMT <- function(data,
-                                contrast.matrix = 'pairwise',
-                                remove_norm_channel = TRUE,
-                                moderated = FALSE,
-                                adj.method = "BH"){
+                               contrast.matrix = 'pairwise',
+                               moderated = FALSE,
+                               adj.method = 'BH'){
 
     ## save process output in each step
     allfiles <- list.files()
@@ -94,16 +93,10 @@ groupComparisonTMT <- function(data,
     colnames(data)[colnames(data) == 'Condition'] <- 'Group'
 
     ## report which options are used.
-    processout <- rbind(processout, c(paste("Remove 'Norm' channels before inference:", remove_norm_channel)))
     processout <- rbind(processout, c(paste("Moderated t-stat :", moderated)))
+    processout <- rbind(processout, c(paste("Adjust p-value :", adj.method)))
 
     write.table(processout, file = finalfile, row.names = FALSE)
-
-    ## remove 'Norm' column : It should not used for inference
-    if (remove_norm_channel & is.element('Norm', unique(data$Group))) {
-        data <- data[data$Group != "Norm",]
-        data$Group <- factor(data$Group)
-    }
 
     ## Inference
     result <- .proposed.model(data, moderated, contrast.matrix, adj.method)

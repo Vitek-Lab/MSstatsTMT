@@ -12,7 +12,7 @@
 #' @importFrom grDevices dev.off hcl pdf
 #' @importFrom dplyr mutate
 #' @importFrom reshape2 dcast
-#' @param data.psm name of the data with PSM-level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).
+#' @param data.peptide name of the data with peptide level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).
 #' @param data.summarization name of the data with protein-level, which can be the output of \code{\link{proteinSummarization}} function.
 #' @param type choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 #' "QCPlot" represents box plots of log intensities across channels and MS runs.
@@ -41,26 +41,27 @@
 #' @examples
 #' data(input.pd)
 #' quant.msstats <- proteinSummarization(input.pd,
-#'                                          method="msstats",
-#'                                          normalization=TRUE)
+#'                                       method="msstats",
+#'                                       global_norm=TRUE,
+#'                                       reference_norm=TRUE)
 #'
 #' ## Profile plot
-#' dataProcessPlotsTMT(data.psm=input.pd,
-#'                      data.summarization=quant.msstats,
-#'                      type='ProfilePlot',
-#'                      width = 21,
-#'                      height = 7)
+#' dataProcessPlotsTMT(data.peptide=input.pd,
+#'                    data.summarization=quant.msstats,
+#'                    type='ProfilePlot',
+#'                    width = 21,
+#'                    height = 7)
 #'
 #' ## NottoRun: QC plot
-#' # dataProcessPlotsTMT(data.psm=input.pd,
+#' # dataProcessPlotsTMT(data.peptide=input.pd,
 #'                     # data.summarization=quant.msstats,
 #'                     # type='QCPlot',
 #'                     # width = 21,
 #'                     # height = 7)
 
-dataProcessPlotsTMT <- function(data.psm = data.psm,
-                                 data.summarization = data.summarization,
-                                 type = type,
+dataProcessPlotsTMT <- function(data.peptide,
+                                 data.summarization,
+                                 type,
                                  ylimUp = FALSE,
                                  ylimDown = FALSE,
                                  x.axis.size = 10,
@@ -78,17 +79,29 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
                                  address = "") {
 
     Condition = Run = xorder = Channel = NULL
+    PeptideSequence = PSM = NULL
     groupAxis = cumGroupAxis = abundance = analysis = NULL
-    datafeature <- data.psm
+    
+    datafeature <- data.peptide
     datarun <- data.summarization
 
-    colnames(datafeature)[colnames(datafeature) == 'ProteinName'] <- 'Protein'
-    datafeature$Protein <- factor(datafeature$Protein)
-    datarun$Protein <- factor(datarun$Protein)
-
+    # conditions in feature data
+    fea.conds <- as.character(unique(datafeature$Condition))
+    # conditions in protein data
+    run.conds <- as.character(unique(datarun$Condition))
+    
+    # only keep the overlapped conditions between feature data and protein data
+    shared.conds <- intersect(fea.conds, run.conds)
+    datafeature <- datafeature[datafeature$Condition %in% shared.conds,]
+    datarun <- datarun[datarun$Condition %in% shared.conds,]
+    
     # make sure condition is factor
     datafeature$Condition <- factor(datafeature$Condition)
     datarun$Condition <- factor(datarun$Condition)
+    
+    colnames(datafeature)[colnames(datafeature) == 'ProteinName'] <- 'Protein'
+    datafeature$Protein <- factor(datafeature$Protein)
+    datarun$Protein <- factor(datarun$Protein)
 
     ## feature level data : log2 transform
     datafeature$abundance <- log2(datafeature$Intensity)
@@ -132,7 +145,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
 
                 ## message if name of Protein is wrong.
                 if (length(levels(datafeature$Protein)) < max(which.Protein)) {
-                    stop(paste0("Please check your selection of proteins. There are ",
+                    stop(paste0("Please check your ion of proteins. There are ",
                                 length(levels(datafeature$Protein))," proteins in this dataset."))
                 }
             }
@@ -170,7 +183,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
         ## potentially change it.
         datafeature$xorder <- NA
 
-        for (k in 1:length(unique(datafeature$Run))) {
+        for (k in seq_along(unique(datafeature$Run))) {
 
             runid <- unique(datafeature$Run)[k]
             datafeature[datafeature$Run == runid, ]$xorder <- factor(datafeature[datafeature$Run == runid, ]$group.channel,
@@ -189,12 +202,12 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
         ## count # per condition per Run
         #groupline <- unique(datafeature[, c('Condition', 'Run')])
         #groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
-        groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis = n())
-        groupline <- groupline %>% select(-xorder, -Channel)
+        groupline <- tempGroupName %>% dplyr::group_by(Condition, Run) %>% dplyr::mutate(groupAxis = n())
+        groupline <- groupline %>% dplyr::select(-xorder, -Channel)
         groupline <- groupline[!duplicated(groupline), ]
 
         ## make accumurated # as condition increase
-        groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis = cumsum(groupAxis))
+        groupline <- groupline %>% dplyr::group_by(Run) %>% dplyr::mutate(cumGroupAxis = cumsum(groupAxis))
 
         groupline$cumGroupAxis <- groupline$cumGroupAxis + 0.5
 
@@ -247,7 +260,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
 
             ## factoring for run, channel, condition should be done before loop
 
-            for (i in 1:nlevels(datafeature$Protein)) {
+            for (i in seq_len(nlevels(datafeature$Protein))) {
 
                 sub <- datafeature[datafeature$Protein == levels(datafeature$Protein)[i], ]
                 sub$PeptideSequence <- factor(as.character(sub$PeptideSequence))
@@ -280,7 +293,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
                 ## unique peptide sequence id, for color
                 s <- NULL
 
-                for (j in 1:length(temp1)) {
+                for (j in seq_along(temp1)) {
                     temp3 <- rep(j, temp1[j])
                     s <- c(s, temp3)
                     temp2 <- seq(1, temp1[j])
@@ -377,7 +390,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
                 pdf(finalfile, width = width, height = height)
             }
 
-            for (i in 1:nlevels(datafeature$Protein)) {
+            for (i in seq_len(nlevels(datafeature$Protein))) {
 
                 sub <- datafeature[datafeature$Protein == levels(datafeature$Protein)[i], ]
                 sub$PeptideSequence <- factor(as.character(sub$PeptideSequence))
@@ -553,7 +566,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
         ## potentially change it.
         datafeature$xorder <- NA
 
-        for (k in 1:length(unique(datafeature$Run))) {
+        for (k in seq_along(unique(datafeature$Run))) {
 
             runid <- unique(datafeature$Run)[k]
             datafeature[datafeature$Run == runid, ]$xorder <- factor(datafeature[datafeature$Run == runid, ]$group.channel,
@@ -572,12 +585,12 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
         ## count # per condition per Run
         #groupline <- unique(datafeature[, c('Condition', 'Run')])
         #groupline$groupAxis <- as.numeric(xtabs(~Condition+Run, tempGroupName))
-        groupline <- tempGroupName %>% group_by(Condition, Run) %>% mutate(groupAxis = n())
-        groupline <- groupline %>% select(-xorder, -Channel)
+        groupline <- tempGroupName %>% dplyr::group_by(Condition, Run) %>% dplyr::mutate(groupAxis = n())
+        groupline <- groupline %>% dplyr::select(-xorder, -Channel)
         groupline <- groupline[!duplicated(groupline), ]
 
         ## make accumurated # as condition increase
-        groupline <- groupline %>% group_by(Run) %>% mutate(cumGroupAxis = cumsum(groupAxis))
+        groupline <- groupline %>% dplyr::group_by(Run) %>% dplyr::mutate(cumGroupAxis = cumsum(groupAxis))
 
         groupline$cumGroupAxis <- groupline$cumGroupAxis + 0.5
 
@@ -664,7 +677,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
                     ## message if name of Protein is wrong.
                     if (length(levels(datafeature$Protein)) < max(which.Protein)) {
                         dev.off()
-                        stop(paste0("Please check your selection of proteins. There are ",
+                        stop(paste0("Please check your ion of proteins. There are ",
                                     length(levels(datafeature$Protein)), " proteins in this dataset."))
                     }
                 }
@@ -674,7 +687,7 @@ dataProcessPlotsTMT <- function(data.psm = data.psm,
                 datafeature$Protein <- factor(datafeature$Protein)
             }
 
-            for (i in 1:nlevels(datafeature$Protein)) {
+            for (i in seq_len(nlevels(datafeature$Protein))) {
                 sub <- datafeature[datafeature$Protein == levels(datafeature$Protein)[i], ]
                 sub <- sub[!is.na(sub$abundance), ]
 

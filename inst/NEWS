@@ -1,3 +1,23 @@
+CHANGES IN VERSION 1.4.1 [2019-10-31]
+-------------------------
+    UPDATED FEATURES
+	 - Fix the bug in the PDtoMSstatsTMTFormat() due to different PD version
+
+CHANGES IN VERSION 1.2.7 [2019-08-22]
+-------------------------
+    UPDATED FEATURES
+	 - Update normalization options in proteinSummarization() function, including global protein normalization and local peptide normalization with respect to reference channel
+	 - Fix the bug in the contrast comparison of groupComparisonTMT() function.
+
+
+CHANGES IN VERSION 1.2.2 [2019-06-03]
+-------------------------
+    UPDATED FEATURES
+	 - Update the linear modeling in groupComparisonTMT() function. Implement 5 linear 		models.
+	 - Update the format of annotation file. If the channel has no sample, add 'Empty'   		under condition and BioReplicate columns.
+
+
+
 CHANGES IN VERSION 1.2.0 [2019-05-03]
 -------------------------
     UPDATED FEATURES

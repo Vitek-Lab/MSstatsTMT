@@ -12,10 +12,6 @@
 
     Abundance <- Group <- Protein <- NULL
 
-    data$Protein <- as.character(data$Protein) ## make sure protein names are character
-    proteins <- as.character(unique(data$Protein)) ## proteins
-    num.protein <- length(proteins)
-
     ## contrast matrix can be matrix or character vector.
     contrast.pairwise <- TRUE
     if(is.matrix(contrast.matrix)){
@@ -41,226 +37,193 @@
         ncomp <- nrow(contrast.matrix)
     }
 
-    ## Record the annotation information
-    annotation <- unique(data[!is.na(data$Abundance), c('Run', 'Channel', 'Subject',
-                                                        'Group', 'Mixture', 'TechRepMixture')])
-
-    ## check the experimental design
-    singleSubject <- .checkSingleSubject(annotation)
-    TechReplicate <- .checkTechReplicate(annotation)
-    bioMixture <- .checkMulBioMixture(annotation)
-    singleRun <- .checkSingleRun(annotation)
-
+    ## fit the linear model for each protein
+    fitted.models <- .linear.model.fitting(data)
+    
     ## perform empirical bayes moderation
     if(moderated){ ## moderated t statistic
-        n_full <- nrow(annotation)
-        ## get the proteins without any missing values
-        complete_proteins <- data %>%
-            filter(!is.na(Abundance)) %>%
-            group_by(Protein) %>%
-            summarise(n = n()) %>%
-            filter(n == n_full)
-        ## group data by proteins
-        complete_data <- data %>%
-            filter(Protein %in% complete_proteins$Protein)
 
-        ## Estimate the prior variance and degree freedom
-        para <- .estimate.prior.var(complete_data,
-                                    bioMixture,
-                                    TechReplicate,
-                                    singleSubject,
-                                    singleRun)
-        s2.prior <- para$s2.prior
-        df.prior <- para$df.prior
+      ## Estimate the prior variance and degree freedom
+      eb_fit <- limma::squeezeVar(fitted.models$s2, fitted.models$df)
+        
+      if(is.infinite(eb_fit$df.prior)){
+        df.prior = 0
+        s2.prior = 0
+      } else{
+        df.prior = eb_fit$df.prior
+        s2.prior = eb_fit$var.prior
+      }
+      
     } else { ## ordinary t statistic
         s2.prior <- 0
         df.prior <- 0
+        
     }
 
-    res <- as.data.frame(matrix(rep(NA, 6 * length(proteins) * ncomp), ncol = 6)) ## store the inference results
+    proteins <- fitted.models$protein # proteins
+    num.protein <- length(proteins)
+    res <- as.data.frame(matrix(rep(NA, 6 * num.protein * ncomp), ncol = 6)) ## store the inference results
     colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF")
     data$Group <- as.factor(data$Group) # make sure group is factor
     data$Run <- as.factor(data$Run)
     count <- 0
 
+    s2.all <- fitted.models$s2  # group variance
+    df.all <- fitted.models$df  # degree freedom
+    lms <- fitted.models$model # linear models
     nrun <- length(unique(data$Run)) # check the number of MS runs in the data
-    ## do inference for each protein individually
-    for(i in 1:length(proteins)) {
-
-        message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
-        sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
-        sub_data <- na.omit(sub_data)
-        if(nrow(sub_data) != 0){
-
-            sub_groups <- as.character(unique(sub_data$Group)) # groups in the sub data
-            sub_groups <- sort(sub_groups) # sort the groups based on alphabetic order
-            testable <- FALSE ## Indicate whether the protein is testable
-
-            ## fit the linear model based on experimental design
-            if (bioMixture) {  ## multiple biological mixtures
-                if (!TechReplicate | singleSubject) { # no biological variation
-                    fit <- fit_reduced_model_biomixture(sub_data) # fit linear model
-
-                } else { # biological variation
-                    fit <- fit_full_model(sub_data) # fit linear model
-
-                }
-            } else { ## single biological mixture
-                if (singleSubject) { # each condition has one subject
-                    fit <- fit_reduced_model_biomixture(sub_data) # fit linear model
-
-                } else { ## more than one subject per group
-                    if (TechReplicate) {
-                        # with technical replicates
-                        fit <- fit_reduced_model_techrep(sub_data) # fit linear model
-
-                    } else {
-                        # single run case
-                        fit <- fit_reduced_model_onerun(sub_data) # fit linear model
-
-                    }
-                }
-            } ## single biological mixture
-
-            ## estimate variance and df from linear models
-            if(!is.null(fit)){
-                if(singleRun){# single run case and linear fixed model
-                    ## Get estimated fold change from mixed model
-                    coeff <- coef(fit)
-                    coeff[-1] <- coeff[-1] + coeff[1]
-
-                    ## Find the group name for baseline
-                    names(coeff) <- gsub("Group", "", names(coeff))
-                    names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
-
-                    ## Estimate the group variance from fixed model
-                    av <- anova(fit)
-                    MSE <- av["Residuals", "Mean Sq"]
-                    df <- av["Residuals", "Df"]
-                    s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
-                    df.post <- df + df.prior
-                    testable <- TRUE # mark the protein is testable
-
-                } else{ ## linear mixed model
-                    ## Get estimated fold change from mixed model
-                    coeff <- fixed.effects(fit$mixed)
-                    coeff[-1] <- coeff[-1] + coeff[1]
-
-                    # Find the group name for baseline
-                    names(coeff) <- gsub("Group", "", names(coeff))
-                    names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
-
-                    # Estimate the group variance and df
-                    varcomp <- as.data.frame(VarCorr(fit$mixed))
-                    MSE <- varcomp[varcomp$grp == "Residual", "vcov"]
-                    av <- anova(fit$fixed)
-                    df <- av["Residuals", "Df"] # degree of freedom
-                    s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
-                    df.post <- df + df.prior
-                    testable <- TRUE # mark the protein is testable
-                }
-
-            } else{
-                if(!singleRun){# not single run case
-                    # run single run case as backup method
-                    fit <- fit_reduced_model_onerun(sub_data) # fit linear model
-
-                    if(!is.null(fit)){ # linear model is fittable
-                      ## Get estimated fold change from mixed model
-                      coeff <- coef(fit)
-                      coeff[-1] <- coeff[-1] + coeff[1]
-                      
-                      ## Find the group name for baseline
-                      names(coeff) <- gsub("Group", "", names(coeff))
-                      names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
-                      
-                      ## Estimate the group variance from fixed model
-                      av <- anova(fit)
-                      MSE <- av["Residuals", "Mean Sq"]
-                      df <- av["Residuals", "Df"]
-                      s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
-                      df.post <- df + df.prior
-                      testable <- TRUE # mark the protein is testable
-                    }
-                }
-            }
-
-            if(contrast.pairwise){ ## Pairwise comparison
-
-                for(j in 1:(length(sub_groups)-1)){
-                    for(k in (j+1):length(sub_groups)){
-                        count <- count + 1
-                        res[count, "Protein"] <- proteins[i] ## protein names
-                        res[count, "Comparison"] <- paste(sub_groups[j], sub_groups[k], sep = "-") ## comparison
-
-                        if(testable){
-                            g1_df <- nrow(sub_data %>% dplyr::filter(Group == sub_groups[j])) ## size of group 1
-                            g2_df <- nrow(sub_data %>% dplyr::filter(Group == sub_groups[k])) ## size of group 2
-                            variance <- s2.post*sum(1/g1_df + 1/g2_df) ## variance of diff
-                            FC <- coeff[sub_groups[j]] - coeff[sub_groups[k]] ## fold change
-                            res[count, "log2FC"] <- FC
-                            ## Calculate the t statistic
-                            t <- FC/sqrt(variance) ## t statistic
-                            p <- 2*pt(-abs(t), df = df.post) ## p value
-                            res[count, "pvalue"] <- p
-                            res[count, "SE"] <- sqrt(variance) ## se
-                            res[count, "DF"] <- df.post
-                        } else{
-                            res[count, "log2FC"] <- NA
-                            res[count, "pvalue"] <- NA
-                            res[count, "SE"] <- NA
-                            res[count, "DF"] <- NA
-                        }
-                    }
-                }
-            } else { ## Compare one specific contrast
-
-                for(j in 1:nrow(contrast.matrix)){
-                    count <- count + 1
-                    res[count, "Protein"] <- proteins[i] ## protein names
-                    res[count, "Comparison"] <- row.names(contrast.matrix)[j] ## comparison
-
-                    # make sure all the groups in the contrast exist
-                    if(all(colnames(contrast.matrix)[contrast.matrix[j,]!=0] %in% sub_groups) & testable){
-
-                        ## size of each group
-                        group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n = sum(!is.na(Abundance)))
-                        group_df$Group <- as.character(group_df$Group)
-
-                        ## variance of diff
-                        variance <- s2.post * sum((1/group_df$n) * ((contrast.matrix[j, group_df$Group])^2))
-                        FC <- sum(coeff*(contrast.matrix[j, names(coeff)])) # fold change
-                        res[count, "log2FC"] <- FC
-
-                        ## Calculate the t statistic
-                        t <- FC/sqrt(variance)
-
-                        ## calculate p-value
-                        p <- 2*pt(-abs(t), df = df.post)
-                        res[count, "pvalue"] <- p
-
-                        ## SE
-                        res[count, "SE"] <- sqrt(variance)
-                        res[count, "DF"] <- df.post
-
-                    } else{
-                        res[count, "log2FC"] <- NA
-                        res[count, "pvalue"] <- NA
-                        res[count, "SE"] <- NA
-                        res[count, "DF"] <- NA
-                    }
-                }
-            }
+    for(i in seq_along(lms)){
+      message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
+      
+      ## get the data for protein i
+      sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
+      sub_data <- na.omit(sub_data)
+      ## record the contrast matrix for each protein
+      sub.contrast.matrix <- contrast.matrix
+      
+      if(nrow(sub_data) != 0){
+        sub_groups <- as.character(unique(sub_data$Group)) # groups in the sub data
+        sub_groups <- sort(sub_groups) # sort the groups based on alphabetic order
+        testable <- FALSE ## Indicate whether the protein is testable
+        
+        ## get the linear model for protein i 
+        fit <- lms[[i]]
+        MSE <- s2.all[i]
+        df <- df.all[i]
+        
+        if(!is.null(fit)){ ## check the model is fittable 
+          # the protein is testable
+          if(class(fit) == "lm"){# single run case 
+            ## Get estimated fold change from mixed model
+            coeff <- coef(fit)
+            coeff[-1] <- coeff[-1] + coeff[1]
+            
+            ## Find the group name for baseline
+            names(coeff) <- gsub("Group", "", names(coeff))
+            names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
+            
+            s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
+            df.post <- df + df.prior
+            testable <- TRUE # mark the protein is testable
+            
+          } else{ # multiple run case
+            ## Get estimated fold change from mixed model
+            coeff <- fixed.effects(fit$mixed)
+            coeff[-1] <- coeff[-1] + coeff[1]
+            
+            # Find the group name for baseline
+            names(coeff) <- gsub("Group", "", names(coeff))
+            names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
+            
+            s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
+            df.post <- df + df.prior
+            testable <- TRUE # mark the protein is testable
+            
+          }
         }
-    }
-    res <- as.data.frame(res[1:count,])
+        
+        if(contrast.pairwise){
+          ## Pairwise comparison
+          # perform testing for each pair of conditions
+          for(j in seq_len(length(sub_groups)-1)){
+            for(k in (j+1):length(sub_groups)){
+              count <- count + 1
+              res[count, "Protein"] <- proteins[i] ## protein names
+              res[count, "Comparison"] <- paste(sub_groups[j], sub_groups[k], sep = "-") ## comparison
+              
+              if(testable){
+                g1_df <- nrow(sub_data %>% dplyr::filter(Group == sub_groups[j])) ## size of group 1
+                g2_df <- nrow(sub_data %>% dplyr::filter(Group == sub_groups[k])) ## size of group 2
+                variance <- s2.post*sum(1/g1_df + 1/g2_df) ## variance of diff
+                FC <- coeff[sub_groups[j]] - coeff[sub_groups[k]] ## fold change
+                res[count, "log2FC"] <- FC
+                ## Calculate the t statistic
+                t <- FC/sqrt(variance) ## t statistic
+                p <- 2*pt(-abs(t), df = df.post) ## p value
+                res[count, "pvalue"] <- p
+                res[count, "SE"] <- sqrt(variance) ## se
+                res[count, "DF"] <- df.post
+              } else{
+                res[count, "log2FC"] <- NA
+                res[count, "pvalue"] <- NA
+                res[count, "SE"] <- NA
+                res[count, "DF"] <- NA
+              }
+            }
+          }
+        } else { ## Compare one specific contrast
+          # perform testing for required contrasts
+          for(j in seq_len(nrow(sub.contrast.matrix))){
+            count <- count + 1
+            res[count, "Protein"] <- proteins[i] ## protein names
+            res[count, "Comparison"] <- row.names(sub.contrast.matrix)[j] ## comparison
+            
+            # groups with positive coefficients
+            positive.groups <- colnames(sub.contrast.matrix)[sub.contrast.matrix[j,]>0]
+            # groups with negative coefficients
+            negative.groups <- colnames(sub.contrast.matrix)[sub.contrast.matrix[j,]<0]
+            # make sure at least one group from each side of the contrast exist
+            if(any(positive.groups %in% sub_groups) & 
+               any(negative.groups %in% sub_groups) & 
+               testable){
+              
+              # if some groups not exist in the protein data
+              if(!(all(positive.groups %in% sub_groups) & 
+                   all(negative.groups %in% sub_groups))){
+                ## tune the coefficients of positive groups so that their summation is 1
+                temp <- sub.contrast.matrix[j,sub_groups][sub.contrast.matrix[j,sub_groups] > 0]
+                temp <- temp*(1/sum(temp, na.rm = TRUE))
+                sub.contrast.matrix[j,sub_groups][sub.contrast.matrix[j,sub_groups] > 0] <- temp
+                
+                ## tune the coefficients of positive groups so that their summation is 1
+                temp2 <- sub.contrast.matrix[j,sub_groups][sub.contrast.matrix[j,sub_groups] < 0]
+                temp2 <- temp2*abs(1/sum(temp2, na.rm = TRUE))
+                sub.contrast.matrix[j,sub_groups][sub.contrast.matrix[j,sub_groups] < 0] <- temp2
+                
+                ## set the coefficients of non-existing groups to zero
+                sub.contrast.matrix[j,setdiff(colnames(sub.contrast.matrix), sub_groups)] <- 0
+              }
+              
+              ## calculate the size of each group
+              group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n = sum(!is.na(Abundance)))
+              group_df$Group <- as.character(group_df$Group)
+              
+              ## variance of diff
+              variance <- s2.post * sum((1/group_df$n) * ((sub.contrast.matrix[j, group_df$Group])^2))
+              FC <- sum(coeff*(sub.contrast.matrix[j, names(coeff)])) # fold change
+              res[count, "log2FC"] <- FC
+              
+              ## Calculate the t statistic
+              t <- FC/sqrt(variance)
+              
+              ## calculate p-value
+              p <- 2*pt(-abs(t), df = df.post)
+              res[count, "pvalue"] <- p
+              
+              ## SE
+              res[count, "SE"] <- sqrt(variance)
+              res[count, "DF"] <- df.post
+              
+            } else{
+              res[count, "log2FC"] <- NA
+              res[count, "pvalue"] <- NA
+              res[count, "SE"] <- NA
+              res[count, "DF"] <- NA
+              
+            }
+          }
+        }
+      } # if the protein data is empty
+    } # for each protein
+    
+    res <- as.data.frame(res[seq_len(count),])
     res$log2FC <- as.numeric(as.character(res$log2FC))
     res$pvalue <- as.numeric(as.character(res$pvalue))
     res$adjusted.pvalue <- NA
     comps <- unique(res$Comparison)
 
     ## Adjust multiple tests for each comparison
-    for(i in 1:length(comps)){
+    for(i in seq_along(comps)){
         res[res$Comparison == comps[i], "adjusted.pvalue"] <- p.adjust(res[res$Comparison == comps[i], "pvalue"], adj.method)
     }
 

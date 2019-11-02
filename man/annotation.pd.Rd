@@ -22,15 +22,15 @@ The variables are as follows:
   consistent with the channel columns in raw.pd.
   \item Condition : Condition (ex. Healthy, Cancer, Time0)
   \item Mixture : Mixture of samples labeled with different TMT reagents, which can be analyzed in
-  a single mass spectrometry experiment.
+  a single mass spectrometry experiment. If the channal doesn't have sample, please add `Empty' under Condition.
   \item TechRepMixture : Technical replicate of one mixture. One mixture may have multiple technical replicates.
-  For example, if 'TechRepMixture' = 1, 2 are the two technical replicates of one mixture, then they should match
-  with same 'Mixture' value.
+  For example, if `TechRepMixture' = 1, 2 are the two technical replicates of one mixture, then they should match
+  with same `Mixture' value.
   \item Fraction : Fraction ID. One technical replicate of one mixture may be fractionated into multiple fractions to increase the analytical depth.
   Then one technical replicate of one mixture should correspond to multuple fractions.
-  For example, if 'Fraction' = 1, 2, 3 are three fractions of the first technical replicate of one TMT mixture of biological subjects,
-  then they should have same 'TechRepMixture'  and 'Mixture' value.
-  \item BioReplicate : Unique ID for biological subject
+  For example, if `Fraction' = 1, 2, 3 are three fractions of the first technical replicate of one TMT mixture of biological subjects,
+  then they should have same `TechRepMixture'  and `Mixture' value.
+  \item BioReplicate : Unique ID for biological subject. If the channal doesn't have sample, please add `Empty' under BioReplicate.
 }
 }
 \examples{

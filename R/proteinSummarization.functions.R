@@ -10,20 +10,33 @@
 #' @importFrom data.table :=
 
 .protein.summarization.function <- function(data,
-                                           method,
-                                           normalization,
-                                           MBimpute,
-                                           maxQuantileforCensored){
+                                            method,
+                                            global_norm,
+                                            reference_norm,
+                                            MBimpute,
+                                            maxQuantileforCensored){
 
     ProteinName = runchannel = MSRun = log2Intensity = Run = . = NULL
     v = Channel = Run.Protein = NULL
 
+    data$log2Intensity <- log2(data$Intensity)
+    
+    ##################################################
+    ## Peptide-level globel median normalization
+    ##################################################
+    
+    if(global_norm) {
+      
+      # Do normalization based on group 'Norm'
+      data <- .peptide.normalization(data)
+    }
+    
     data <- as.data.table(data)
     ## make sure the protein ID is character
     data$ProteinName <- as.character(data$ProteinName)
     ## make new column: combination of run and channel
     data$runchannel <- paste(data$Run, data$Channel, sep = '_')
-    data$log2Intensity <- log2(data$Intensity)
+    
     ## Number of negative values : if intensity is less than 1
     ## replace with zero
     ## then we don't need to worry about -Inf = log2(0)
@@ -59,7 +72,7 @@
         num.run <- length(runs)
 
         res <- NULL
-        for (i in 1:num.run) {
+        for (i in seq_len(num.run)) {
             ## For each run, use msstats dataprocess
             message(paste("Summarizing for Run :", runs[i] ,
                           "(", i, " of ", num.run, ")"))
@@ -119,7 +132,7 @@
         #Create a annotation to make sure there are no missing PSMs for each Run and Protein
         anno1 <- unique(data[, c("Run", "ProteinName", "PSM")])
         anno2 <- full_join(anno,anno1) %>%
-            select("Run", "ProteinName", "Channel", "PSM")
+          dplyr::select("Run", "ProteinName", "Channel", "PSM")
         data <- right_join(data, anno2) #runchannel+1 after this line
 
         #Create a annotation for "runchannel" sorted by Run and ProteinName
@@ -180,11 +193,11 @@
         message("** Protein-level summarization done by median.")
     }
 
-    ##################################33
-    ## Protein-level Normalization
-    ##################################33
+    ##########################################################
+    ## Protein-level reference channel-based normalization
+    ##########################################################
 
-    if (normalization & length(runs) > 1) {
+    if (reference_norm & length(runs) > 1) {
 
         # Do normalization based on group 'Norm'
         res <- .protein.normalization(res)
@@ -232,7 +245,7 @@
         norm.data <- list()
 
         # do inference for each protein individually
-        for (i in 1:length(proteins)) {
+        for (i in seq_along(proteins)) {
 
             message(paste("Normalization between MS runs for Protein :",
                           proteins[i] , "(", i, " of ", num.protein, ")"))
@@ -269,6 +282,33 @@
     return(norm.data)
 }
 
+###########################################
+## function for normalization between channels
+## Do normalization before protein summarization.
+## Equalizing the medians across all the channels and MS runs
+## data: peptide level data, which has columns 
+## ProteinName, PeptideSequence, Charge, PSM, 
+## Mixture, TechRepMixture, Run, Channel, 
+## Condition, BioReplicate, log2Intensity
+
+.peptide.normalization <- function(data) {
+  
+  ProteinName <- PeptideSequence <- Mixture <- TechRepMixture <- Channel <- BioReplicate <- Run <- loading <- log2Intensity <- . <- Condition <- NULL
+  
+  ## calculate the median of each channel and run
+  baseline <- data %>% dplyr::group_by(Run, Channel) %>% 
+    dplyr::summarise(loading = median(log2Intensity, na.rm = TRUE))
+  ## calculate the difference between the channel medians and their median
+  baseline$diff <- median(baseline$loading) - baseline$loading
+  
+  ## apply the difference to all the intensities in the corresponding channel
+  norm.data <- dplyr::left_join(data, baseline)
+  norm.data <- norm.data %>% 
+    dplyr::mutate(log2Intensity = log2Intensity+diff, Intensity = 2^log2Intensity) %>% 
+    dplyr::select(-loading, -diff)
+  
+  return(norm.data)
+}
 
 ###########################################
 ## function for MedianPolish calculation
@@ -287,7 +327,7 @@
     # }
     #print(num.channels)
     mat <- as.matrix(c)
-    dim(mat) <- c(len / num.channels,num.channels)
+    dim(mat) <- c(len/num.channels, num.channels)
     meddata  <-  stats::medpolish(mat, na.rm = TRUE, trace.iter = FALSE)
     tmpresult <- meddata$overall + meddata$col
     return(tmpresult)
