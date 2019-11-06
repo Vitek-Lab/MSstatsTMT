@@ -216,7 +216,7 @@ PDtoMSstatsTMTFormat <- function(input,
 
         ## keep selected rows among issued rows
         keepinfo.select <- NULL
-        for (i in 1:length(unique(fea.multimeas$issue))) {
+        for (i in seq_along(unique(fea.multimeas$issue))) {
             # message("Row ", i)
             sub <- input[input$issue == unique(fea.multimeas$issue)[i], ]
             sub <- unique(sub)
@@ -340,7 +340,7 @@ PDtoMSstatsTMTFormat <- function(input,
     noruninfo <- unique(input[is.na(input$Condition) & !is.na(input$Intensity), c("Run", "Channel")])
 
     if (nrow(noruninfo) > 0) {
-        for(i in 1:nrow(noruninfo)){
+        for(i in seq_len(nrow(noruninfo))){
             message( paste0('** Annotation for Run : ', noruninfo[i, "Run"],
                             ", Channel : ", noruninfo[i, "Channel"], " are missed.") )
         }
@@ -416,7 +416,7 @@ PDtoMSstatsTMTFormat <- function(input,
     data$Run <- as.character(data$Run)
 
     all.data <- list()
-    for (i in 1: length(techruns)) { # for each technical replicate
+    for (i in seq_along(techruns)) { # for each technical replicate
         sub_data <- data[techrun == techruns[i]]
         sub_data <- sub_data[!is.na(Intensity)] # remove the NAs
         sub_data$fea <- paste(sub_data$PSM, sub_data$ProteinName, sep = "_")

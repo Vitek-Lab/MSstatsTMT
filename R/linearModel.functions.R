@@ -181,7 +181,7 @@ fit_reduced_model_onerun <- function(data) {
   pro.all <- NULL # testable proteins
   ## do inference for each protein individually
   count = 0 # count the testable proteins
-  for(i in 1:length(proteins)) {
+  for(i in seq_along(proteins)) {
     
     message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
     TEST <-  FALSE

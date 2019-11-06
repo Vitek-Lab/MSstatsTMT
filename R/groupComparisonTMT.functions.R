@@ -72,7 +72,7 @@
     df.all <- fitted.models$df  # degree freedom
     lms <- fitted.models$model # linear models
     nrun <- length(unique(data$Run)) # check the number of MS runs in the data
-    for(i in 1:length(lms)){
+    for(i in seq_along(lms)){
       message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
       
       ## get the data for protein i
@@ -125,7 +125,7 @@
         if(contrast.pairwise){
           ## Pairwise comparison
           # perform testing for each pair of conditions
-          for(j in 1:(length(sub_groups)-1)){
+          for(j in seq_len(length(sub_groups)-1)){
             for(k in (j+1):length(sub_groups)){
               count <- count + 1
               res[count, "Protein"] <- proteins[i] ## protein names
@@ -153,7 +153,7 @@
           }
         } else { ## Compare one specific contrast
           # perform testing for required contrasts
-          for(j in 1:nrow(sub.contrast.matrix)){
+          for(j in seq_len(nrow(sub.contrast.matrix))){
             count <- count + 1
             res[count, "Protein"] <- proteins[i] ## protein names
             res[count, "Comparison"] <- row.names(sub.contrast.matrix)[j] ## comparison
@@ -216,14 +216,14 @@
       } # if the protein data is empty
     } # for each protein
     
-    res <- as.data.frame(res[1:count,])
+    res <- as.data.frame(res[seq_len(count),])
     res$log2FC <- as.numeric(as.character(res$log2FC))
     res$pvalue <- as.numeric(as.character(res$pvalue))
     res$adjusted.pvalue <- NA
     comps <- unique(res$Comparison)
 
     ## Adjust multiple tests for each comparison
-    for(i in 1:length(comps)){
+    for(i in seq_along(comps)){
         res[res$Comparison == comps[i], "adjusted.pvalue"] <- p.adjust(res[res$Comparison == comps[i], "pvalue"], adj.method)
     }
 

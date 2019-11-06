@@ -189,7 +189,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
         input.no <- input[-which(input$issue %in% unique(fea.multimeas$issue)), ]
 
         ## keep selected rows among issued rows
-        for (i in 1:length(unique(fea.multimeas$issue))) {
+        for (i in seq_along(unique(fea.multimeas$issue))) {
             # message("Row ", i)
             sub <- input[input$issue == unique(fea.multimeas$issue)[i], ]
             sub <- unique(sub)
@@ -282,7 +282,7 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
     noruninfo <- unique(input[is.na(input$Condition) & !is.na(input$Intensity), c("Run", "Channel")])
 
     if (nrow(noruninfo) > 0) {
-        for(i in 1:nrow(noruninfo)){
+        for(i in seq_len(nrow(noruninfo))){
             message( paste0('** Annotation for Run : ', noruninfo[i, "Run"],
                             ", Channel : ", noruninfo[i, "Channel"], " are missed.") )
         }

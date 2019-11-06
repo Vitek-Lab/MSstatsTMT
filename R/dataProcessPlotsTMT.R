@@ -79,6 +79,7 @@ dataProcessPlotsTMT <- function(data.peptide,
                                  address = "") {
 
     Condition = Run = xorder = Channel = NULL
+    PeptideSequence = PSM = NULL
     groupAxis = cumGroupAxis = abundance = analysis = NULL
     
     datafeature <- data.peptide
@@ -182,7 +183,7 @@ dataProcessPlotsTMT <- function(data.peptide,
         ## potentially change it.
         datafeature$xorder <- NA
 
-        for (k in 1:length(unique(datafeature$Run))) {
+        for (k in seq_along(unique(datafeature$Run))) {
 
             runid <- unique(datafeature$Run)[k]
             datafeature[datafeature$Run == runid, ]$xorder <- factor(datafeature[datafeature$Run == runid, ]$group.channel,
@@ -259,7 +260,7 @@ dataProcessPlotsTMT <- function(data.peptide,
 
             ## factoring for run, channel, condition should be done before loop
 
-            for (i in 1:nlevels(datafeature$Protein)) {
+            for (i in seq_len(nlevels(datafeature$Protein))) {
 
                 sub <- datafeature[datafeature$Protein == levels(datafeature$Protein)[i], ]
                 sub$PeptideSequence <- factor(as.character(sub$PeptideSequence))
@@ -292,7 +293,7 @@ dataProcessPlotsTMT <- function(data.peptide,
                 ## unique peptide sequence id, for color
                 s <- NULL
 
-                for (j in 1:length(temp1)) {
+                for (j in seq_along(temp1)) {
                     temp3 <- rep(j, temp1[j])
                     s <- c(s, temp3)
                     temp2 <- seq(1, temp1[j])
@@ -389,7 +390,7 @@ dataProcessPlotsTMT <- function(data.peptide,
                 pdf(finalfile, width = width, height = height)
             }
 
-            for (i in 1:nlevels(datafeature$Protein)) {
+            for (i in seq_len(nlevels(datafeature$Protein))) {
 
                 sub <- datafeature[datafeature$Protein == levels(datafeature$Protein)[i], ]
                 sub$PeptideSequence <- factor(as.character(sub$PeptideSequence))
@@ -565,7 +566,7 @@ dataProcessPlotsTMT <- function(data.peptide,
         ## potentially change it.
         datafeature$xorder <- NA
 
-        for (k in 1:length(unique(datafeature$Run))) {
+        for (k in seq_along(unique(datafeature$Run))) {
 
             runid <- unique(datafeature$Run)[k]
             datafeature[datafeature$Run == runid, ]$xorder <- factor(datafeature[datafeature$Run == runid, ]$group.channel,
@@ -686,7 +687,7 @@ dataProcessPlotsTMT <- function(data.peptide,
                 datafeature$Protein <- factor(datafeature$Protein)
             }
 
-            for (i in 1:nlevels(datafeature$Protein)) {
+            for (i in seq_len(nlevels(datafeature$Protein))) {
                 sub <- datafeature[datafeature$Protein == levels(datafeature$Protein)[i], ]
                 sub <- sub[!is.na(sub$abundance), ]
 

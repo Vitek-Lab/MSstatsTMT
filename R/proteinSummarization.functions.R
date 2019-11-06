@@ -72,7 +72,7 @@
         num.run <- length(runs)
 
         res <- NULL
-        for (i in 1:num.run) {
+        for (i in seq_len(num.run)) {
             ## For each run, use msstats dataprocess
             message(paste("Summarizing for Run :", runs[i] ,
                           "(", i, " of ", num.run, ")"))
@@ -245,7 +245,7 @@
         norm.data <- list()
 
         # do inference for each protein individually
-        for (i in 1:length(proteins)) {
+        for (i in seq_along(proteins)) {
 
             message(paste("Normalization between MS runs for Protein :",
                           proteins[i] , "(", i, " of ", num.protein, ")"))
