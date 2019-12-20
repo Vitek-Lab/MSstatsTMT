@@ -4,11 +4,17 @@
 \alias{PDtoMSstatsTMTFormat}
 \title{Generate MSstatsTMT required input format from Proteome discoverer output}
 \usage{
-PDtoMSstatsTMTFormat(input, annotation,
-  which.proteinid = "Protein.Accessions", useNumProteinsColumn = TRUE,
-  useUniquePeptide = TRUE, rmPSM_withMissing_withinRun = FALSE,
-  rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE,
-  summaryforMultipleRows = sum)
+PDtoMSstatsTMTFormat(
+  input,
+  annotation,
+  which.proteinid = "Protein.Accessions",
+  useNumProteinsColumn = TRUE,
+  useUniquePeptide = TRUE,
+  rmPSM_withMissing_withinRun = FALSE,
+  rmPSM_withfewMea_withinRun = TRUE,
+  rmProtein_with1Feature = FALSE,
+  summaryforMultipleRows = sum
+)
 }
 \arguments{
 \item{input}{data name of Proteome discover PSM output.}

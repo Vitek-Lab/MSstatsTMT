@@ -308,6 +308,14 @@ dataProcessPlotsTMT <- function(data.peptide,
                 groupline.all.tmp <- data.frame(groupline.all,
                                                 "PSM" = unique(sub$PSM)[1],
                                                 "PeptideSequence" = unique(sub$PeptideSequence)[1])
+                
+                ## 2019. 12. 17, MC : for profile plot, define color for dot
+                cbp <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+                check.length <- length(unique(s)) %/% length(cbp)
+                if ( check.length > 0 ){
+                    cbp <- rep(cbp, times=check.length + 1)
+                }
+                ## 
 
                 ## 1st plot for original plot
                 ptemp <- ggplot(aes_string(x = 'xorder', y = 'abundance',
@@ -315,7 +323,7 @@ dataProcessPlotsTMT <- function(data.peptide,
                     facet_grid(~Run) +
                     geom_point(size=dot.size.profile) +
                     geom_line(size = 0.5) +
-                    scale_colour_manual(values = s) +
+                    scale_colour_manual(values=cbp[s]) +
                     scale_linetype_manual(values = ss) +
                     scale_shape_manual(values = c(16)) +
                     labs(title = unique(sub$Protein),

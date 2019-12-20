@@ -3,7 +3,6 @@
 \docType{package}
 \name{MSstatsTMT}
 \alias{MSstatsTMT}
-\alias{MSstatsTMT-package}
 \title{MSstatsTMT: A package for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling}
 \description{
 A set of tools for detecting differentially abundant peptides and proteins in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling.

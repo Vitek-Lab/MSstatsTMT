@@ -398,6 +398,10 @@ PDtoMSstatsTMTFormat <- function(input,
     input <- input[,c("ProteinName", "PeptideSequence", "Charge", "PSM",
                       "Mixture", "TechRepMixture", "Run",
                       "Channel", "Condition", "BioReplicate", "Intensity")]
+    
+    ## finally, make sure no duplicate rows
+    input <- unique(input)
+    
     return(input)
 }
 
