@@ -340,5 +340,9 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
     input <- input[,c("ProteinName", "PeptideSequence", "Charge", "PSM",
                       "Mixture", "TechRepMixture", "Run",
                       "Channel", "BioReplicate", "Condition", "Intensity")]
+    
+    ## finally, make sure no duplicate rows
+    input <- unique(input)
+    
     return(input)
 }

@@ -83,6 +83,8 @@ groupComparisonTMT <- function(data,
 
     }
 
+    ## remove the rows with NA intensities
+    data <- data[!is.na(data$Abundance),]
     ## change some column names as used in group comparison function
     ## Ting: need to change later for time course design
     colnames(data)[colnames(data) == 'BioReplicate'] <- 'Subject'

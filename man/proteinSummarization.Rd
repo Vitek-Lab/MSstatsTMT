@@ -4,10 +4,16 @@
 \alias{proteinSummarization}
 \title{Summarizing peptide level quantification to protein level quantification}
 \usage{
-proteinSummarization(data, method = "msstats", global_norm = TRUE,
-  reference_norm = TRUE, remove_norm_channel = TRUE,
-  remove_empty_channel = TRUE, MBimpute = TRUE,
-  maxQuantileforCensored = NULL)
+proteinSummarization(
+  data,
+  method = "msstats",
+  global_norm = TRUE,
+  reference_norm = TRUE,
+  remove_norm_channel = TRUE,
+  remove_empty_channel = TRUE,
+  MBimpute = TRUE,
+  maxQuantileforCensored = NULL
+)
 }
 \arguments{
 \item{data}{Name of the output of PDtoMSstatsTMTFormat function or peptide-level quantified data from other tools. It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity}

@@ -4,11 +4,17 @@
 \alias{SpectroMinetoMSstatsTMTFormat}
 \title{Generate MSstatsTMT required input format for SpectroMine output}
 \usage{
-SpectroMinetoMSstatsTMTFormat(input, annotation,
-  filter_with_Qvalue = TRUE, qvalue_cutoff = 0.01,
-  useUniquePeptide = TRUE, rmPSM_withMissing_withinRun = FALSE,
-  rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE,
-  summaryforMultipleRows = sum)
+SpectroMinetoMSstatsTMTFormat(
+  input,
+  annotation,
+  filter_with_Qvalue = TRUE,
+  qvalue_cutoff = 0.01,
+  useUniquePeptide = TRUE,
+  rmPSM_withMissing_withinRun = FALSE,
+  rmPSM_withfewMea_withinRun = TRUE,
+  rmProtein_with1Feature = FALSE,
+  summaryforMultipleRows = sum
+)
 }
 \arguments{
 \item{input}{data name of SpectroMine PSM output. Read PSM sheet.}

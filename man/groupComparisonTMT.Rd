@@ -4,8 +4,12 @@
 \alias{groupComparisonTMT}
 \title{Finding differentially abundant proteins across conditions in TMT experiment}
 \usage{
-groupComparisonTMT(data, contrast.matrix = "pairwise",
-  moderated = FALSE, adj.method = "BH")
+groupComparisonTMT(
+  data,
+  contrast.matrix = "pairwise",
+  moderated = FALSE,
+  adj.method = "BH"
+)
 }
 \arguments{
 \item{data}{Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Abundance.}
