@@ -50,18 +50,19 @@
       df.prior <- 0
     }
 
+    # extract the linear model fitting results
     proteins <- fitted.models$protein # proteins
+    s2.all <- fitted.models$s2  # group variance
+    df.all <- fitted.models$df  # degree freedom
+    lms <- fitted.models$model # linear models
+    
     num.protein <- length(proteins)
     res <- as.data.frame(matrix(rep(NA, 7 * num.protein * ncomp), ncol = 7)) ## store the inference results
     colnames(res) <- c("Protein", "Comparison", "log2FC", "pvalue", "SE", "DF", "issue")
     data$Group <- as.factor(data$Group) # make sure group is factor
     data$Run <- as.factor(data$Run)
-    count <- 0
-
-    s2.all <- fitted.models$s2  # group variance
-    df.all <- fitted.models$df  # degree freedom
-    lms <- fitted.models$model # linear models
     nrun <- length(unique(data$Run)) # check the number of MS runs in the data
+    count <- 0
     for(i in seq_along(proteins)){
       message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
       
@@ -73,10 +74,10 @@
       sub_groups <- as.character(unique(sub_data$Group)) # groups in the sub data
       sub_groups <- sort(sub_groups) # sort the groups based on alphabetic order
       
-      ## get the linear model for protein i 
-      fit <- lms[[i]]
-      MSE <- s2.all[i]
-      df <- df.all[i]
+      ## get the linear model for proteins[i]
+      fit <- lms[[proteins[i]]]
+      MSE <- s2.all[proteins[i]]
+      df <- df.all[proteins[i]]
       
       if(!is.character(fit)){ ## check the model is fittable 
         # the protein is testable
