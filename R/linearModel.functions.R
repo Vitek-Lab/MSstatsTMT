@@ -208,14 +208,15 @@ fit_reduced_model_onerun <- function(data) {
   df.all <- NULL # degree freedom
   pro.all <- NULL # testable proteins
   ## do inference for each protein individually
-  count = 0 # count the testable proteins
-  # issue <- NA
   for(i in seq_along(proteins)) {
     
     message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
     TEST <-  FALSE
     sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
-    
+    # sub_groups <- as.character(unique(sub_data$Group))
+    # if(length(sub_groups) == 1){
+    #   stop("Only one condition!")
+    # }
     ## Record the annotation information
     sub_annot <- unique(sub_data[, c('Run', 'Channel', 'Subject',
                                      'Group', 'Mixture', 'TechRepMixture')])
@@ -350,14 +351,13 @@ fit_reduced_model_onerun <- function(data) {
       }
       
       if(TEST){ # make sure all the parameters are estimable
-        count <- count + 1
-        linear.models[[count]] <- fit 
+        linear.models[[proteins[i]]] <- fit 
         pro.all <-  c(pro.all, proteins[i])
         s2.all <- c(s2.all, MSE)
         df.all <- c(df.all, df)
         
       } else{ # the standard error is not estimable
-        linear.models[[proteins[i]]] <- NA 
+        linear.models[[proteins[i]]] <- "unestimableSE"  
         pro.all <-  c(pro.all, proteins[i])
         s2.all <- c(s2.all, NA)
         df.all <- c(df.all, NA)
@@ -371,6 +371,8 @@ fit_reduced_model_onerun <- function(data) {
       
     }
   } # for each protein
+  names(s2.all) <- proteins
+  names(df.all) <- proteins
   
   return(list(protein = pro.all, model = linear.models, s2 = s2.all, df = df.all))
 }
