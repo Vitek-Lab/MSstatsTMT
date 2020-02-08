@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.4.4 [2020-02-01]
+-------------------------
+    UPDATED FEATURES
+	 - Fix bug in PDtoMSstatsTMTFormat(): remove redundant rows when combining multiple fractions
+
 CHANGES IN VERSION 1.4.3 [2019-12-28]
 -------------------------
     UPDATED FEATURES
