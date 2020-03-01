@@ -443,6 +443,7 @@ PDtoMSstatsTMTFormat <- function(input,
             mean.frac.feature <- overlapped.feas %>% 
               dplyr::group_by(fea, id) %>% 
               dplyr::summarise(mean = mean(Intensity, na.rm = TRUE))
+            
             remove.fraction <- mean.frac.feature %>% 
               dplyr::group_by(fea) %>% 
               dplyr::filter(mean != max(mean))
@@ -450,16 +451,13 @@ PDtoMSstatsTMTFormat <- function(input,
             # filter out the unused fractions
             sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction$id)
             
-            sub_structure <- sub_data %>% dplyr::select(fea, Run) %>% 
-              dplyr::group_by(fea) %>% 
-              dplyr::summarise(n = n_distinct(Run))
-            
             structure_2 <- aggregate(Run ~ . , 
-                                       data = unique(as.data.table(sub_data)[,.(fea, Run)]), 
-                                       length)
+                                     data = unique(as.data.table(sub_data)[,.(fea, Run)]), 
+                                     length)
             
             ## check if there are features which have same mean intensities across runs
             remove_peptide_ion_2 <- structure_2[structure_2$Run > 1, ]
+            
             if(nrow(remove_peptide_ion_2) > 0) {
               
               # select the rows for the features that are measured in multiple fractions
@@ -469,12 +467,42 @@ PDtoMSstatsTMTFormat <- function(input,
               sum.frac.feature <- overlapped.feas.2 %>% 
                 dplyr::group_by(fea, id) %>% 
                 dplyr::summarise(sum = sum(Intensity, na.rm = TRUE))
+              
               remove.fraction.2 <- sum.frac.feature %>% 
                 dplyr::group_by(fea) %>% 
                 dplyr::filter(sum != max(sum))
               
               # filter out the unused fractions
               sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction.2$id)
+              
+              structure_3 <- aggregate(Run ~ . , 
+                                       data = unique(as.data.table(sub_data)[,.(fea, Run)]), 
+                                       length)
+              
+              ## check if there are features which have same summed intensities across runs
+              remove_peptide_ion_3 <- structure_3[structure_3$Run > 1, ]
+              
+              if(nrow(remove_peptide_ion_3) > 0) {
+                
+                # select the rows for the features that are measured in multiple fractions
+                overlapped.feas.3 <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion_3$fea)
+                
+                # keep the fractions with maximum summation reporter ion abundance
+                max.frac.feature <- overlapped.feas.3 %>% 
+                  dplyr::group_by(fea, id) %>% 
+                  dplyr::summarise(max = max(Intensity, na.rm = TRUE))
+                
+                remove.fraction.3 <- max.frac.feature %>% 
+                  dplyr::group_by(fea) %>% 
+                  dplyr::filter(max != max(max))
+                
+                # filter out the unused fractions
+                sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction.3$id)
+                
+                rm(max.frac.feature)
+                rm(remove.fraction.3)
+                rm(overlapped.feas.3)
+              }
               
               rm(sum.frac.feature)
               rm(remove.fraction.2)

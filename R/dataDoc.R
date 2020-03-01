@@ -192,6 +192,36 @@
 #'
 "annotation.mine"
 
+
+#' Example of MSstatsTMT report from OpenMS for TMT-10plex experiments.
+#'
+#' Example of MSstatsTMT PSM sheet from MaxQuant.
+#' It is the input for OpenMStoMSstatsTMTFormat function.
+#' It includes peak intensities for 10 proteins among 27 MS runs from three TMT10 mixtures.
+#' The important variables are as follows:
+#'
+#' \itemize{
+#'   \item RetentionTime
+#'   \item ProteinName
+#'   \item PeptideSequence
+#'   \item Charge
+#'   \item Channel
+#'   \item Condition
+#'   \item BioReplicate
+#'   \item Run
+#'   \item Mixture
+#'   \item TechRepMixture
+#'   \item Fraction
+#'   \item Intensity
+#'   \item Reference
+#' }
+#'
+#' @format A data frame with 860 rows and 13 variables.
+#' @examples
+#' head(raw.om)
+#'
+"raw.om"
+
 #' Example of output from PDtoMSstatsTMTFormat function
 #'
 #' It is made from \code{\link{raw.pd}} and \code{\link{annotation.pd}},

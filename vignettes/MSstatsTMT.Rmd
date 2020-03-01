@@ -28,7 +28,7 @@ This vignette summarizes the introduction and various options of all functionali
 
 MSstatsTMT includes the following three steps for statistical testing: 
 
-1. Converters for different peptide quantification tools to get the input with required format: `PDtoMSstatsTMTFormat`, `MaxQtoMSstatsTMTFormat` and `SpectroMinetoMSstatsTMTFormat`.
+1. Converters for different peptide quantification tools to get the input with required format: `PDtoMSstatsTMTFormat`, `MaxQtoMSstatsTMTFormat`, `SpectroMinetoMSstatsTMTFormat` and `OpenMStoMSstatsTMTFormat`.
 2. Protein summarization based on peptide quantification data: `proteinSummarization`
 3. Group comparison on protein quantification data:  `groupComparisonTMT`
 
@@ -137,6 +137,31 @@ Preprocess PSM data from SpectroMine and convert into the required input format 
 
 input.mine <- SpectroMinetoMSstatsTMTFormat(raw.mine, annotation.mine)
 head(input.mine)
+```
+
+### OpenMStoMSstatsTMTFormat()
+
+Preprocess MSstatsTMT report from OpenMS and convert into the required input format for MSstatsTMT.
+
+
+#### Arguments
+
+* `input`: data name of MSstatsTMT report from OpenMS. Read csv file.
+* `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
+* `rmPSM_withMissing_withinRun` : TRUE will remove PSM with any missing value within each Run. Default is FALSE.
+* `rmPSM_withfewMea_withinRun` : only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
+* `removeProtein_with1Peptide` : TRUE will remove the proteins which have only 1 peptide and charge. Default is FALSE.
+* `summaryforMultipleRows` : sum(default) or max - when there are multiple measurements for certain PSM in certain run, select the PSM with the largest summation or maximal value.
+
+#### Example
+```{r}
+# read in MSstatsTMT report from OpenMS
+# raw.om <- read.csv("OpenMS_20200222/20200225_MSstatsTMT_OpenMS_Export.csv")
+head(raw.om)
+
+# the function only requries one input file
+input.om <- OpenMStoMSstatsTMTFormat(raw.om)
+head(input.om)
 ```
 
 ## 2. Protein summarization, normalization and visualization

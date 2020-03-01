@@ -1,3 +1,13 @@
+CHANGES IN VERSION 1.4.5 [2020-03-01]
+-------------------------
+    UPDATED FEATURES
+	 - Add new function OpenMStoMSstatsTMTFormat()
+
+CHANGES IN VERSION 1.4.4 [2020-02-01]
+-------------------------
+    UPDATED FEATURES
+	 - Fix bug in PDtoMSstatsTMTFormat(): remove redundant rows when combining multiple fractions
+
 CHANGES IN VERSION 1.4.3 [2019-12-28]
 -------------------------
     UPDATED FEATURES
