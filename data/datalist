@@ -5,6 +5,7 @@ evidence
 proteinGroups
 raw.mine
 raw.pd
+raw.om
 input.pd
 quant.pd.msstats
 test.pairwise

@@ -4,7 +4,9 @@
 \name{test.pairwise}
 \alias{test.pairwise}
 \title{Example of output from groupComparisonTMT function}
-\format{A data frame with 60 rows and 7 variables.}
+\format{
+A data frame with 60 rows and 7 variables.
+}
 \usage{
 test.pairwise
 }

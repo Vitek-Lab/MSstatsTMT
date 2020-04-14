@@ -4,7 +4,9 @@
 \name{annotation.mq}
 \alias{annotation.mq}
 \title{Example of annotation file for evidence, which is the output of MaxQuant.}
-\format{A data frame with 150 rows and 7 variables.}
+\format{
+A data frame with 150 rows and 7 variables.
+}
 \usage{
 annotation.mq
 }

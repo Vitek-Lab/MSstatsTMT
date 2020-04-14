@@ -223,7 +223,7 @@
 ## Do normalization after protein summarization.
 ## Normalization are based on the channels which have group 'Norm'.
 ## data: protein level data, which has columns Protein, Group, Subject, Run, Channel, Abundance
-
+#' @keywords internal
 .protein.normalization <- function(data) {
 
     Run <- Abundance <- Mixture <- TechRepMixture <- Channel <- BioReplicate <- . <- Condition <- Protein <- NULL
@@ -290,7 +290,7 @@
 ## ProteinName, PeptideSequence, Charge, PSM, 
 ## Mixture, TechRepMixture, Run, Channel, 
 ## Condition, BioReplicate, log2Intensity
-
+#' @keywords internal
 .peptide.normalization <- function(data) {
   
   ProteinName <- PeptideSequence <- Mixture <- TechRepMixture <- Channel <- BioReplicate <- Run <- loading <- log2Intensity <- . <- Condition <- NULL
@@ -314,7 +314,7 @@
 ## function for MedianPolish calculation
 ## depend on "stats:medpolish"
 ## input: a vector of log2intensity per Protein, Run; number of channels
-
+#' @keywords internal
 .medianPolish <- function(c, num.channels){
     #take a vector
     #transfor to a matrix

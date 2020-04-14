@@ -4,7 +4,9 @@
 \name{raw.pd}
 \alias{raw.pd}
 \title{Example of output from Proteome Discoverer 2.2 for TMT-10plex experiments.}
-\format{A data frame with 2858 rows and 50 variables.}
+\format{
+A data frame with 2858 rows and 50 variables.
+}
 \usage{
 raw.pd
 }

@@ -4,7 +4,9 @@
 \name{input.pd}
 \alias{input.pd}
 \title{Example of output from PDtoMSstatsTMTFormat function}
-\format{A data frame with 20110 rows and 11 variables.}
+\format{
+A data frame with 20110 rows and 11 variables.
+}
 \usage{
 input.pd
 }
