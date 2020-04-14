@@ -4,7 +4,9 @@
 \name{raw.om}
 \alias{raw.om}
 \title{Example of MSstatsTMT report from OpenMS for TMT-10plex experiments.}
-\format{A data frame with 860 rows and 13 variables.}
+\format{
+A data frame with 860 rows and 13 variables.
+}
 \usage{
 raw.om
 }

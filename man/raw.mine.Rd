@@ -4,7 +4,9 @@
 \name{raw.mine}
 \alias{raw.mine}
 \title{Example of output from SpectroMine for TMT-6plex experiments.}
-\format{A data frame with 170 rows and 28 variables.}
+\format{
+A data frame with 170 rows and 28 variables.
+}
 \usage{
 raw.mine
 }

@@ -70,7 +70,7 @@
 #############################################
 ## check whether there is only single run
 #############################################
-
+#' @keywords internal
 .checkSingleRun <-  function(annotation) {
 
     temp <- unique(annotation[, "Run"])
@@ -82,22 +82,18 @@
 #############################################
 ## fit the full model with mixture, techrep and subject effects
 #############################################
-#' @import lme4
+#' @importFrom lmerTest lmer
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has 
 #' multiple mixtures, multiple technical replicate runs per mixture and biological variation
 fit_full_model <- function(data) {
   
-  fit.mixed <- suppressMessages(try(lmer(Abundance ~ 1 + (1|Mixture) + (1|Mixture:TechRepMixture) +  # whole plot
+  fit <- suppressMessages(try(lmerTest::lmer(Abundance ~ 1 + (1|Mixture) + (1|Mixture:TechRepMixture) +  # whole plot
                                            Group + #subplot
                                            (1|Subject:Group:Mixture), data = data), TRUE))
   
-  fit.fixed <- suppressMessages(try(lm(Abundance ~ 1 + Mixture + Mixture:TechRepMixture +  # whole plot
-                                         Group +
-                                         Subject:Group:Mixture, data = data), TRUE))
-  
-  if((!inherits(fit.mixed, "try-error")) & (!inherits(fit.fixed, "try-error"))){
-    return(list(fixed = fit.fixed, mixed = fit.mixed, subject = "Subject:Group:Mixture"))
+  if(!inherits(fit, "try-error")){
+    return(fit)
   } else{ # if the parameters are not estimable, return null
     return(NULL)
   }
@@ -106,75 +102,65 @@ fit_full_model <- function(data) {
 #############################################
 ## fit the reduced model with run and subject effects
 #############################################
-#' @import lme4
+#' @importFrom lmerTest lmer
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has 
 #' single mixture with multiple technical replicate runs
 fit_reduced_model_techrep <- function(data) {
   
-  fit.mixed <- suppressMessages(try(lmer(Abundance ~ 1 + (1|Run) +  # whole plot
+  fit <- suppressMessages(try(lmerTest::lmer(Abundance ~ 1 + (1|Run) +  # whole plot
                                            Group + #subplot
                                            (1|Subject:Group), data = data), TRUE))
   
-  fit.fixed <- suppressMessages(try(lm(Abundance ~ 1 + Run +  # whole plot
-                                         Group +
-                                         Subject:Group, data = data), TRUE))
-  
-  if((!inherits(fit.mixed, "try-error")) & (!inherits(fit.fixed, "try-error"))){
-    return(list(fixed = fit.fixed, mixed = fit.mixed, subject = "Subject:Group"))
+  if(!inherits(fit, "try-error")){
+    return(fit)
   } else{ # if the parameters are not estimable, return null
     return(NULL)
   }
-  
 }
 
 #############################################
 ## fit the reduced model with mixture and techrep effects
 #############################################
-#' @import lme4
+#' @importFrom lmerTest lmer
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has no biological variation,
 #' multiple mixtures with multiple technical replicate runs
 fit_full_model_spikedin <- function(data) {
   
-  fit.mixed <- suppressMessages(try(lmer(Abundance ~ 1 + (1|Mixture) + (1|Mixture:TechRepMixture) 
+  fit  <- suppressMessages(try(lmerTest::lmer(Abundance ~ 1 + (1|Mixture) + (1|Mixture:TechRepMixture) 
                                          + Group, data = data), TRUE))
-  fit.fixed <- suppressMessages(try(lm(Abundance ~ 1 + Mixture + Mixture:TechRepMixture 
-                                       + Group, data = data), TRUE))
   
-  if((!inherits(fit.mixed, "try-error")) & (!inherits(fit.fixed, "try-error"))){
-    return(list(fixed = fit.fixed, mixed = fit.mixed, subject = "None"))
+  if(!inherits(fit, "try-error")){
+    return(fit)
   } else{ # if the parameters are not estimable, return null
     return(NULL)
   }
-  
 }
 
 #############################################
 ## fit the reduced with only run effect
 #############################################
-#' @import lme4
+#' @importFrom lmerTest lmer
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has no biological variation,
 #' multiple mixtures or multiple technical replicate runs
 #' or if the data has multiple mixtures but single technical replicate MS run
 fit_reduced_model_mulrun <- function(data) {
   
-  fit.mixed <- suppressMessages(try(lmer(Abundance ~ 1 + (1|Run) + Group, data = data), TRUE))
-  fit.fixed <- suppressMessages(try(lm(Abundance ~ 1 + Run + Group, data = data), TRUE))
+  fit <- suppressMessages(try(lmerTest::lmer(Abundance ~ 1 + (1|Run) + Group, data = data), TRUE))
   
-  if((!inherits(fit.mixed, "try-error")) & (!inherits(fit.fixed, "try-error"))){
-    return(list(fixed = fit.fixed, mixed = fit.mixed, subject = "None"))
+  if(!inherits(fit, "try-error")){
+    return(fit)
   } else{ # if the parameters are not estimable, return null
     return(NULL)
   }
-  
 }
 
 #############################################
 ## fit one-way anova model
 #############################################
-#' @import lme4
+#' @importFrom lmerTest lmer
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has single run
 fit_reduced_model_onerun <- function(data) {
@@ -192,7 +178,9 @@ fit_reduced_model_onerun <- function(data) {
 #############################################
 ## fit the proper linear model for each protein
 #############################################
-#' @import lme4
+#' @importFrom lme4 fixef
+#' @import lmerTest
+#' @importFrom stats vcov
 #' @importFrom dplyr filter
 #' @keywords internal
 #' fit the proper linear model for each protein
@@ -205,8 +193,9 @@ fit_reduced_model_onerun <- function(data) {
   num.protein <- length(proteins)
   linear.models <- list() # linear models
   s2.all <- NULL # sigma^2
-  df.all <- NULL # degree freedom
+  s2_df.all <- NULL # degree freedom of sigma^2
   pro.all <- NULL # testable proteins
+  coeff.all <- list() # coefficients
   ## do inference for each protein individually
   for(i in seq_along(proteins)) {
     
@@ -305,76 +294,53 @@ fit_reduced_model_onerun <- function(data) {
     
     ## estimate variance and df from linear models
     if(!is.null(fit)){ # the model is fittable
-      if(class(fit) == "lm"){# single run case 
-        ## Estimate the group variance from fixed model
+      if(inherits(fit, "lm")){# single run case 
+        ## Estimate the coeff from fixed model
         av <- anova(fit)
+        coeff <- coef(fit)
         # use error variance for testing
-        MSE <- av["Residuals", "Mean Sq"]
-        df <- av["Residuals", "Df"]
-        TEST <-  TRUE
+        s2 <- av["Residuals", "Mean Sq"]
+        s2_df <- av["Residuals", "Df"]
         
-      } else{ ## fit linear mixed model
-        if(fit$subject=="None"){ # no technical replicates
-          # Estimate the group variance and df
-          varcomp <- as.data.frame(VarCorr(fit$mixed))
-          # use error variance for testing
-          MSE <- varcomp[varcomp$grp == "Residual", "vcov"] 
-          av <- anova(fit$fixed)
-          df <- av["Residuals", "Df"] # degree of freedom
-          TEST <-  TRUE
-          
-        } else{ # multiple technical replicates
-          if(fit$subject=="Subject:Group:Mixture"){ # multiple biological mixtures
-            # Estimate the group variance and df
-            varcomp <- as.data.frame(VarCorr(fit$mixed))
-            av <- anova(fit$fixed)
-            if(any(grepl("Subject",  rownames(av)))){
-              # use subject variance for testing
-              MSE <- varcomp[varcomp$grp == "Subject:Group:Mixture", "vcov"]
-              df <- av[rownames(av)[grepl("Subject",  rownames(av))], "Df"] # degree of freedom
-              TEST <-  TRUE
-              
-            }
-          } else{ # single biological mixture
-            # Estimate the group variance and df
-            varcomp <- as.data.frame(VarCorr(fit$mixed))
-            av <- anova(fit$fixed)
-            if(any(grepl("Subject",  rownames(av)))){
-              # use subject variance for testing
-              MSE <- varcomp[varcomp$grp == "Subject:Group", "vcov"]
-              df <- av[rownames(av)[grepl("Subject",  rownames(av))], "Df"] # degree of freedom
-              TEST <-  TRUE
-              
-            }
-          }
-        }
+        linear.models[[proteins[i]]] <- list(model = fit)
+        
+      } else{ 
+        ## Estimate the coeff from lmerTest model
+        rho <- list() ## environment containing info about model
+        rho <- .rhoInit(rho, fit, TRUE) ## save lmer outcome in rho envir variable
+        rho$A <- .calcApvar(rho) ## asymptotic variance-covariance matrix for theta and sigma
+        
+        av <- anova(rho$model)
+        coeff <- lme4::fixef(rho$model)
+        s2_df <- av$DenDF
+        s2 <- av$'Mean Sq'/av$'F value'
+        
+        linear.models[[proteins[i]]] <- rho 
       }
+
+      pro.all <-  c(pro.all, proteins[i])
+      s2.all <- c(s2.all, s2)
+      s2_df.all <- c(s2_df.all, s2_df)
+      coeff.all[[proteins[i]]] <- coeff
       
-      if(TEST){ # make sure all the parameters are estimable
-        linear.models[[proteins[i]]] <- fit 
-        pro.all <-  c(pro.all, proteins[i])
-        s2.all <- c(s2.all, MSE)
-        df.all <- c(df.all, df)
-        
-      } else{ # the standard error is not estimable
-        linear.models[[proteins[i]]] <- "unestimableSE"  
-        pro.all <-  c(pro.all, proteins[i])
-        s2.all <- c(s2.all, NA)
-        df.all <- c(df.all, NA)
-        
-      }
     } else{ # the model is not fittble
+      # message(proteins[i], " is untestable due to no enough measurements.")
       linear.models[[proteins[i]]] <- "unfittable" 
       pro.all <-  c(pro.all, proteins[i])
       s2.all <- c(s2.all, NA)
-      df.all <- c(df.all, NA)
+      s2_df.all <- c(s2_df.all, NA)
+      coeff.all[[proteins[i]]] <- NA
       
     }
   } # for each protein
   names(s2.all) <- proteins
-  names(df.all) <- proteins
+  names(s2_df.all) <- proteins
   
-  return(list(protein = pro.all, model = linear.models, s2 = s2.all, df = df.all))
+  return(list(protein = pro.all, 
+              model = linear.models, 
+              s2 = s2.all, 
+              s2_df = s2_df.all, 
+              coeff = coeff.all))
 }
 
 #############################################
@@ -429,3 +395,112 @@ fit_reduced_model_onerun <- function(data) {
   
   return(list(logFC = logFC, issue = issue))
 }
+
+#############################################
+## make constrast
+#############################################
+#	MSstats
+#' @importFrom stats coef
+#' @importFrom lme4 fixef
+#' @keywords internal
+.make.contrast.single <- function(fit, contrast, sub_data) {
+
+  ## when there are some groups which are all missing
+  sub_groups <- as.character(levels(sub_data[, c("Group")]))
+  
+  # groups with positive coefficients
+  positive.groups <- names(contrast)[contrast>0]
+  # groups with negative coefficients
+  negative.groups <- names(contrast)[contrast<0]
+  
+  # if some groups not exist in the protein data
+  if(!(all(positive.groups %in% sub_groups) & 
+       all(negative.groups %in% sub_groups))){
+    
+    contrast.single <- contrast[sub_groups]
+    
+    ## tune the coefficients of positive groups so that their summation is 1
+    temp <- contrast.single[contrast.single > 0]
+    temp <- temp*(1/sum(temp, na.rm = TRUE))
+    contrast.single[contrast.single > 0] <- temp
+    
+    ## tune the coefficients of positive groups so that their summation is 1
+    temp2 <- contrast.single[contrast.single < 0]
+    temp2 <- temp2*abs(1/sum(temp2, na.rm = TRUE))
+    contrast.single[contrast.single < 0] <- temp2
+    
+    ## set the coefficients of non-existing groups to zero
+    contrast[] <- 0
+    contrast[sub_groups] <- contrast.single
+  }
+
+  if (inherits(fit, "lm")) {
+    coef_name <- names(stats::coef(fit))
+  } else {
+    coef_name <- names(lme4::fixef(fit))
+  }
+  
+  ## intercept
+  temp <- coef_name[grep("Intercept", coef_name)]
+  intercept_c <- rep(0, length(temp))
+  names(intercept_c) <- temp
+  if (length(temp) == 0) {
+    intercept_c <- NULL
+  }
+  
+  ## group
+  temp <- coef_name[grep("Group", coef_name)]
+  tempcontrast <- contrast[sub_groups]
+  group_c <- tempcontrast[gsub("Group", "", temp)] 
+  names(group_c) <- temp
+  if (length(temp) == 0) {
+    group_c<-NULL
+  }
+  
+  ## combine all
+  newcontrast <- c(intercept_c, group_c)
+  if(inherits(fit, "lm")) {
+    contrast1 <- newcontrast[!is.na(stats::coef(fit))]
+  } else {
+    contrast1 <- newcontrast[!is.na(lme4::fixef(fit))]
+  }
+  
+  return(contrast1)
+}
+
+
+# retired fuction (2020.04.13)
+# #############################################
+# ## get the unscaled covariance matrix
+# #############################################
+# #	statOmics, MSqRob hurdle model
+# #	Created 2020
+# .getVcovUnscaled <- function(model){
+# 
+#   if(inherits(fixed.model, "lm")){
+#     vcov <- summary(model)$cov.unscaled
+# 
+#   } else{
+#     p <- ncol(lme4::getME(model,"X"))
+#     q <- nrow(lme4::getME(model,"Zt"))
+#     Ct <- rbind2(t(lme4::getME(model,"X")),lme4::getME(model,"Zt"))
+#     Ginv <- Matrix::solve(Matrix::tcrossprod(lme4::getME(model,"Lambda"))+Matrix::Diagonal(q,1e-18))
+#     vcovInv <- Matrix::tcrossprod(Ct)
+#     vcovInv[((p+1):(q+p)),((p+1):(q+p))] <- vcovInv[((p+1):(q+p)),((p+1):(q+p))]+Ginv
+# 
+#     #remove rows with only zeros, making it uninvertible
+#     defined <- rowSums(as.matrix(vcovInv==0))!=ncol(vcovInv)
+#     defined[is.na(defined)] <- TRUE
+#     vcovInv <- vcovInv[defined, defined, drop=FALSE]
+# 
+#     #Estimated variance-covariance matrix vcov:
+#     vcov <- tryCatch(as.matrix(Matrix::solve(vcovInv)), error=function(e){
+#       return(vcovInv*NA)
+#     })
+# 
+#     rownames(vcov) <- colnames(vcovInv)
+#     colnames(vcov) <- rownames(vcovInv)
+#   }
+# 
+#   return(vcov)
+# }

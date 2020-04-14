@@ -1,7 +1,6 @@
-#' @import lme4
 #' @import statmod
-#' @importFrom nlme fixed.effects
-#' @importFrom dplyr group_by
+#' @importFrom limma squeezeVar
+#' @importFrom dplyr %>% group_by filter
 #' @importFrom stats aggregate anova coef lm median medpolish model.matrix na.omit p.adjust pt t.test xtabs
 #' @keywords internal
 
@@ -36,7 +35,7 @@
     ## perform empirical bayes moderation
     if(moderated){ ## moderated t statistic
       ## Estimate the prior variance and degree freedom
-      eb_fit <- limma::squeezeVar(fitted.models$s2, fitted.models$df)
+      eb_fit <- limma::squeezeVar(fitted.models$s2, fitted.models$s2_df)
         
       if(is.infinite(eb_fit$df.prior)){
         df.prior = 0
@@ -53,8 +52,9 @@
     # extract the linear model fitting results
     proteins <- fitted.models$protein # proteins
     s2.all <- fitted.models$s2  # group variance
-    df.all <- fitted.models$df  # degree freedom
+    s2_df.all <- fitted.models$s2_df  # degree freedom of s2
     lms <- fitted.models$model # linear models
+    coeff.all <- fitted.models$coeff # coefficients
     
     num.protein <- length(proteins)
     res <- as.data.frame(matrix(rep(NA, 7 * num.protein * ncomp), ncol = 7)) ## store the inference results
@@ -71,41 +71,18 @@
       ## record the contrast matrix for each protein
       sub.contrast.matrix <- contrast.matrix
       
-      sub_groups <- as.character(unique(sub_data$Group)) # groups in the sub data
+      sub_groups <- as.character(levels(sub_data[, c("Group")]))
       sub_groups <- sort(sub_groups) # sort the groups based on alphabetic order
-      
+
       ## get the linear model for proteins[i]
       fit <- lms[[proteins[i]]]
-      MSE <- s2.all[proteins[i]]
-      df <- df.all[proteins[i]]
+      s2 <- s2.all[proteins[i]]
+      s2_df <- s2_df.all[proteins[i]]
+      coeff <- coeff.all[[proteins[i]]]
       
       if(!is.character(fit)){ ## check the model is fittable 
-        # the protein is testable
-        if(class(fit) == "lm"){# single run case 
-          ## Get estimated fold change from mixed model
-          coeff <- coef(fit)
-          coeff[-1] <- coeff[-1] + coeff[1]
-          
-          ## Find the group name for baseline
-          names(coeff) <- gsub("Group", "", names(coeff))
-          names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
-          
-          s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
-          df.post <- df + df.prior
-          
-        } else{ # multiple run case
-          ## Get estimated fold change from mixed model
-          coeff <- fixed.effects(fit$mixed)
-          coeff[-1] <- coeff[-1] + coeff[1]
-          
-          # Find the group name for baseline
-          names(coeff) <- gsub("Group", "", names(coeff))
-          names(coeff)[1] <- setdiff(as.character(sub_groups), names(coeff))
-          
-          s2.post <- (s2.prior * df.prior + MSE * df)/(df.prior + df)
-          df.post <- df + df.prior
-          
-        }
+        
+        s2.post <- (s2.prior * df.prior + s2 * s2_df)/(df.prior + s2_df)
         
         ## Compare one specific contrast
         # perform testing for required contrasts
@@ -113,7 +90,7 @@
           count <- count + 1
           res[count, "Protein"] <- proteins[i] ## protein names
           res[count, "Comparison"] <- row.names(sub.contrast.matrix)[j] ## comparison
-          
+
           # groups with positive coefficients
           positive.groups <- colnames(sub.contrast.matrix)[sub.contrast.matrix[j,]>0]
           # groups with negative coefficients
@@ -122,43 +99,56 @@
           if(any(positive.groups %in% sub_groups) & 
              any(negative.groups %in% sub_groups)){
             
-            # if some groups not exist in the protein data
-            if(!(all(positive.groups %in% sub_groups) & 
-                 all(negative.groups %in% sub_groups))){
-              ## tune the coefficients of positive groups so that their summation is 1
-              temp <- sub.contrast.matrix[j,sub_groups][sub.contrast.matrix[j,sub_groups] > 0]
-              temp <- temp*(1/sum(temp, na.rm = TRUE))
-              sub.contrast.matrix[j,sub_groups][sub.contrast.matrix[j,sub_groups] > 0] <- temp
+            contrast.matrix.single <- as.vector(sub.contrast.matrix[j,])
+            names(contrast.matrix.single) <- colnames(sub.contrast.matrix)
+            
+            cm <- .make.contrast.single(fit$model, contrast.matrix.single, sub_data)
+            
+            ## logFC
+            FC <- (cm%*%coeff)[,1]
+            
+            ## variance and df
+            if(inherits(fit$model, "lm")){
+ 
+              variance <- diag(t(cm) %*% summary(fit$model)$cov.unscaled %*% cm)*s2.post
+              df.post <- s2_df + df.prior
               
-              ## tune the coefficients of positive groups so that their summation is 1
-              temp2 <- sub.contrast.matrix[j,sub_groups][sub.contrast.matrix[j,sub_groups] < 0]
-              temp2 <- temp2*abs(1/sum(temp2, na.rm = TRUE))
-              sub.contrast.matrix[j,sub_groups][sub.contrast.matrix[j,sub_groups] < 0] <- temp2
+            } else{
               
-              ## set the coefficients of non-existing groups to zero
-              sub.contrast.matrix[j,setdiff(colnames(sub.contrast.matrix), sub_groups)] <- 0
+              vss <- .vcovLThetaL(fit$model)
+              varcor <- vss(t(cm), c(fit$thopt, fit$sigma)) ## for the theta and sigma parameters
+              vcov <- varcor$unscaled.varcor*s2
+              se2 <- as.matrix(t(cm) %*% as.matrix(vcov) %*% cm)
+              
+              ## calculate variance
+              vcov.post <- varcor$unscaled.varcor*s2.post
+              variance <- as.matrix(t(cm) %*% as.matrix(vcov.post) %*% cm)
+              
+              ## calculate df
+              g <- .mygrad(function(x)  vss(t(cm), x)$varcor, c(fit$thopt, fit$sigma))
+              denom <- try(t(g) %*% fit$A %*% g, silent=TRUE)
+              if(inherits(denom, "try-error")) {
+                
+                df.post <- s2_df + df.prior
+              } else{
+                
+                df.post <- 2*(se2)^2/denom + df.prior
+              }
             }
             
-            ## calculate the size of each group
-            group_df <- sub_data %>% group_by(Group) %>% dplyr::summarise(n = sum(!is.na(Abundance)))
-            group_df$Group <- as.character(group_df$Group)
-            
-            ## variance of diff
-            variance <- s2.post * sum((1/group_df$n) * ((sub.contrast.matrix[j, group_df$Group])^2))
-            FC <- sum(coeff*(sub.contrast.matrix[j, names(coeff)])) # fold change
-            res[count, "log2FC"] <- FC
-            
-            ## Calculate the t statistic
+            ## calculate the t statistic
             t <- FC/sqrt(variance)
             
             ## calculate p-value
             p <- 2*pt(-abs(t), df = df.post)
             res[count, "pvalue"] <- p
             
-            ## SE
+            ## save testing results
+            res[count, "log2FC"] <- FC
             res[count, "SE"] <- sqrt(variance)
             res[count, "DF"] <- df.post
             res[count, "issue"] <- NA
+            
           } else{
             # at least one condition is missing
             out <- .issue.checking(data = sub_data, 

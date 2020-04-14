@@ -1,7 +1,7 @@
 Package: MSstatsTMT
 Title: Protein Significance Analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling
-Version: 1.4.5
-Date: 2020-03-01
+Version: 1.5.6
+Date: 2020-04-14
 Description: Tools for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling.
 Authors@R: c(person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut","cre")),
 	person("Meena", "Choi", email = "mnchoi67@gmail.com", role="aut"),
@@ -10,7 +10,7 @@ Authors@R: c(person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut
 Maintainer: Ting Huang <thuang0703@gmail.com>
 License: Artistic-2.0
 Depends: R (>= 3.6)
-Imports: limma, lme4, dplyr, tidyr, nlme, statmod,
+Imports: limma, lme4, lmerTest, dplyr, tidyr, statmod, methods,
     reshape2, data.table, matrixStats, stats, utils, ggplot2, grDevices, graphics, MSstats
 Suggests: BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
@@ -19,4 +19,4 @@ Encoding: UTF-8
 LazyData: true
 URL: http://msstats.org/msstatstmt/
 BugReports: https://groups.google.com/forum/#!forum/msstats
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

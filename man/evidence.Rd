@@ -4,7 +4,9 @@
 \name{evidence}
 \alias{evidence}
 \title{Example of output from MaxQuant for TMT-10plex experiments.}
-\format{A data frame with 1075 rows and 105 variables.}
+\format{
+A data frame with 1075 rows and 105 variables.
+}
 \usage{
 evidence
 }
