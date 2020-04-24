@@ -2,6 +2,9 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 1.4.7 (2020-04-24)}{\itemize{
+\item Update the NEWS file}}
+
 \section{Changes in version 1.4.6 (2020-04-14)}{\itemize{
 \item Fix bug in groupComparison() for unbalanced design
 \item Use df approximation from lmerTest to perform group comparison}}
