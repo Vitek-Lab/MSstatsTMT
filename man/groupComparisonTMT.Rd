@@ -8,7 +8,9 @@ groupComparisonTMT(
   data,
   contrast.matrix = "pairwise",
   moderated = FALSE,
-  adj.method = "BH"
+  adj.method = "BH",
+  remove_norm_channel = TRUE,
+  remove_empty_channel = TRUE
 )
 }
 \arguments{
@@ -19,6 +21,10 @@ groupComparisonTMT(
 \item{moderated}{TRUE will moderate t statistic; FALSE (default) uses ordinary t statistic.}
 
 \item{adj.method}{adjusted method for multiple comparison. "BH" is default.}
+
+\item{remove_norm_channel}{TRUE(default) removes 'Norm' channels from protein level data.}
+
+\item{remove_empty_channel}{TRUE(default) removes 'Empty' channels from protein level data.}
 }
 \value{
 data.frame with result of inference

@@ -2,6 +2,9 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 1.6.1 (2020-05-10)}{\itemize{
+\item Update groupComparisonTMT() to make predictions for every protein}}
+
 \section{Changes in version 1.4.7 (2020-04-24)}{\itemize{
 \item Update the NEWS file}}
 

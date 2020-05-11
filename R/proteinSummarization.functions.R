@@ -254,17 +254,32 @@
 
             if(length(unique(sub_data$Run)) > 1){ # multiple runs
               norm.channel <- sub_data[Condition == "Norm"]
-              norm.channel <- norm.channel[, .(Abundance = mean(Abundance, na.rm = TRUE)),
-                                           by = .(Protein, Run)] # calculate the mean over multiple normalization channels
-
-              norm.channel$diff <- median(norm.channel$Abundance, na.rm = TRUE) -
-                norm.channel$Abundance
-              setkey(sub_data, Run)
-              setkey(norm.channel, Run)
-              norm.sub_data <- merge(sub_data, norm.channel[, .(Run, diff)], all.x = TRUE)
-              norm.sub_data$Abundance <- norm.sub_data$Abundance + norm.sub_data$diff
-              norm.sub_data[, diff:=NULL]
-              norm.data[[proteins[i]]] <- norm.sub_data[,.(Mixture, TechRepMixture, Run, Channel, Protein, Abundance, BioReplicate, Condition)]
+              
+              if(nrow(norm.channel) > 0){ # normalization channels are existing
+                norm.channel <- norm.channel[, .(Abundance = mean(Abundance, na.rm = TRUE)),
+                                             by = .(Protein, Run)] # calculate the mean over multiple normalization channels
+                
+                if(nrow(norm.channel) > 1){ # more than one run have normalization channel
+                  
+                  norm.channel$diff <- median(norm.channel$Abundance, na.rm = TRUE) -
+                    norm.channel$Abundance
+                  setkey(sub_data, Run)
+                  setkey(norm.channel, Run)
+                  norm.sub_data <- merge(sub_data, norm.channel[, .(Run, diff)], all.x = TRUE)
+                  norm.sub_data$Abundance <- norm.sub_data$Abundance + norm.sub_data$diff
+                  norm.sub_data[, diff:=NULL]
+                  norm.data[[proteins[i]]] <- norm.sub_data[,.(Mixture, TechRepMixture, Run, Channel, 
+                                                               Protein, Abundance, BioReplicate, Condition)]
+                } else{ # only one run has normalization channel
+                  
+                  norm.data[[proteins[i]]] <- sub_data[,.(Mixture, TechRepMixture, Run, Channel, 
+                                                          Protein, Abundance, BioReplicate, Condition)]
+                }
+              } else{ # normalization channels are missing
+                
+                norm.data[[proteins[i]]] <- sub_data[,.(Mixture, TechRepMixture, Run, Channel, 
+                                                        Protein, Abundance, BioReplicate, Condition)]
+              }
             } else{ # only one run
 
               norm.data[[proteins[i]]] <- sub_data[,.(Mixture, TechRepMixture, Run, Channel, Protein, Abundance, BioReplicate, Condition)]

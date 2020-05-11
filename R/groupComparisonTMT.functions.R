@@ -35,7 +35,11 @@
     ## perform empirical bayes moderation
     if(moderated){ ## moderated t statistic
       ## Estimate the prior variance and degree freedom
-      eb_fit <- limma::squeezeVar(fitted.models$s2, fitted.models$s2_df)
+      
+      eb_input_s2 <- fitted.models$s2[fitted.models$s2_df!=0]
+      eb_input_df <- fitted.models$s2_df[fitted.models$s2_df!=0]
+      
+      eb_fit <- limma::squeezeVar(eb_input_s2, eb_input_df)
         
       if(is.infinite(eb_fit$df.prior)){
         df.prior = 0
@@ -71,7 +75,7 @@
       ## record the contrast matrix for each protein
       sub.contrast.matrix <- contrast.matrix
       
-      sub_groups <- as.character(levels(sub_data[, c("Group")]))
+      sub_groups <- as.character(unique(sub_data[, c("Group")]))
       sub_groups <- sort(sub_groups) # sort the groups based on alphabetic order
 
       ## get the linear model for proteins[i]
@@ -147,7 +151,14 @@
             res[count, "log2FC"] <- FC
             res[count, "SE"] <- sqrt(variance)
             res[count, "DF"] <- df.post
-            res[count, "issue"] <- NA
+            
+            if(s2_df == 0){
+              res[count, "issue"] <- "SingleMeasurePerCondition"
+              
+            } else{
+              res[count, "issue"] <- NA
+              
+            }
             
           } else{
             # at least one condition is missing
