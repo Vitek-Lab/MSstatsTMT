@@ -282,7 +282,8 @@ Tests for significant changes in protein abundance across conditions based on a 
 * `contrast.matrix` : Comparison between conditions of interests. 1) default is `pairwise`, which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 * `moderated` : If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.
 * `adj.method` : adjusted method for multiple comparison. 'BH` is default.
-
+* `remove_norm_channel` :  TRUE(default) removes `Norm` channels from protein level data.
+* `remove_empty_channel` :  TRUE(default) removes `Empty` channels from protein level data.
 
 ### Example
 ```{r message = FALSE, warning = FALSE}

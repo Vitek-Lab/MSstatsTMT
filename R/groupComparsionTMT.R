@@ -8,6 +8,8 @@
 #' @param contrast.matrix Comparison between conditions of interests. 1) default is 'pairwise', which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 #' @param moderated TRUE will moderate t statistic; FALSE (default) uses ordinary t statistic.
 #' @param adj.method adjusted method for multiple comparison. "BH" is default.
+#' @param remove_norm_channel TRUE(default) removes 'Norm' channels from protein level data.
+#' @param remove_empty_channel TRUE(default) removes 'Empty' channels from protein level data.
 #' @return data.frame with result of inference
 #' @examples
 #' data(input.pd)
@@ -37,7 +39,9 @@
 groupComparisonTMT <- function(data,
                                contrast.matrix = 'pairwise',
                                moderated = FALSE,
-                               adj.method = 'BH'){
+                               adj.method = 'BH',
+                               remove_norm_channel = TRUE,
+                               remove_empty_channel = TRUE){
 
     ## save process output in each step
     allfiles <- list.files()
@@ -82,6 +86,18 @@ groupComparisonTMT <- function(data,
         }
 
     }
+    
+    ## remove 'Empty' column : It should not used for further analysis
+    if (remove_empty_channel & is.element('Empty', unique(data$Condition))) {
+        data <- data[data$Condition != "Empty",]
+        data$Condition <- factor(data$Condition)
+    }
+    
+    ## remove 'Norm' column : It should not used for further analysis
+    if (remove_norm_channel & is.element('Norm', unique(data$Condition))) {
+        data <- data[data$Condition != "Norm",]
+        data$Condition <- factor(data$Condition)
+    }
 
     ## remove the rows with NA intensities
     data <- data[!is.na(data$Abundance),]
@@ -97,7 +113,9 @@ groupComparisonTMT <- function(data,
     ## report which options are used.
     processout <- rbind(processout, c(paste("Moderated t-stat :", moderated)))
     processout <- rbind(processout, c(paste("Adjust p-value :", adj.method)))
-
+    processout <- rbind(processout, c(paste("Remove empty channels :", remove_empty_channel)))
+    processout <- rbind(processout, c(paste("Remove normalization channels :", remove_norm_channel)))
+    
     write.table(processout, file = finalfile, row.names = FALSE)
 
     ## Inference

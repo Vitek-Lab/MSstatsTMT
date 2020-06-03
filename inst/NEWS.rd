@@ -2,6 +2,15 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 1.6.2 (2020-06-02)}{\itemize{
+\item Fix the bug in proteinSummarization() function and make sure the input to dataProcess is data.frame}}
+
+\section{Changes in version 1.6.1 (2020-05-10)}{\itemize{
+\item Update groupComparisonTMT() to make predictions for every protein}}
+
+\section{Changes in version 1.4.7 (2020-04-24)}{\itemize{
+\item Update the NEWS file}}
+
 \section{Changes in version 1.4.6 (2020-04-14)}{\itemize{
 \item Fix bug in groupComparison() for unbalanced design
 \item Use df approximation from lmerTest to perform group comparison}}

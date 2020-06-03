@@ -200,7 +200,6 @@ fit_reduced_model_onerun <- function(data) {
   for(i in seq_along(proteins)) {
     
     message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
-    TEST <-  FALSE
     sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
     # sub_groups <- as.character(unique(sub_data$Group))
     # if(length(sub_groups) == 1){
@@ -298,10 +297,18 @@ fit_reduced_model_onerun <- function(data) {
         ## Estimate the coeff from fixed model
         av <- anova(fit)
         coeff <- coef(fit)
-        # use error variance for testing
-        s2 <- av["Residuals", "Mean Sq"]
+        
         s2_df <- av["Residuals", "Df"]
         
+        if(s2_df == 0){
+          s2 <- 0
+          
+        } else{
+          # use error variance for testing
+          s2 <- av["Residuals", "Mean Sq"]
+          
+        }
+
         linear.models[[proteins[i]]] <- list(model = fit)
         
       } else{ 

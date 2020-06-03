@@ -101,6 +101,8 @@ proteinSummarization <- function(data,
                                                          MBimpute,
                                                          maxQuantileforCensored)
     
+    norm.protein.data <- as.data.frame(norm.protein.data)
+    
     ## remove 'Empty' column : It should not used for further analysis
     if (remove_empty_channel & is.element('Empty', unique(norm.protein.data$Condition))) {
       norm.protein.data <- norm.protein.data[norm.protein.data$Condition != "Empty",]
