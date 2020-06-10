@@ -2,6 +2,9 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 1.6.3 (2020-06-05)}{\itemize{
+\item Allow NA in the annotation file}}
+
 \section{Changes in version 1.6.2 (2020-06-02)}{\itemize{
 \item Fix the bug in proteinSummarization() function and make sure the input to dataProcess is data.frame}}
 

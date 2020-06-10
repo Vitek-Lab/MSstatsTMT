@@ -5,7 +5,7 @@
 #' @importFrom tidyr gather
 #' @importFrom tidyr spread
 #' @importFrom MSstats dataProcess
-#' @importFrom stats medpolish
+#' @importFrom stats na.omit medpolish
 #' @importFrom matrixStats colMedians
 #' @importFrom data.table :=
 
@@ -251,7 +251,7 @@
             message(paste("Normalization between MS runs for Protein :",
                           proteins[i] , "(", i, " of ", num.protein, ")"))
             sub_data <- data[Protein == proteins[i]] # data for protein i
-            sub_data <- na.omit(sub_data)
+            sub_data <- sub_data[!is.na(Abundance)]
 
             if(length(unique(sub_data$Run)) > 1){ # multiple runs
               norm.channel <- sub_data[Condition == "Norm"]
