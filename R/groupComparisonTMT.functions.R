@@ -1,7 +1,7 @@
 #' @import statmod
 #' @importFrom limma squeezeVar
 #' @importFrom dplyr %>% group_by filter
-#' @importFrom stats aggregate anova coef lm median medpolish model.matrix na.omit p.adjust pt t.test xtabs
+#' @importFrom stats aggregate anova coef lm median medpolish model.matrix p.adjust pt t.test xtabs
 #' @keywords internal
 
 .proposed.model <- function(data,
