@@ -247,9 +247,7 @@ OpenMStoMSstatsTMTFormat <- function(input,
         sub3 <- sub2[sub2$totalmea == max(sub2$totalmea), ]
         sub3 <- sub3 %>% dplyr::select(-totalmea)
         
-        if (nrow(sub3) < 2) {
-          keep_features <- c(keep_features, c(sub3$ID))
-        } 
+        keep_features <- c(keep_features, sub3$ID)
         rm(sub3)
       }
       rm(sub2)
@@ -264,7 +262,7 @@ OpenMStoMSstatsTMTFormat <- function(input,
   tmt_data_by_peptide <- input %>% 
     tidyr::gather(Channel, Intensity, -ProteinName, -PeptideSequence, -Charge, -PSM, -Run) %>%
     dplyr::group_by(Run, Channel, ProteinName, PeptideSequence, Charge, PSM) %>%
-    dplyr::summarize(Intensity=sum(Intensity, na.rm = TRUE)) %>%
+    dplyr::summarize(Intensity = mean(Intensity, na.rm = TRUE)) %>%
     dplyr::ungroup() %>% 
     filter(Intensity > 0) %>%
     dplyr::left_join(subject_info)
