@@ -226,12 +226,12 @@ SpectroMinetoMSstatsTMTFormat <- function(input,
                 } else {
                     # sum up or maximum abundances among intensities for identical features within one run
                     if(identical(summaryforMultipleRows, sum)){
-                        summaryforMultipleRows <- max
+                        temp_summaryforMultipleRows <- max
                     } else {
-                        summaryforMultipleRows <- sum
+                        temp_summaryforMultipleRows <- sum
                     }
 
-                    sub2$totalmea <- apply(sub2[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                    sub2$totalmea <- apply(sub2[, channels], 1, function(x) temp_summaryforMultipleRows(x, na.rm = TRUE))
                     sub3 <- sub2[sub2$totalmea == max(sub2$totalmea), ]
                     sub3 <- sub3[, which(colnames(sub2) != "totalmea")]
                     keepinfo.select <- rbind(keepinfo.select, sub3)

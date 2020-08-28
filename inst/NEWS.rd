@@ -2,7 +2,8 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
-\section{Changes in version 1.6.4 (2020-08-24)}{\itemize{
+\section{Changes in version 1.6.5 (2020-08-28)}{\itemize{
+\item Fix the bug in converters due to summaryforMultipleRows}
 \item Fix the bug in OpemMS converter due to duplicated rows}}
 
 \section{Changes in version 1.6.3 (2020-06-05)}{\itemize{

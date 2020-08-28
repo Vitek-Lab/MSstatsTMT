@@ -259,33 +259,34 @@ PDtoMSstatsTMTFormat <- function(input,
                         keepinfo.select <- rbind(keepinfo.select, sub4)
                         next()
                     } else {
-                        ## decision 4 : ## maximum or sum up abundances among intensities for identical features within one run
-                        if(!(length(summaryforMultipleRows) == 1 & (identical(summaryforMultipleRows, sum) | identical(summaryforMultipleRows, max)))){
-                            stop("summaryforMultipleRows can only be sum or max! ")
-                        }
 
-                        sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                      ## decision 4 : ## maximum or sum up abundances among intensities for identical features within one run
+                      if(!(length(summaryforMultipleRows) == 1 & (identical(summaryforMultipleRows, sum) | identical(summaryforMultipleRows, max)))){
+                        stop("summaryforMultipleRows can only be sum or max! ")
+                      }
+                      
+                      sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                      sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
+                      sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
+                      
+                      if (nrow(sub5) < 2) {
+                        keepinfo.select <- rbind(keepinfo.select, sub5)
+                        next()
+                      } else {
+                        # sum up or maximum abundances among intensities for identical features within one run
+                        if(identical(summaryforMultipleRows, sum)){
+                          temp_summaryforMultipleRows <- max
+                        } else {
+                          temp_summaryforMultipleRows <- sum
+                        }
+                        
+                        sub4$totalmea <- apply(sub4[, channels], 1, function(x) temp_summaryforMultipleRows(x, na.rm = TRUE))
                         sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
                         sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
-
-                        if (nrow(sub5) < 2) {
-                            keepinfo.select <- rbind(keepinfo.select, sub5)
-                            next()
-                        } else {
-                            # sum up or maximum abundances among intensities for identical features within one run
-                            if(identical(summaryforMultipleRows, sum)){
-                                summaryforMultipleRows <- max
-                            } else {
-                                summaryforMultipleRows <- sum
-                            }
-
-                            sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
-                            sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
-                            sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
-                            keepinfo.select <- rbind(keepinfo.select, sub5)
-                            
-                        }
-                        rm(sub5)
+                        keepinfo.select <- rbind(keepinfo.select, sub5)
+                        
+                      }
+                      rm(sub5)
                     }
                     rm(sub4)
                 }

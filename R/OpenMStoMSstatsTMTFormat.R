@@ -243,7 +243,7 @@ OpenMStoMSstatsTMTFormat <- function(input,
         next()
       } else {
         ## decision 2 : ## maximum abundances among intensities for identical features within one run
-        sub2$totalmea <- apply(sub2[, channels], 1, function(x) sum(x, na.rm = TRUE))
+        sub2$totalmea <- apply(sub2[, channels], 1, function(x) summaryforMultiplePSMs(x, na.rm = TRUE))
         sub3 <- sub2[sub2$totalmea == max(sub2$totalmea), ]
         sub3 <- sub3 %>% dplyr::select(-totalmea)
         
