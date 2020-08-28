@@ -500,6 +500,27 @@ PDtoMSstatsTMTFormat <- function(input,
                 # filter out the unused fractions
                 sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction.3$id)
                 
+                structure_4 <- aggregate(Run ~ . , 
+                                         data = unique(as.data.table(sub_data)[,.(fea, Run)]), 
+                                         length)
+                
+                ## check if there are features which have same maximal intensities across runs,
+                ## then average those fractions
+                remove_peptide_ion_4 <- structure_4[structure_4$Run > 1, ]
+                
+                if(nrow(remove_peptide_ion_4) > 0){
+                  sub_data$Run <- paste(sub_data$Mixture, sub_data$TechRepMixture, sep = "_")
+                  sub_data <- sub_data %>% 
+                    dplyr::select(ProteinName, PeptideSequence, Charge, PSM,
+                                  Mixture, TechRepMixture, Run,
+                                  Channel, Condition, BioReplicate, Intensity) %>% 
+                    dplyr::group_by(ProteinName, PeptideSequence, Charge, PSM, 
+                                    Mixture, TechRepMixture, Run, 
+                                    Channel, Condition, BioReplicate) %>%
+                    dplyr::summarize(Intensity = mean(Intensity, na.rm = TRUE)) %>%
+                    dplyr::ungroup()
+                }
+               
                 rm(max.frac.feature)
                 rm(remove.fraction.3)
                 rm(overlapped.feas.3)
@@ -531,6 +552,7 @@ PDtoMSstatsTMTFormat <- function(input,
     data.shared.pep.rm <- rbindlist(all.data)
     # The fractions have been combined
     data.shared.pep.rm$Run <- paste(data.shared.pep.rm$Mixture, data.shared.pep.rm$TechRepMixture, sep = "_")
+  
     return(data.shared.pep.rm)
 }
 
