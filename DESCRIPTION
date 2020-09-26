@@ -15,7 +15,12 @@ License: Artistic-2.0
 Depends: R (>= 3.6)
 Imports: limma, lme4, lmerTest, dplyr, tidyr, statmod, methods,
     reshape2, data.table, matrixStats, stats, utils, ggplot2, grDevices, graphics, MSstats
-Suggests: BiocStyle, knitr, rmarkdown, testthat
+Suggests: 
+    BiocStyle,
+    knitr,
+    rmarkdown,
+    testthat,
+    covr
 VignetteBuilder: knitr
 biocViews: ImmunoOncology, MassSpectrometry, Proteomics, Software
 Encoding: UTF-8

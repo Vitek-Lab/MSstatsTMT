@@ -2,6 +2,7 @@
 
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.org/Vitek-Lab/MSstatsTMT.svg?branch=master)](https://travis-ci.org/Vitek-Lab/MSstatsTMT)
+[![Codecov test coverage](https://codecov.io/gh/Vitek-Lab/MSstatsTMT/branch/master/graph/badge.svg)](https://codecov.io/gh/Vitek-Lab/MSstatsTMT?branch=master)
 <!-- badges: end -->
 
 
