@@ -82,8 +82,6 @@ MaxQtoMSstatsTMTFormat = function(
                        channel_columns = "Reporterintensitycorrected")
   annotation = MSstatsMakeAnnotation(input, annotation)
   
-  few_measurements = ifelse(rmPSM_withfewMea_withinRun, "remove", "keep")
-  
   feature_columns = c("PeptideSequence", "PrecursorCharge")
   input = MSstatsPreprocess(
     input, 
@@ -91,7 +89,7 @@ MaxQtoMSstatsTMTFormat = function(
     feature_columns,
     remove_shared_peptides = useUniquePeptide,
     remove_single_feature_proteins = rmProtein_with1Feature,
-    feature_cleaning = list(handle_features_with_few_measurements = few_measurements,
+    feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows))
   input = MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
@@ -124,8 +122,6 @@ OpenMStoMSstatsTMTFormat = function(
                         "MSstatsTMT", "OpenMS", ...)
   input = MSstatsClean(input)
   
-  few_measurements = ifelse(rmPSM_withfewMea_withinRun, "remove", "keep")
-  
   feature_columns = c("PeptideSequence", "PrecursorCharge")
   input = MSstatsPreprocess(
     input, 
@@ -133,7 +129,7 @@ OpenMStoMSstatsTMTFormat = function(
     feature_columns,
     remove_shared_peptides = useUniquePeptide,
     remove_single_feature_proteins = rmProtein_with1Feature,
-    feature_cleaning = list(handle_features_with_few_measurements = few_measurements,
+    feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultiplePSMs)
   )
   input = MSstatsBalancedDesign(input, feature_columns)
@@ -179,8 +175,6 @@ PDtoMSstatsTMTFormat <- function(
                        remove_protein_groups = useNumProteinsColumn)
   annotation = MSstatsMakeAnnotation(input, annotation)
   
-  few_measurements = ifelse(rmPSM_withfewMea_withinRun, "remove", "keep")
-  
   feature_columns = c("PeptideSequence", "PrecursorCharge")
   input = MSstatsPreprocess(
     input,
@@ -188,7 +182,7 @@ PDtoMSstatsTMTFormat <- function(
     feature_columns = c("PeptideSequence", "PrecursorCharge"),
     remove_shared_peptides = useUniquePeptide,
     remove_single_feature_proteins = rmProtein_with1Feature,
-    feature_cleaning = list(handle_features_with_few_measurements = few_measurements,
+    feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows)
   )
   input = MSstatsBalancedDesign(input, feature_columns)
@@ -228,8 +222,6 @@ SpectroMinetoMSstatsTMTFormat <- function(
   input = MSstatsClean(input)
   annotation = MSstatsMakeAnnotation(input, annotation)
   
-  few_measurements = ifelse(rmPSM_withfewMea_withinRun, "remove", "keep")
-  
   pq_filter = list(score_column = "PGQValue", 
                    score_threshold = 0.01, 
                    direction = "smaller",
@@ -256,7 +248,7 @@ SpectroMinetoMSstatsTMTFormat <- function(
     remove_shared_peptides = useUniquePeptide,
     remove_single_feature_proteins = rmProtein_with1Feature,
     score_filtering = list(pgq = pq_filter, psm_q = qval_filter),
-    feature_cleaning = list(handle_features_with_few_measurements = few_measurements,
+    feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows)
   )
   input = MSstatsBalancedDesign(input, feature_columns)
