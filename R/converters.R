@@ -70,7 +70,8 @@ MaxQtoMSstatsTMTFormat = function(
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
   session_info_path = NULL, ...
 ) {
-  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path)
+  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path,
+                      base = "MSstatsTMT_log_")
   MSstatsSaveSessionInfo(session_info_path, append = TRUE)
   
   input = MSstatsImport(list(evidence = evidence,
@@ -115,7 +116,8 @@ OpenMStoMSstatsTMTFormat = function(
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
   session_info_path = NULL, ...
 ) {
-  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path)
+  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path,
+                      base = "MSstatsTMT_log_")
   MSstatsSaveSessionInfo(session_info_path, append = TRUE)
   
   input = MSstatsImport(list(input = input), 
@@ -164,7 +166,8 @@ PDtoMSstatsTMTFormat <- function(
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
   session_info_path = NULL, ...
 ) {
-  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path)
+  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path,
+                      base = "MSstatsTMT_log_")
   MSstatsSaveSessionInfo(session_info_path, append = TRUE)
   
   input = MSstatsImport(list(input = input),
@@ -214,7 +217,8 @@ SpectroMinetoMSstatsTMTFormat <- function(
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
   session_info_path = NULL, ...
 ) {
-  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path)
+  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path,
+                      base = "MSstatsTMT_log_")
   MSstatsSaveSessionInfo(session_info_path, append = TRUE)
   
   input = MSstatsImport(list(input = input), 
