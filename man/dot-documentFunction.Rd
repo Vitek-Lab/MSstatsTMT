@@ -29,6 +29,23 @@ We assume to use unique peptide for each protein.}
 \item{removeMpeptides}{TRUE will remove the peptides including 'M' sequence. FALSE is default.}
 
 \item{removeProtein_with1Peptide}{TRUE will remove the proteins which have only 1 peptide and charge. FALSE is default.}
+
+\item{use_log_file}{logical. If TRUE, information about data processing
+will be saved to a file.}
+
+\item{append}{logical. If TRUE, information about data processing will be added
+to an existing log file.}
+
+\item{verbose}{logical. If TRUE, information about data processing wil be printed
+to the console.}
+
+\item{log_file_path}{character. Path to a file to which information about 
+data processing will be saved. 
+If not provided, such a file will be created automatically.
+If `append = TRUE`, has to be a valid path to a file.}
+
+\item{sesion_info_path}{character. Optional path to a file to which session 
+information will be saved.}
 }
 \description{
 A dummy function to store shared documentation items.

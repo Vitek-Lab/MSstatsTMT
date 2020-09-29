@@ -10,6 +10,11 @@ OpenMStoMSstatsTMTFormat(
   rmPSM_withfewMea_withinRun = TRUE,
   rmProtein_with1Feature = FALSE,
   summaryforMultiplePSMs = sum,
+  use_log_file = TRUE,
+  append = FALSE,
+  verbose = TRUE,
+  log_file_path = NULL,
+  session_info_path = NULL,
   ...
 )
 }

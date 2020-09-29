@@ -3,6 +3,7 @@
 #' @import data.table
 #' @importFrom MSstatsConvert MSstatsImport MSstatsClean MSstatsPreprocess 
 #' MSstatsBalancedDesign MSstatsMakeAnnotation MSstatsSaveSessionInfo
+#' MSstatsLogsSettings
 #' 
 #' @param fewMeasurements 'remove'(default) will remove the features that have 1 or 2 measurements across runs.
 #' @param useUniquePeptide TRUE (default) removes peptides that are assigned for more than one proteins. 
@@ -12,6 +13,18 @@
 #' @param removeProtein_with1Peptide TRUE will remove the proteins which have only 1 peptide and charge. FALSE is default.
 #' @param removeOxidationMpeptides TRUE will remove the peptides including 'oxidation (M)' in modification. FALSE is default.
 #' @param removeMpeptides TRUE will remove the peptides including 'M' sequence. FALSE is default.
+#' @param use_log_file logical. If TRUE, information about data processing
+#' will be saved to a file.
+#' @param append logical. If TRUE, information about data processing will be added
+#' to an existing log file.
+#' @param verbose logical. If TRUE, information about data processing wil be printed
+#' to the console.
+#' @param log_file_path character. Path to a file to which information about 
+#' data processing will be saved. 
+#' If not provided, such a file will be created automatically.
+#' If `append = TRUE`, has to be a valid path to a file.
+#' @param sesion_info_path character. Optional path to a file to which session 
+#' information will be saved.
 #' 
 #' @keywords internal
 #' 
@@ -53,9 +66,13 @@ MaxQtoMSstatsTMTFormat = function(
   evidence, proteinGroups, annotation, which.proteinid = 'Proteins',
   rmProt_Only.identified.by.site = FALSE, useUniquePeptide = TRUE,
   rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE, 
-  summaryforMultipleRows = sum, ...
+  summaryforMultipleRows = sum, 
+  use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
+  session_info_path = NULL, ...
 ) {
-  MSstatsSaveSessionInfo()
+  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path)
+  MSstatsSaveSessionInfo(session_info_path, append = TRUE)
+  
   input = MSstatsImport(list(evidence = evidence,
                              protein_groups = proteinGroups), 
                         "MSstatsTMT", "MaxQuant", ...)
@@ -96,9 +113,12 @@ MaxQtoMSstatsTMTFormat = function(
 #' 
 OpenMStoMSstatsTMTFormat = function(
   input, useUniquePeptide = TRUE, rmPSM_withfewMea_withinRun = TRUE, 
-  rmProtein_with1Feature = FALSE, summaryforMultiplePSMs = sum, ...
+  rmProtein_with1Feature = FALSE, summaryforMultiplePSMs = sum, 
+  use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
+  session_info_path = NULL, ...
 ) {
-  MSstatsSaveSessionInfo()
+  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path)
+  MSstatsSaveSessionInfo(session_info_path, append = TRUE)
   
   input = MSstatsImport(list(input = input), 
                         "MSstatsTMT", "OpenMS", ...)
@@ -144,9 +164,12 @@ PDtoMSstatsTMTFormat <- function(
   input, annotation, which.proteinid = 'Protein.Accessions', 
   useNumProteinsColumn = TRUE, useUniquePeptide = TRUE, 
   rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE, 
-  summaryforMultipleRows = sum, ...
+  summaryforMultipleRows = sum, 
+  use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
+  session_info_path = NULL, ...
 ) {
-  MSstatsSaveSessionInfo()
+  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path)
+  MSstatsSaveSessionInfo(session_info_path, append = TRUE)
   
   input = MSstatsImport(list(input = input),
                         "MSstatsTMT", "ProteomeDiscoverer", ...)
@@ -193,9 +216,12 @@ PDtoMSstatsTMTFormat <- function(
 SpectroMinetoMSstatsTMTFormat <- function(
   input, annotation, filter_with_Qvalue = TRUE, qvalue_cutoff = 0.01,
   useUniquePeptide = TRUE, rmPSM_withfewMea_withinRun = TRUE, 
-  rmProtein_with1Feature = FALSE, summaryforMultipleRows = sum, ...
+  rmProtein_with1Feature = FALSE, summaryforMultipleRows = sum,
+  use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
+  session_info_path = NULL, ...
 ) {
-  MSstatsSaveSessionInfo()
+  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path)
+  MSstatsSaveSessionInfo(session_info_path, append = TRUE)
   
   input = MSstatsImport(list(input = input), 
                         "MSstatsTMT", "SpectroMine", ...)
