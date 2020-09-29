@@ -13,8 +13,22 @@ Authors@R: c(
 Maintainer: Ting Huang <thuang0703@gmail.com>
 License: Artistic-2.0
 Depends: R (>= 3.6)
-Imports: limma, lme4, lmerTest, dplyr, tidyr, statmod, methods,
-    reshape2, data.table, matrixStats, stats, utils, ggplot2, grDevices, graphics, MSstats
+Imports: 
+    limma,
+    lme4,
+    lmerTest,
+    statmod,
+    methods,
+    reshape2,
+    data.table,
+    matrixStats,
+    stats,
+    utils,
+    ggplot2,
+    grDevices,
+    graphics,
+    MSstats,
+    checkmate
 Suggests: 
     BiocStyle,
     knitr,
