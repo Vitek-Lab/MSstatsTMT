@@ -70,21 +70,23 @@ MaxQtoMSstatsTMTFormat = function(
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
   session_info_path = NULL, ...
 ) {
-  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path,
-                      base = "MSstatsTMT_log_")
-  MSstatsSaveSessionInfo(session_info_path, append = TRUE)
+  MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
+                                      log_file_path, base = "MSstatsTMT_log_")
+  MSstatsConvert::MSstatsSaveSessionInfo(session_info_path, append = TRUE,
+                                         base = "MSstatsTMT_session_info_")
   
-  input = MSstatsImport(list(evidence = evidence,
-                             protein_groups = proteinGroups), 
-                        "MSstatsTMT", "MaxQuant", ...)
-  input = MSstatsClean(input,
-                       protein_id_col = which.proteinid, 
-                       remove_by_site = rmProt_Only.identified.by.site,
-                       channel_columns = "Reporterintensitycorrected")
-  annotation = MSstatsMakeAnnotation(input, annotation)
+  input = MSstatsConvert::MSstatsImport(list(evidence = evidence,
+                                             protein_groups = proteinGroups), 
+                                        "MSstatsTMT", "MaxQuant", ...)
+  input = MSstatsConvert::MSstatsClean(
+    input,
+    protein_id_col = which.proteinid, 
+    remove_by_site = rmProt_Only.identified.by.site,
+    channel_columns = "Reporterintensitycorrected")
+  annotation = MSstatsConvert::MSstatsMakeAnnotation(input, annotation)
   
   feature_columns = c("PeptideSequence", "PrecursorCharge")
-  input = MSstatsPreprocess(
+  input = MSstatsConvert::MSstatsPreprocess(
     input, 
     annotation, 
     feature_columns,
@@ -92,7 +94,7 @@ MaxQtoMSstatsTMTFormat = function(
     remove_single_feature_proteins = rmProtein_with1Feature,
     feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows))
-  input = MSstatsBalancedDesign(input, feature_columns)
+  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   input[, intersect(standard_columns_tmt, colnames(input))]
 }
@@ -116,16 +118,17 @@ OpenMStoMSstatsTMTFormat = function(
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
   session_info_path = NULL, ...
 ) {
-  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path,
-                      base = "MSstatsTMT_log_")
-  MSstatsSaveSessionInfo(session_info_path, append = TRUE)
+  MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
+                                      log_file_path, base = "MSstatsTMT_log_")
+  MSstatsConvert::MSstatsSaveSessionInfo(session_info_path, append = TRUE,
+                                         base = "MSstatsTMT_session_info_")
   
-  input = MSstatsImport(list(input = input), 
-                        "MSstatsTMT", "OpenMS", ...)
-  input = MSstatsClean(input)
+  input = MSstatsConvert::MSstatsImport(list(input = input), 
+                                        "MSstatsTMT", "OpenMS", ...)
+  input = MSstatsConvert::MSstatsClean(input)
   
   feature_columns = c("PeptideSequence", "PrecursorCharge")
-  input = MSstatsPreprocess(
+  input = MSstatsConvert::MSstatsPreprocess(
     input, 
     NULL, 
     feature_columns,
@@ -134,7 +137,7 @@ OpenMStoMSstatsTMTFormat = function(
     feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultiplePSMs)
   )
-  input = MSstatsBalancedDesign(input, feature_columns)
+  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   input[, intersect(standard_columns_tmt, colnames(input))]
@@ -166,20 +169,22 @@ PDtoMSstatsTMTFormat <- function(
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
   session_info_path = NULL, ...
 ) {
-  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path,
-                      base = "MSstatsTMT_log_")
-  MSstatsSaveSessionInfo(session_info_path, append = TRUE)
+  MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
+                                      log_file_path, base = "MSstatsTMT_log_")
+  MSstatsConvert::MSstatsSaveSessionInfo(session_info_path, append = TRUE,
+                                         base = "MSstatsTMT_session_info_")
   
-  input = MSstatsImport(list(input = input),
-                        "MSstatsTMT", "ProteomeDiscoverer", ...)
-  input = MSstatsClean(input, 
-                       protein_id_column = which.proteinid,
-                       remove_shared = useNumProteinsColumn,
-                       remove_protein_groups = useNumProteinsColumn)
-  annotation = MSstatsMakeAnnotation(input, annotation)
+  input = MSstatsConvert::MSstatsImport(list(input = input),
+                                        "MSstatsTMT", "ProteomeDiscoverer", ...)
+  input = MSstatsConvert::MSstatsClean(
+    input, 
+    protein_id_column = which.proteinid,
+    remove_shared = useNumProteinsColumn,
+    remove_protein_groups = useNumProteinsColumn)
+  annotation = MSstatsConvert::MSstatsMakeAnnotation(input, annotation)
   
   feature_columns = c("PeptideSequence", "PrecursorCharge")
-  input = MSstatsPreprocess(
+  input = MSstatsConvert::MSstatsPreprocess(
     input,
     annotation, 
     feature_columns = c("PeptideSequence", "PrecursorCharge"),
@@ -188,7 +193,7 @@ PDtoMSstatsTMTFormat <- function(
     feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows)
   )
-  input = MSstatsBalancedDesign(input, feature_columns)
+  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   input[, intersect(standard_columns_tmt, colnames(input))]
 }
@@ -217,13 +222,14 @@ SpectroMinetoMSstatsTMTFormat <- function(
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL,
   session_info_path = NULL, ...
 ) {
-  MSstatsLogsSettings(use_log_file, append, verbose, log_file_path,
-                      base = "MSstatsTMT_log_")
-  MSstatsSaveSessionInfo(session_info_path, append = TRUE)
+  MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
+                                      log_file_path, base = "MSstatsTMT_log_")
+  MSstatsConvert::MSstatsSaveSessionInfo(session_info_path, append = TRUE,
+                                         base = "MSstatsTMT_session_info_")
   
-  input = MSstatsImport(list(input = input), 
-                        "MSstatsTMT", "SpectroMine", ...)
-  input = MSstatsClean(input)
+  input = MSstatsConvert::MSstatsImport(list(input = input), 
+                                        "MSstatsTMT", "SpectroMine", ...)
+  input = MSstatsConvert::MSstatsClean(input)
   annotation = MSstatsMakeAnnotation(input, annotation)
   
   pq_filter = list(score_column = "PGQValue", 
@@ -245,7 +251,7 @@ SpectroMinetoMSstatsTMTFormat <- function(
                      drop_column = TRUE)
   
   feature_columns = c("PeptideSequence", "PrecursorCharge") 
-  input = MSstatsPreprocess(
+  input = MSstatsConvert::MSstatsPreprocess(
     input, 
     annotation, 
     feature_columns,
@@ -255,7 +261,7 @@ SpectroMinetoMSstatsTMTFormat <- function(
     feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows)
   )
-  input = MSstatsBalancedDesign(input, feature_columns)
+  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   input[, intersect(standard_columns_tmt, colnames(input))]
 }
