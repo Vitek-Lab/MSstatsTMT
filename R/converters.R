@@ -2,7 +2,7 @@
 #' 
 #' @import data.table
 #' @importFrom MSstatsConvert MSstatsImport MSstatsClean MSstatsPreprocess 
-#' MSstatsBalancedDesign MSstatsMakeAnnotation
+#' MSstatsBalancedDesign MSstatsMakeAnnotation MSstatsSaveSessionInfo
 #' 
 #' @param fewMeasurements 'remove'(default) will remove the features that have 1 or 2 measurements across runs.
 #' @param useUniquePeptide TRUE (default) removes peptides that are assigned for more than one proteins. 
@@ -55,6 +55,7 @@ MaxQtoMSstatsTMTFormat = function(
   rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE, 
   summaryforMultipleRows = sum, ...
 ) {
+  MSstatsSaveSessionInfo()
   input = MSstatsImport(list(evidence = evidence,
                              protein_groups = proteinGroups), 
                         "MSstatsTMT", "MaxQuant", ...)
@@ -97,6 +98,8 @@ OpenMStoMSstatsTMTFormat = function(
   input, useUniquePeptide = TRUE, rmPSM_withfewMea_withinRun = TRUE, 
   rmProtein_with1Feature = FALSE, summaryforMultiplePSMs = sum, ...
 ) {
+  MSstatsSaveSessionInfo()
+  
   input = MSstatsImport(list(input = input), 
                         "MSstatsTMT", "OpenMS", ...)
   input = MSstatsClean(input)
@@ -143,6 +146,8 @@ PDtoMSstatsTMTFormat <- function(
   rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE, 
   summaryforMultipleRows = sum, ...
 ) {
+  MSstatsSaveSessionInfo()
+  
   input = MSstatsImport(list(input = input),
                         "MSstatsTMT", "ProteomeDiscoverer", ...)
   input = MSstatsClean(input, 
@@ -190,6 +195,8 @@ SpectroMinetoMSstatsTMTFormat <- function(
   useUniquePeptide = TRUE, rmPSM_withfewMea_withinRun = TRUE, 
   rmProtein_with1Feature = FALSE, summaryforMultipleRows = sum, ...
 ) {
+  MSstatsSaveSessionInfo()
+  
   input = MSstatsImport(list(input = input), 
                         "MSstatsTMT", "SpectroMine", ...)
   input = MSstatsClean(input)
