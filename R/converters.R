@@ -40,11 +40,6 @@
 }
 
 
-standard_columns_tmt = c("ProteinName", "PeptideSequence", "Charge", "PSM", 
-                         "Mixture", "TechRepMixture", "Run", "Channel", 
-                         "BioReplicate", "Condition", "Intensity" )
-
-
 #' Generate MSstatsTMT required input format from MaxQuant output
 #' 
 #' @param evidence name of 'evidence.txt' data, which includes feature-level data.
@@ -96,7 +91,7 @@ MaxQtoMSstatsTMTFormat = function(
                             summarize_multiple_psms = summaryforMultipleRows))
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
-  input[, intersect(standard_columns_tmt, colnames(input))]
+  input
 }
 
 
@@ -140,7 +135,7 @@ OpenMStoMSstatsTMTFormat = function(
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
-  input[, intersect(standard_columns_tmt, colnames(input))]
+  input
 }
 
 
@@ -195,7 +190,7 @@ PDtoMSstatsTMTFormat <- function(
   )
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
-  input[, intersect(standard_columns_tmt, colnames(input))]
+  input
 }
 
 
@@ -263,5 +258,5 @@ SpectroMinetoMSstatsTMTFormat <- function(
   )
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
-  input[, intersect(standard_columns_tmt, colnames(input))]
+  input
 }
