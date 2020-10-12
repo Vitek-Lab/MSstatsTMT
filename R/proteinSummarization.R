@@ -11,8 +11,6 @@
 #' @param maxQuantileforCensored We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
 #' @param remove_norm_channel TRUE(default) removes 'Norm' channels from protein level data.
 #' @param remove_empty_channel TRUE(default) removes 'Empty' channels from protein level data.
-#' @param make_copy logical, if TRUE, a copy of `data` will be used. 
-#' If FALSE, operations such as normalization will affect the input `data`. 
 #' 
 #' @importFrom MSstatsConvert MSstatsSaveSessionInfo
 #'   
@@ -31,11 +29,11 @@
 proteinSummarization = function(
   data, method = 'msstats', global_norm = TRUE, reference_norm = TRUE,
   remove_norm_channel = TRUE, remove_empty_channel = TRUE, MBimpute = TRUE,
-  maxQuantileforCensored = NULL, make_copy = TRUE
+  maxQuantileforCensored = NULL
 ){
-
+  
   getOption("MSstatsLog")("INFO", "** MSstatsTMT - proteinSummarization function")
-  getOption("MSstatsLog")("INFO", "** MSstatsTMT - proteinSummarization function")
+  getOption("MSstatsMsg")("INFO", "** MSstatsTMT - proteinSummarization function")
   
   MSstatsConvert::MSstatsSaveSessionInfo(NULL, FALSE, "MSstatsTMT_session_info_")
   .checkSummarizationParams(data, method, global_norm, reference_norm, 
@@ -43,13 +41,12 @@ proteinSummarization = function(
                             MBimpute, maxQuantileforCensored)
   .logSummarizationParams(method, global_norm, reference_norm,
                           remove_norm_channel, remove_empty_channel)
+  is_validated = inherits(data, "MSstatsValidated")
   
-  if (make_copy) {
-    input = data.table::as.data.table(data)
-  } else {
-    input = data.table::setDT(data)
-  }
+  input = data.table::as.data.table(unclass(data))
+  .prepareForSummarization(input)
   input = MSstatsNormalizeTMT(input, "peptides", global_norm)
+  
   summarized = MSstatsSummarizeTMT(input,
                                    method,
                                    MBimpute,
@@ -60,4 +57,26 @@ proteinSummarization = function(
   summarized = .removeRedundantChannels(summarized, remove_empty_channel, 
                                         remove_norm_channel)
   as.data.frame(summarized)
+}
+
+
+#' Prepare TMT data for protein-level summarization
+#' @param input data.table
+#' @return NULL
+#' @keywords internal
+.prepareForSummarization = function(input) {
+  ProteinName = Intensity = Run = Channel = NULL
+  log2Intensity = RunChannel = PSM = NULL
+  
+  input[, log2Intensity := log(Intensity, 2)]
+  input[, ProteinName := as.character(ProteinName)]
+  input[, PSM := as.character(PSM)]
+  input[, RunChannel := paste(Run, Channel, sep = "_")]
+  
+  if (any(!is.na(input$Intensity) & input$Intensity < 1)) {
+    input[, log2Intensity := ifelse(!is.na(Intensity) & Intensity < 1,
+                                    NA, log2Intensity)]
+    msg = "** Negative log2 intensities were replaced with NA."
+    getOption("MSstatsMsg")("INFO", msg)
+  }
 }
