@@ -91,6 +91,12 @@ MaxQtoMSstatsTMTFormat = function(
                             summarize_multiple_psms = summaryforMultipleRows))
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
+  
+  msg_final = paste("** Finished preprocessing. The dataset is ready",
+                    "to be processed by the proteinSummarization function.")
+  getOption("MSstatsLog")("INFO", msg_final)
+  getOption("MSstatsMsg")("INFO", msg_final)
+  getOption("MSstatsLog")("INFO", "\n")
   input
 }
 
@@ -135,6 +141,12 @@ OpenMStoMSstatsTMTFormat = function(
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
+  
+  msg_final = paste("** Finished preprocessing. The dataset is ready",
+                    "to be processed by the proteinSummarization function.")
+  getOption("MSstatsLog")("INFO", msg_final)
+  getOption("MSstatsMsg")("INFO", msg_final)
+  getOption("MSstatsLog")("INFO", "\n")
   input
 }
 
@@ -190,6 +202,12 @@ PDtoMSstatsTMTFormat <- function(
   )
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
+  
+  msg_final = paste("** Finished preprocessing. The dataset is ready",
+                    "to be processed by the proteinSummarization function.")
+  getOption("MSstatsLog")("INFO", msg_final)
+  getOption("MSstatsMsg")("INFO", msg_final)
+  getOption("MSstatsLog")("INFO", "\n")
   input
 }
 
@@ -258,5 +276,11 @@ SpectroMinetoMSstatsTMTFormat <- function(
   )
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
+  
+  msg_final = paste("** Finished preprocessing. The dataset is ready",
+                    "to be processed by the proteinSummarization function.")
+  getOption("MSstatsLog")("INFO", msg_final)
+  getOption("MSstatsMsg")("INFO", msg_final)
+  getOption("MSstatsLog")("INFO", "\n")
   input
 }
