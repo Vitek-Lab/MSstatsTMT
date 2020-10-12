@@ -13,39 +13,17 @@ MSstatsSummarizeTMT = function(input, method, impute,
 ) {
   log2Intensity = NULL
   
-  .prepareForSummarization(input)
   annotation = unique(input[!is.na(log2Intensity),
                             c("Run", "Channel", "BioReplicate", "Condition",
                               "Mixture", "TechRepMixture", "RunChannel"),
                             with = FALSE])
-  
-  summarized = .summarizeTMT(input, method, annotation)
+
+  summarized = .summarizeTMT(input, method, annotation, 
+                             impute, max_quantile_censored)
   .makeFactorColumnsTMT(summarized)
   summarized[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
                  "Condition", "TechRepMixture", "Mixture"),
              with = FALSE]
-}
-
-
-#' Prepare TMT data for protein-level summarization
-#' @param input data.table
-#' @return NULL
-#' @keywords internal
-.prepareForSummarization = function(input) {
-  ProteinName = Intensity = Run = Channel = NULL
-  log2Intensity = RunChannel = PSM = NULL
-  
-  input[, log2Intensity := log(Intensity, 2)]
-  input[, ProteinName := as.character(ProteinName)]
-  input[, PSM := as.character(PSM)]
-  input[, RunChannel := paste(Run, Channel, sep = "_")]
-  
-  if (any(!is.na(input$Intensity) & input$Intensity < 1)) {
-    input[, log2Intensity := ifelse(!is.na(Intensity) & Intensity < 1,
-                                    NA, log2Intensity)]
-    msg = "** Negative log2 intensities were replaced with NA."
-    getOption("MSstatsMsg")("INFO", msg)
-  }
 }
 
 
@@ -67,11 +45,15 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' Performs summarization for TMT data
 #' @param input data.table
 #' @param method "mstats"/"MedianPolish"/"LogSum"/"Median"
-#' @param annotation data.table with run and channel annotation
+#' @inheritParams .summarizeMSstats
 #' @return data.table
 #' @keywords internal
-.summarizeTMT = function(input, method, annotation) {
+.summarizeTMT = function(input, method, annotation, impute, 
+                         max_quantile_censored
+) {
   if (method == "msstats") {
+    summarized = .summarizeMSstats(input, annotation, impute, 
+                                   max_quantile_censored)
     method_msg = "MSstats"
   } else if (method == "MedianPolish") {
     summarized = .summarizeMSstats(input, annotation)
@@ -104,6 +86,8 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @keywords internal
 .summarizeMSstats = function(input, annotation, impute, 
                              max_quantile_censored = NULL) {
+  MSRun = NULL
+  
   runs = na.omit(unique(annotation$Run))
   num_runs = length(runs)
   
@@ -116,11 +100,11 @@ MSstatsSummarizeTMT = function(input, method, impute,
   summarized_results = vector("list", num_runs)
   
   for (i in seq_len(num_runs)) {
-    message(paste("Summarizing for Run :", runs[i] ,
-                  "(", i, " of ", num.run, ")"))
-    
     msstats_summary = MSstatsdev::dataProcess(
-      as.data.frame(input[MSRun == runs[i]]),
+      as.data.frame(input[MSRun == runs[1],
+                          list(ProteinName, PeptideSequence, PrecursorCharge,
+                               FragmentIon, ProductCharge, Run, Condition,
+                               BioReplicate, Intensity, IsotopeLabelType)]),
       normalization = FALSE,
       summaryMethod = "TMP",
       censoredInt = "NA",
@@ -165,7 +149,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
                       annotation,
                       all.x = TRUE, all.y = TRUE),
                 all.y = TRUE)
-
+  
   new_annotation = unique(input[order(Run, ProteinName), 
                                 list(RunChannel = paste(Run, Channel, sep = "_"), 
                                      ProteinName, Run)])
