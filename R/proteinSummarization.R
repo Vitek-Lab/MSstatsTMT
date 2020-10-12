@@ -11,6 +11,8 @@
 #' @param maxQuantileforCensored We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
 #' @param remove_norm_channel TRUE(default) removes 'Norm' channels from protein level data.
 #' @param remove_empty_channel TRUE(default) removes 'Empty' channels from protein level data.
+#' @param make_copy logical, if TRUE, a copy of `data` will be used. 
+#' If FALSE, operations such as normalization will affect the input `data`. 
 #'   
 #' @return data.frame with protein-level summarization for each run and channel
 #' 
@@ -27,7 +29,7 @@
 proteinSummarization = function(
   data, method = 'msstats', global_norm = TRUE, reference_norm = TRUE,
   remove_norm_channel = TRUE, remove_empty_channel = TRUE, MBimpute = TRUE,
-  maxQuantileforCensored = NULL
+  maxQuantileforCensored = NULL, make_copy = TRUE
 ){
 
   getOption("MSstatsLog")("INFO", "** MSstatsTMT - proteinSummarization function")
@@ -39,7 +41,12 @@ proteinSummarization = function(
   .logSummarizationParams(method, global_norm, reference_norm,
                           remove_norm_channel, remove_empty_channel)
   
-  input = MSstatsNormalizeTMT(data, "peptides", global_norm)
+  if (make_copy) {
+    input = data.table::as.data.table(data)
+  } else {
+    input = data.table::setDT(data)
+  }
+  input = MSstatsNormalizeTMT(input, "peptides", global_norm)
   summarized = MSstatsSummarizeTMT(input,
                                    method,
                                    global_norm,
