@@ -28,7 +28,8 @@ Imports:
     grDevices,
     graphics,
     MSstats,
-    checkmate
+    checkmate,
+    MSstatsdev
 Suggests: 
     BiocStyle,
     knitr,

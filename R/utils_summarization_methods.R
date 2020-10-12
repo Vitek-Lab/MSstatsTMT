@@ -99,6 +99,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @param max_quantile_censored We assume missing values are censored. 
 #' maxQuantileforCensored is Maximum quantile for deciding censored missing 
 #' value, for instance, 0.999. Default is Null.
+#' @importFrom MSstatsdev dataProcess
 #' @return data.table
 #' @keywords internal
 .summarizeMSstats = function(input, annotation, impute, 
@@ -118,7 +119,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
     message(paste("Summarizing for Run :", runs[i] ,
                   "(", i, " of ", num.run, ")"))
     
-    msstats_summary = MSstats::dataProcess(
+    msstats_summary = MSstatsdev::dataProcess(
       as.data.frame(input[MSRun == runs[i]]),
       normalization = FALSE,
       summaryMethod = "TMP",
