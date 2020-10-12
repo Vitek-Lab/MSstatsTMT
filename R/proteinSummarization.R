@@ -13,6 +13,8 @@
 #' @param remove_empty_channel TRUE(default) removes 'Empty' channels from protein level data.
 #' @param make_copy logical, if TRUE, a copy of `data` will be used. 
 #' If FALSE, operations such as normalization will affect the input `data`. 
+#' 
+#' @importFrom MSstatsConvert MSstatsSaveSessionInfo
 #'   
 #' @return data.frame with protein-level summarization for each run and channel
 #' 
@@ -35,6 +37,7 @@ proteinSummarization = function(
   getOption("MSstatsLog")("INFO", "** MSstatsTMT - proteinSummarization function")
   getOption("MSstatsLog")("INFO", "** MSstatsTMT - proteinSummarization function")
   
+  MSstatsConvert::MSstatsSaveSessionInfo(NULL, FALSE, "MSstatsTMT_session_info_")
   .checkSummarizationParams(data, method, global_norm, reference_norm, 
                             remove_norm_channel, remove_empty_channel,
                             MBimpute, maxQuantileforCensored)
