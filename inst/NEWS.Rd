@@ -2,6 +2,11 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 1.6.6 (2020-10-13)}{\itemize{
+\item Fix the bug in converters due to fractions with same mean, sum and max values
+\item Fix the bug in converters due to summaryforMultipleRows
+\item Fix the bug in OpemMS converter due to duplicated rows}}
+
 \section{Changes in version 1.6.3 (2020-06-05)}{\itemize{
 \item Allow NA in the annotation file}}
 

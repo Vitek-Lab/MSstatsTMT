@@ -259,33 +259,34 @@ PDtoMSstatsTMTFormat <- function(input,
                         keepinfo.select <- rbind(keepinfo.select, sub4)
                         next()
                     } else {
-                        ## decision 4 : ## maximum or sum up abundances among intensities for identical features within one run
-                        if(!(length(summaryforMultipleRows) == 1 & (identical(summaryforMultipleRows, sum) | identical(summaryforMultipleRows, max)))){
-                            stop("summaryforMultipleRows can only be sum or max! ")
-                        }
 
-                        sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                      ## decision 4 : ## maximum or sum up abundances among intensities for identical features within one run
+                      if(!(length(summaryforMultipleRows) == 1 & (identical(summaryforMultipleRows, sum) | identical(summaryforMultipleRows, max)))){
+                        stop("summaryforMultipleRows can only be sum or max! ")
+                      }
+                      
+                      sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                      sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
+                      sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
+                      
+                      if (nrow(sub5) < 2) {
+                        keepinfo.select <- rbind(keepinfo.select, sub5)
+                        next()
+                      } else {
+                        # sum up or maximum abundances among intensities for identical features within one run
+                        if(identical(summaryforMultipleRows, sum)){
+                          temp_summaryforMultipleRows <- max
+                        } else {
+                          temp_summaryforMultipleRows <- sum
+                        }
+                        
+                        sub4$totalmea <- apply(sub4[, channels], 1, function(x) temp_summaryforMultipleRows(x, na.rm = TRUE))
                         sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
                         sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
-
-                        if (nrow(sub5) < 2) {
-                            keepinfo.select <- rbind(keepinfo.select, sub5)
-                            next()
-                        } else {
-                            # sum up or maximum abundances among intensities for identical features within one run
-                            if(identical(summaryforMultipleRows, sum)){
-                                summaryforMultipleRows <- max
-                            } else {
-                                summaryforMultipleRows <- sum
-                            }
-
-                            sub4$totalmea <- apply(sub4[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
-                            sub5 <- sub4[sub4$totalmea == max(sub4$totalmea), ]
-                            sub5 <- sub5[, which(colnames(sub4) != "totalmea")]
-                            keepinfo.select <- rbind(keepinfo.select, sub5)
-                            
-                        }
-                        rm(sub5)
+                        keepinfo.select <- rbind(keepinfo.select, sub5)
+                        
+                      }
+                      rm(sub5)
                     }
                     rm(sub4)
                 }
@@ -463,7 +464,7 @@ PDtoMSstatsTMTFormat <- function(input,
               # select the rows for the features that are measured in multiple fractions
               overlapped.feas.2 <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion_2$fea)
               
-              # keep the fractions with maximum summation reporter ion abundance
+              # keep the fractions with largest summation reporter ion abundance
               sum.frac.feature <- overlapped.feas.2 %>% 
                 dplyr::group_by(fea, id) %>% 
                 dplyr::summarise(sum = sum(Intensity, na.rm = TRUE))
@@ -487,7 +488,7 @@ PDtoMSstatsTMTFormat <- function(input,
                 # select the rows for the features that are measured in multiple fractions
                 overlapped.feas.3 <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion_3$fea)
                 
-                # keep the fractions with maximum summation reporter ion abundance
+                # keep the fractions with largest maximal reporter ion abundance
                 max.frac.feature <- overlapped.feas.3 %>% 
                   dplyr::group_by(fea, id) %>% 
                   dplyr::summarise(max = max(Intensity, na.rm = TRUE))
@@ -499,6 +500,27 @@ PDtoMSstatsTMTFormat <- function(input,
                 # filter out the unused fractions
                 sub_data <- sub_data %>% dplyr::filter(!id %in% remove.fraction.3$id)
                 
+                structure_4 <- aggregate(Run ~ . , 
+                                         data = unique(as.data.table(sub_data)[,.(fea, Run)]), 
+                                         length)
+                
+                ## check if there are features which have same maximal intensities across runs,
+                ## then average those fractions
+                remove_peptide_ion_4 <- structure_4[structure_4$Run > 1, ]
+                
+                if(nrow(remove_peptide_ion_4) > 0){
+                  sub_data$Run <- paste(sub_data$Mixture, sub_data$TechRepMixture, sep = "_")
+                  sub_data <- sub_data %>% 
+                    dplyr::select(ProteinName, PeptideSequence, Charge, PSM,
+                                  Mixture, TechRepMixture, Run,
+                                  Channel, Condition, BioReplicate, Intensity) %>% 
+                    dplyr::group_by(ProteinName, PeptideSequence, Charge, PSM, 
+                                    Mixture, TechRepMixture, Run, 
+                                    Channel, Condition, BioReplicate) %>%
+                    dplyr::summarize(Intensity = mean(Intensity, na.rm = TRUE)) %>%
+                    dplyr::ungroup()
+                }
+               
                 rm(max.frac.feature)
                 rm(remove.fraction.3)
                 rm(overlapped.feas.3)
@@ -530,6 +552,7 @@ PDtoMSstatsTMTFormat <- function(input,
     data.shared.pep.rm <- rbindlist(all.data)
     # The fractions have been combined
     data.shared.pep.rm$Run <- paste(data.shared.pep.rm$Mixture, data.shared.pep.rm$TechRepMixture, sep = "_")
+  
     return(data.shared.pep.rm)
 }
 

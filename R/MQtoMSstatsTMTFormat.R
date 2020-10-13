@@ -345,12 +345,12 @@ MaxQtoMSstatsTMTFormat <- function(evidence,
                     } else {
                         # sum up or maximum abundances among intensities for identical features within one run
                         if(identical(summaryforMultipleRows, sum)){
-                            summaryforMultipleRows <- max
+                            temp_summaryforMultipleRows <- max
                         } else {
-                            summaryforMultipleRows <- sum
+                            temp_summaryforMultipleRows <- sum
                         }
 
-                        sub3$totalmea <- apply(sub3[, channels], 1, function(x) summaryforMultipleRows(x, na.rm = TRUE))
+                        sub3$totalmea <- apply(sub3[, channels], 1, function(x) temp_summaryforMultipleRows(x, na.rm = TRUE))
                         sub4 <- sub3[sub3$totalmea == max(sub3$totalmea), ]
                         sub4 <- sub4[, which(colnames(sub3) != "totalmea")]
                         keepinfo.select <- rbind(keepinfo.select, sub4)
