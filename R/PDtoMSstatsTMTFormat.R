@@ -464,7 +464,7 @@ PDtoMSstatsTMTFormat <- function(input,
               # select the rows for the features that are measured in multiple fractions
               overlapped.feas.2 <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion_2$fea)
               
-              # keep the fractions with maximum summation reporter ion abundance
+              # keep the fractions with largest summation reporter ion abundance
               sum.frac.feature <- overlapped.feas.2 %>% 
                 dplyr::group_by(fea, id) %>% 
                 dplyr::summarise(sum = sum(Intensity, na.rm = TRUE))
@@ -488,7 +488,7 @@ PDtoMSstatsTMTFormat <- function(input,
                 # select the rows for the features that are measured in multiple fractions
                 overlapped.feas.3 <- sub_data %>% dplyr::filter(fea %in% remove_peptide_ion_3$fea)
                 
-                # keep the fractions with maximum summation reporter ion abundance
+                # keep the fractions with largest maximal reporter ion abundance
                 max.frac.feature <- overlapped.feas.3 %>% 
                   dplyr::group_by(fea, id) %>% 
                   dplyr::summarise(max = max(Intensity, na.rm = TRUE))
