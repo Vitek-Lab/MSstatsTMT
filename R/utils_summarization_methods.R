@@ -135,7 +135,7 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
 
   summarized_results[, colnames(summarized_results) != "RunChannel",
                      with = FALSE]
-  input
+  summarized_results
 }
 
 
