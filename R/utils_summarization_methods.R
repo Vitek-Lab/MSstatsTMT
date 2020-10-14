@@ -146,19 +146,10 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
   log2Intensity = Run = Channel = ProteinName = RunChannel = NULL
   
   channel_len = data.table::uniqueN(annotation$Channel, na.rm = TRUE)
-  
-  input = merge(input[!is.na(log2Intensity)],
-                merge(unique(input[, c("Run", "ProteinName", "PSM"), 
-                                   with = FALSE]),
-                      annotation,
-                      all.x = TRUE, all.y = TRUE),
-                all.y = TRUE)
-  
-  new_annotation = unique(input[order(Run, ProteinName), 
-                                list(RunChannel = paste(Run, Channel, sep = "_"), 
-                                     ProteinName, Run)])
-  new_annotation = new_annotation[order(Run, ProteinName), ]
-  
+
+  input = input[order(ProteinName, Run), ]
+  new_annotation = unique(input[, list(ProteinName, Run, 
+                                       RunChannel = paste(Run, Channel, sep = "_"))])
   summarized = input[!is.na(log2Intensity),
                      list(MedianPolish = .medianPolish(log2Intensity, 
                                                        channel_len)),
