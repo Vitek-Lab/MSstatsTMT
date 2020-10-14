@@ -122,7 +122,7 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
 
   summarized_results = data.table::rbindlist(summarized_results)
   data.table::setnames(summarized_results,
-                       c("LogIntensities", "originalRun"),
+                       c("LogIntensities", "originalRUN"),
                        c("Abundance", "RunChannel"))
   summarized_results = merge(summarized_results, annotation,
                              by = "RunChannel", all.x = TRUE)
