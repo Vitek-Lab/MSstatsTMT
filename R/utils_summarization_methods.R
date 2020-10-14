@@ -102,7 +102,7 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
   
   for (i in seq_len(num_runs)) {
     msstats_summary = MSstatsdev::dataProcess(
-      as.data.frame(input[MSRun == runs[1],
+      as.data.frame(input[MSRun == runs[i],
             list(ProteinName, PeptideSequence, PrecursorCharge,
                  FragmentIon, ProductCharge, Run, Condition,
                  BioReplicate, Intensity, IsotopeLabelType,
