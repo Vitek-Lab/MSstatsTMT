@@ -48,6 +48,7 @@ proteinSummarization = function(
     input = MSstatsConvert::MSstatsBalancedDesign(
       input, c("PeptideSequence", "Charge"), TRUE, FALSE, NULL
       )
+    input = data.table::as.data.table(unclass(input))
   }
   .prepareForSummarization(input)
   input = MSstatsNormalizeTMT(input, "peptides", global_norm)
