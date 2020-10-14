@@ -96,7 +96,7 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
                        c("MSRun", "Run", "PrecursorCharge"))  
   input[, FragmentIon := NA]
   input[, ProductCharge := NA]
-  input[, IsotopeLabelType := NA]
+  input[, IsotopeLabelType := "L"]
   
   summarized_results = vector("list", num_runs)
   
@@ -119,22 +119,23 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
                                           "originalRUN")]
     summarized_results[[i]] = msstats_summary
   }
-  
+
   summarized_results = data.table::rbindlist(summarized_results)
   data.table::setnames(summarized_results,
                        c("LogIntensities", "originalRun"),
                        c("Abundance", "RunChannel"))
   summarized_results = merge(summarized_results, annotation,
                              by = "RunChannel", all.x = TRUE)
-  
+
   data.table::setnames(input, c("MSRun", "Run", "PrecursorCharge"),
                        c("Run", "RunChannel", "Charge"))
   input[, FragmentIon := NULL]
   input[, ProductCharge := NULL]
   input[, IsotopeLabelType := NULL]
-  
-  summarized_results[, colnames(summarized_results) != "RunChannel", 
+
+  summarized_results[, colnames(summarized_results) != "RunChannel",
                      with = FALSE]
+  input
 }
 
 

@@ -53,9 +53,9 @@ proteinSummarization = function(
                                    !is_validated,
                                    maxQuantileforCensored)
   n_runs = data.table::uniqueN(summarized$Run, na.rm = TRUE)
-  summarized = MSstatsNormalizeTMT(summarized, "proteins", 
+  summarized = MSstatsNormalizeTMT(summarized, "proteins",
                                    reference_norm & n_runs > 1)
-  summarized = .removeRedundantChannels(summarized, remove_empty_channel, 
+  summarized = .removeRedundantChannels(summarized, remove_empty_channel,
                                         remove_norm_channel)
   as.data.frame(summarized)
 }
