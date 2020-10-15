@@ -150,7 +150,7 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
   input = input[order(ProteinName, Run), ]
   new_annotation = unique(input[, list(ProteinName, Run, 
                                        RunChannel = paste(Run, Channel, sep = "_"))])
-  summarized = input[!is.na(log2Intensity),
+  summarized = input[,
                      list(MedianPolish = .medianPolish(log2Intensity, 
                                                        channel_len)),
                      by = c("Run", "ProteinName")]
