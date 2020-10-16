@@ -87,7 +87,7 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
 #' @return integer
 #' @keywords internal
 .countRunsWithNorm = function(run, condition) {
-  data.table::uniqueN(run[condition == "Norm"])
+  data.table::uniqueN(run[condition == "Norm"], na.rm = TRUE)
 }
 
 
