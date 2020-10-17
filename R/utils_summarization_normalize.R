@@ -60,7 +60,7 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
       input[!is.na(Abundance),
             NormalizationAbundance := .getNormalizationAbundance(Abundance, Run),
             by = c("Protein", "Run")]
-      median_normalized = median(unique(input[, list(Protein, 
+      median_normalized = median(unique(input[, list(Protein, Run,
                                                      NormalizationAbundance)])[
                                                        , NormalizationAbundance], 
                                  na.rm = TRUE)
