@@ -45,7 +45,7 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
 #' @return data.table
 #' @keywords internal
 .normalizeProteins = function(input, normalize) {
-  Abundance = NormalizationAbundance = Run = Condition = MedianNormalized = NULL
+  Abundance = NormalizationAbundance = Run = Condition = NULL
   Mixture = TechRepMixture = Channel = Protein = BioReplicate = Condition = NULL
   
   if (normalize) {
@@ -67,7 +67,7 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
       input[!is.na(Abundance),
             NormalizedAbundance := Abundance + median_normalized -
               NormalizationAbundance]
-      input[!is.na(Abundance),
+      input[,
             Abundance := ifelse(NumRuns > 1 & NumRunsWithNorm > 1,
                                 NormalizedAbundance, Abundance)]
     } else {
