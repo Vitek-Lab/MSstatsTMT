@@ -45,7 +45,7 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
 #' @return data.table
 #' @keywords internal
 .normalizeProteins = function(input, normalize) {
-  Abundance = NormalizationAbundance = Run = Condition = NULL
+  Abundance = NormalizationAbundance = Run = Condition = MedianNormalized = NULL
   Mixture = TechRepMixture = Channel = Protein = BioReplicate = Condition = NULL
   
   if (normalize) {
@@ -60,12 +60,11 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
       input[!is.na(Abundance),
             NormalizationAbundance := .getNormalizationAbundance(Abundance, Run),
             by = c("Protein", "Run")]
-      median_normalized = median(unique(input[, list(Protein, Run,
-                                                     NormalizationAbundance)])[
-                                                       , NormalizationAbundance], 
-                                 na.rm = TRUE)
+      input[!is.na(Abundance), 
+            MedianNormalized := .getRunsMedian(.SD),
+            by = "Protein", .SDcols = c("Run", "NormalizationAbundance")]
       input[!is.na(Abundance),
-            NormalizedAbundance := Abundance + median_normalized -
+            NormalizedAbundance := Abundance + MedianNormalized -
               NormalizationAbundance]
       input[,
             Abundance := ifelse(NumRuns > 1 & NumRunsWithNorm > 1,
@@ -100,5 +99,19 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
 #' @return numeric
 #' @keywords internal
 .getNormalizationAbundance = function(abundance, condition) {
-  mean(abundance[condition == "Norm"], na.rm = TRUE)
+  data = abundance[condition == "Norm"]
+  if (all(is.na(data))) {
+    return(NA)
+  } else {
+    return(mean(data, na.rm = TRUE))
+  }
+}
+
+
+#' Utility function: get median from unique values per run
+#' @param input data.table / list
+#' @return numeric
+#' @keywords internal
+.getRunsMedian = function(input) {
+  median(unique(input)$NormalizationAbundance, na.rm = TRUE)
 }
