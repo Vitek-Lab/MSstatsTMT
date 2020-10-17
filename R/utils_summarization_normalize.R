@@ -23,14 +23,16 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
 #' @return data.table
 #' @keywords internal
 .normalizePeptides = function(input, normalize) {
-  log2Intensity = Intensity = NULL
+  log2Intensity = Intensity = Run = Channel = NULL
   
   if (normalize) {
     input[, MedianLog2Int := median(log2Intensity, na.rm = TRUE),
           by = c("Run", "Channel")]
-    input[, log2Intensity := log2Intensity + 
-            median(MedianLog2Int, na.rm = TRUE) - 
-            MedianLog2Int]
+    median_baseline = median(
+      unique(input[, list(Run, Channel, MedianLog2Int)])[, MedianLog2Int],
+      na.rm = TRUE
+    )
+    input[, log2Intensity := log2Intensity + median_baseline - MedianLog2Int]
     input[, Intensity := 2 ^ log2Intensity]
   }
   input[, !(colnames(input) == "MedianLog2Int"), with = FALSE]
@@ -58,11 +60,12 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
       input[!is.na(Abundance),
             NormalizationAbundance := .getNormalizationAbundance(Abundance, Run),
             by = c("Protein", "Run")]
+      median_normalized = median(unique(input[, list(Protein, 
+                                                     NormalizationAbundance)])[
+                                                       , NormalizationAbundance], 
+                                 na.rm = TRUE)
       input[!is.na(Abundance),
-            MedianNormalized := median(NormalizationAbundance, na.rm = TRUE),
-            by = "Protein"]
-      input[!is.na(Abundance),
-            NormalizedAbundance := Abundance + MedianNormalized -
+            NormalizedAbundance := Abundance + median_normalized -
               NormalizationAbundance]
       input[!is.na(Abundance),
             Abundance := ifelse(NumRuns > 1 & NumRunsWithNorm > 1,
