@@ -173,24 +173,24 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
 }
 
 
-#' Summarize TMT data with a simple aggregate of log-intensities
+#' Summarize TMT data with median polish
 #' @param input data.table
 #' @param annotation data.table with run and channel annotation
-#' @param stat_aggregate function that will be used to compute protein-level
-#' summary
-#' @return data.table
-#' @keywords internal
-.summarizeSimpleStat = function(input, annotation, stat_aggregate) {
-  log2Intensity = NULL
-  
-  summarized = input[!is.na(log2Intensity), 
-                     list(Median = stat_aggregate(log2Intensity)),
-                     by = c("Run", "ProteinName", "RunChannel")]
-  data.table::setnames(summarized, 
-                       colnames(summarized),
-                       c("Run", "Protein", "RunChannel", "Abundance"))
-  summarized = merge(summarized, annotation[, colnames(annotation) != "Run",
-                                            with = FALSE],
+.summarizeTMP = function(input, annotation) {
+  log2Intensity = Run = Channel = ProteinName = RunChannel = PSM = NULL
+  channel_len = data.table::uniqueN(annotation$Channel, na.rm = TRUE)
+  input = input[order(Run, ProteinName, PSM, Channel), ]
+  new_annotation = unique(input[, list(Run, ProteinName, Channel,
+                                       RunChannel = paste(Run, Channel, sep = "_"))])
+  summarized = input[,
+                     list(MedianPolish = .medianPolish(log2Intensity,
+                                                       channel_len)),
+                     by = c("Run", "ProteinName")]
+  data.table::setnames(summarized, colnames(summarized),
+                       c("Run", "Protein", "Abundance"))
+  summarized[, RunChannel := new_annotation$RunChannel]
+  summarized = merge(summarized,
+                     annotation[, colnames(annotation) != "Run", with = FALSE],
                      by = "RunChannel", all.x = TRUE)
   summarized
 }
@@ -200,12 +200,10 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
 #' @param intensities vector of log-intensities per protein and run
 #' @param num_channels number of channels
 #' @importFrom stats medpolish
-#' @return 
+#' @return
 #' @keywords internal
 .medianPolish <- function(intensities, num_channels){
-  num_prot_runs = length(intensities)
-  wide = matrix(intensities)
-  dim(wide) = c(num_prot_runs / num_channels, num_channels)
+  wide = matrix(intensities, byrow = TRUE, ncol = num_channels)
   tmp_fit = stats::medpolish(wide, na.rm = TRUE, trace.iter = FALSE)
   tmp_fit$overall + tmp_fit$col
 }
