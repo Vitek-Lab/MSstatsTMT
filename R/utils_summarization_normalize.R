@@ -16,6 +16,8 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
     if (any(input$Intensity < 1 & !is.na(input$Intensity))) {
       input[, Intensity := ifelse(Intensity < 1 & !is.na(Intensity), 
                                   NA, Intensity)]
+      input[, log2Intensity := ifelse(Intensity < 1 & !is.na(Intensity), 
+                                      NA, log2Intensity)]
     }
   } else {
     input = .normalizeProteins(input, normalize)
