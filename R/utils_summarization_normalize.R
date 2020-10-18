@@ -9,11 +9,18 @@
 #' @export
 #' 
 MSstatsNormalizeTMT = function(input, type, normalize) {
+  Intensity = NULL
+  
   if (type == "peptides") {
-    .normalizePeptides(input, normalize)
+    input = .normalizePeptides(input, normalize)
+    if (any(input$Intensity < 1 & !is.na(input$Intensity))) {
+      input[, Intensity := ifelse(Intensity < 1 & !is.na(Intensity), 
+                                  NA, Intensity)]
+    }
   } else {
-    .normalizeProteins(input, normalize)
+    input = .normalizeProteins(input, normalize)
   }
+  input
 }
 
 
