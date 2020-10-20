@@ -139,37 +139,35 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
 }
 
 
-#' Summarize TMT data with median polish
-#' @param input data.table
-#' @param annotation data.table with run and channel annotation
-.summarizeTMP = function(input, annotation) {
-  log2Intensity = Run = Channel = ProteinName = RunChannel = NULL
-  
-  channel_len = data.table::uniqueN(annotation$Channel, na.rm = TRUE)
-
-  input = input[order(ProteinName, Run), ]
-  new_annotation = unique(input[, list(ProteinName, Run, 
-                                       RunChannel = paste(Run, Channel, sep = "_"))])
-  summarized = input[,
-                     list(MedianPolish = .medianPolish(log2Intensity, 
-                                                       channel_len)),
-                     by = c("Run", "ProteinName")]
-  data.table::setnames(summarized, colnames(summarized),
-                       c("Run", "Protein", "Abundance"))  
-  summarized[, RunChannel := new_annotation$RunChannel]
-  summarized = merge(summarized, 
-                     annotation[, colnames(annotation) != "Run", with = FALSE], 
-                     by = "RunChannel", all.x = TRUE)  
-  summarized
-}
-
-
 #' Utility function: compute log of sum of 2^x
 #' @param x numeric
 #' @return numeric
 #' @keywords internal
 .logSum = function(x) {
   log(sum(2 ^ x, na.rm = TRUE), 2)
+}
+
+
+#' Summarize TMT data with a simple aggregate of log-intensities
+#' @param input data.table
+#' @param annotation data.table with run and channel annotation
+#' @param stat_aggregate function that will be used to compute protein-level
+#' summary
+#' @return data.table
+#' @keywords internal
+.summarizeSimpleStat = function(input, annotation, stat_aggregate) {
+  log2Intensity = NULL
+  
+  summarized = input[!is.na(log2Intensity), 
+                     list(Median = stat_aggregate(log2Intensity)),
+                     by = c("Run", "ProteinName", "RunChannel")]
+  data.table::setnames(summarized, 
+                       colnames(summarized),
+                       c("Run", "Protein", "RunChannel", "Abundance"))
+  summarized = merge(summarized, annotation[, colnames(annotation) != "Run",
+                                            with = FALSE],
+                     by = "RunChannel", all.x = TRUE)
+  summarized
 }
 
 
