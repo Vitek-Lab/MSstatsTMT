@@ -89,7 +89,8 @@ MaxQtoMSstatsTMTFormat = function(
     remove_single_feature_proteins = rmProtein_with1Feature,
     feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows))
-  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
+  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns,
+                                                fix_missing = "zero_to_na")
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   
   msg_final = paste("** Finished preprocessing. The dataset is ready",
@@ -138,7 +139,8 @@ OpenMStoMSstatsTMTFormat = function(
     feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultiplePSMs)
   )
-  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
+  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns,
+                                                fix_missing = "zero_to_na")
   
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   
@@ -200,7 +202,8 @@ PDtoMSstatsTMTFormat <- function(
     feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows)
   )
-  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
+  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns,
+                                                fix_missing = "zero_to_na")
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   
   msg_final = paste("** Finished preprocessing. The dataset is ready",
@@ -274,7 +277,8 @@ SpectroMinetoMSstatsTMTFormat <- function(
     feature_cleaning = list(remove_features_with_few_measurements = rmPSM_withfewMea_withinRun,
                             summarize_multiple_psms = summaryforMultipleRows)
   )
-  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns)
+  input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns,
+                                                fix_missing = "zero_to_na")
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   
   msg_final = paste("** Finished preprocessing. The dataset is ready",
