@@ -40,8 +40,10 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
       unique(input[, list(Run, Channel, MedianLog2Int)])[, MedianLog2Int],
       na.rm = TRUE
     )
-    input[, log2Intensity := log2Intensity + median_baseline - MedianLog2Int]
+    input[, Diff := median_baseline - MedianLog2Int]
+    input[, log2Intensity := log2Intensity + Diff]
     input[, Intensity := 2 ^ log2Intensity]
+    input[, Diff := NULL]
   }
   input[, !(colnames(input) == "MedianLog2Int"), with = FALSE]
 }
@@ -72,12 +74,13 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
       input[!is.na(Abundance), 
             MedianNormalized := .getRunsMedian(.SD),
             by = "Protein", .SDcols = c("Run", "NormalizationAbundance")]
+      input[!is.na(Abundance), Diff := MedianNormalized - NormalizationAbundance]
       input[!is.na(Abundance),
-            NormalizedAbundance := Abundance + MedianNormalized -
-              NormalizationAbundance]
+            NormalizedAbundance := Abundance + Diff]
       input[,
             Abundance := ifelse(NumRuns > 1 & NumRunsWithNorm > 1,
                                 NormalizedAbundance, Abundance)]
+      input[, Diff := NULL]
     } else {
       msg = paste("** 'Norm' information in Condition",
                   "is required for normalization.",
