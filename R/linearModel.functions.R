@@ -413,7 +413,7 @@ fit_reduced_model_onerun <- function(data) {
 .make.contrast.single <- function(fit, contrast, sub_data) {
 
   ## when there are some groups which are all missing
-  sub_groups <- as.character(levels(sub_data[, c("Group")]))
+  sub_groups <- as.character(unique(sub_data$Group))
   
   # groups with positive coefficients
   positive.groups <- names(contrast)[contrast>0]
