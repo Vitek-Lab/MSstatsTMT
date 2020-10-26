@@ -75,7 +75,7 @@
       ## record the contrast matrix for each protein
       sub.contrast.matrix <- contrast.matrix
       
-      sub_groups <- as.character(unique(sub_data[, c("Group")]))
+      sub_groups <- as.character(unique(sub_data$Group))
       sub_groups <- sort(sub_groups) # sort the groups based on alphabetic order
 
       ## get the linear model for proteins[i]
@@ -124,7 +124,7 @@
               vcov <- varcor$unscaled.varcor*s2
               se2 <- as.matrix(t(cm) %*% as.matrix(vcov) %*% cm)
               
-              ## calculate variance
+              ## calculate posterior variance
               vcov.post <- varcor$unscaled.varcor*s2.post
               variance <- as.matrix(t(cm) %*% as.matrix(vcov.post) %*% cm)
               
