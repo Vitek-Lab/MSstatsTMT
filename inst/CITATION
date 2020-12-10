@@ -1,0 +1,22 @@
+citHeader("To cite the MSstatsTMT package in publications use:")
+
+citEntry(entry="article",  
+         title  = "MSstatsTMT: Statistical detection of differentially abundant proteins in experiments with isobaric labeling and multiple mixtures",
+         author = personList(
+           person(given="Ting", family="Huang"),
+           person(given="Meena", family="Choi"),
+           person(given="Manuel", family="Tzouros"),
+           person(given="Sabrina", family="Golling"),
+           person(given="Nikhil Janak", family="Pandya"),
+           person(given="Balazs", family="Banfai"),
+           person(given="Tom", family="Dunkley"),
+           person(given="Olga", family="Vitek")),
+         journal = "Molecular & Cellular Proteomics",
+         volume = "19",
+         number = "10",
+         pages = "1706-1723",
+         year = "2020",
+         textVersion = paste("Huang, T., Choi, M., Tzouros, M., Golling, S., Pandya, N.J., Banfai, B., Dunkley, T. and Vitek, O.",
+           "MSstatsTMT: Statistical detection of differentially abundant proteins in experiments with isobaric labeling and multiple mixtures.",
+           "Molecular & Cellular Proteomics (2020),", "19(10), 1706-1723.")
+)

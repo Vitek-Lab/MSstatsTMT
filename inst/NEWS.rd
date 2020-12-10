@@ -2,7 +2,8 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
-\section{Changes in version 1.6.10 (2020-10-26)}{\itemize{
+\section{Changes in version 1.8.1 (2020-12-10)}{\itemize{
+\item Add citation of the MSstatsTMT paper
 \item Fix the bug in groupComparisonTMT() due to the update of dependent pacakge
 \item Fix the bug in MedianPolish summarization
 \item proteinSummarization(): replace the zero values with NA before and after peptide normalization}}
