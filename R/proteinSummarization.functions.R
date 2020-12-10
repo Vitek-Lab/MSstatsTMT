@@ -21,13 +21,22 @@
 
     data$log2Intensity <- log2(data$Intensity)
     
+    ## Number of negative values : if intensity is less than 1
+    ## replace with zero
+    ## then we don't need to worry about -Inf = log2(0)
+    if (any(!is.na(data$Intensity) & data$Intensity < 1)) {
+      data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- NA
+      data[!is.na(data$Intensity) & data$Intensity < 1, 'Intensity'] <- NA
+      message('** Negative log2 intensities were replaced with NA.')
+    }
+    
     ##################################################
     ## Peptide-level globel median normalization
     ##################################################
     
     if(global_norm) {
       
-      # Do normalization based on group 'Norm'
+      # Do global peptide normalization
       data <- .peptide.normalization(data)
     }
     
@@ -39,9 +48,10 @@
     
     ## Number of negative values : if intensity is less than 1
     ## replace with zero
-    ## then we don't need to worry about -Inf = log2(0)
+    ## then we don't need to worry negative log2 intensities after peptide normalization
     if (nrow(data[!is.na(data$Intensity) & data$Intensity < 1]) > 0){
         data[!is.na(data$Intensity) & data$Intensity < 1, 'log2Intensity'] <- NA
+        data[!is.na(data$Intensity) & data$Intensity < 1, 'Intensity'] <- NA
         message('** Negative log2 intensities were replaced with NA.')
     }
 
@@ -137,19 +147,17 @@
         data <- right_join(data, anno2) #runchannel+1 after this line
 
         #Create a annotation for "runchannel" sorted by Run and ProteinName
-        data$runchannel <- paste(data$Run, data$Channel, sep = '_')
         data <- as.data.table(data)
-        data <- data[order(data$Run, data$ProteinName), ]
-        anno3 <- unique(data[, c("runchannel", "ProteinName" ,"Run")])
-        anno3 <- anno3[order(anno3$Run, anno3$ProteinName), ]
+        data <- data[order(data$Run, data$ProteinName, data$PSM, data$Channel), ]
+        anno3 <- unique(data[, c("Run", "ProteinName", "Channel")])
+        anno3 <- anno3[order(anno3$Run, anno3$ProteinName, anno3$Channel), ]
 
         #Computer by each Run and ProteinName
         res <- data[, .(MedianPolish = .medianPolish(log2Intensity,
                                                            channel.len)), by = .(Run, ProteinName)]
         colnames(res) <- c("Run", "Protein", "Abundance")
-        res$runchannel <- anno3$runchannel
-        res <- left_join(res, annotation, by = 'runchannel')
-        res$Run <- res$Run.x #delete x and y
+        res$Channel <- anno3$Channel
+        res <- left_join(res, annotation)
 
         ## message
         message("** Protein-level summarization done by median polish.")
@@ -332,20 +340,18 @@
 ## input: a vector of log2intensity per Protein, Run; number of channels
 #' @keywords internal
 .medianPolish <- function(c, num.channels){
-    #take a vector
-    #transfor to a matrix
-    #perform MedianPolish
-    #return a vector
-
-    len <- length(c)
-    # if(len%%num.channels){
-    #   print("channel violation")
-    # }
-    #print(num.channels)
-    mat <- as.matrix(c)
-    dim(mat) <- c(len/num.channels, num.channels)
-    meddata  <-  stats::medpolish(mat, na.rm = TRUE, trace.iter = FALSE)
-    tmpresult <- meddata$overall + meddata$col
-    return(tmpresult)
+  #take a vector
+  #transfor to a matrix
+  #perform MedianPolish
+  #return a vector
+  
+  len <- length(c)
+  if(len%%num.channels){
+    message("channel violation")
+  }
+  mat <- matrix(c, byrow = TRUE, ncol = num.channels)
+  meddata  <-  stats::medpolish(mat, na.rm = TRUE, trace.iter = FALSE)
+  tmpresult <- meddata$overall + meddata$col
+  return(tmpresult)
 }
 
