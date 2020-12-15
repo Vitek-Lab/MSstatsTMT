@@ -1,5 +1,6 @@
 #' @import statmod
 #' @importFrom limma squeezeVar
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom dplyr %>% group_by filter
 #' @importFrom stats aggregate anova coef lm median medpolish model.matrix p.adjust pt t.test xtabs
 #' @keywords internal
@@ -67,8 +68,11 @@
     data$Run <- as.factor(data$Run)
     nrun <- length(unique(data$Run)) # check the number of MS runs in the data
     count <- 0
+    
+    pb <- txtProgressBar(max=num.protein, style = 3)
+    
     for(i in seq_along(proteins)){
-      message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
+      #message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
       
       ## get the data for protein i
       sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
@@ -191,7 +195,13 @@
           
         } # end loop for comparison    
       } # if the linear model is fittable
+      
+      ## progress
+      setTxtProgressBar(pb, i)
+      
     } # for each protein
+    
+    close(pb)
     
     res <- as.data.frame(res[seq_len(count),])
     res$Protein <- as.factor(res$Protein)
