@@ -197,9 +197,12 @@ fit_reduced_model_onerun <- function(data) {
   pro.all <- NULL # testable proteins
   coeff.all <- list() # coefficients
   ## do inference for each protein individually
+  
+  pb <- txtProgressBar(max=num.protein, style=3)
+  
   for(i in seq_along(proteins)) {
     
-    message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
+    #message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
     sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
     # sub_groups <- as.character(unique(sub_data$Group))
     # if(length(sub_groups) == 1){
@@ -339,7 +342,14 @@ fit_reduced_model_onerun <- function(data) {
       coeff.all[[proteins[i]]] <- NA
       
     }
+    
+    ## progress
+    setTxtProgressBar(pb, i)
+    
   } # for each protein
+  
+  close(pb)
+  
   names(s2.all) <- proteins
   names(s2_df.all) <- proteins
   
