@@ -49,7 +49,7 @@ levels(quant.pd.msstats$Condition)
 # Compare condition 1 and 0.125
 comparison<-matrix(c(-1,0,0,1),nrow=1)
 
-# Set the names of each row
+# Set the nafmes of each row
 row.names(comparison)<-"1-0.125"
 
 # Set the column names
