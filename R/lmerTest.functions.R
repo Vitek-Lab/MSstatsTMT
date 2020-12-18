@@ -74,108 +74,108 @@
                                  })})})
 }
 
-
-#############################################
-## calculates asymptotic variance covariance matrix of variance parameters based on theta
-#############################################
-#' @keywords internal
-.calcApvar <- function(rho){
-  ## based on theta parameters and sigma
-  dd <- .devfunTheta(rho$model)
-  h <- .myhess(dd, c(rho$thopt, sigma = rho$sigma))  
-  
-  ch <- try(chol(h), silent=TRUE)
-  if(inherits(ch, "try-error")) {
-    return(rho)
-  }
-  A <- 2*chol2inv(ch)
-  
-  eigval <- eigen(h, symmetric=TRUE, only.values=TRUE)$values
-  isposA <- TRUE
-  if(min(eigval) < sqrt(.Machine$double.eps)) ## tol ~ sqrt(.Machine$double.eps)
-    isposA <- FALSE
-  
-  if(!isposA)
-    print("Asymptotic covariance matrix A is not positive!")
-  
-  A
-}
-
-#############################################
-## devfun function as a function of optimal parameters
-#############################################
-#' @importFrom lme4 isGLMM isLMM getME
-#' @importFrom methods is
-#' @keywords internal
-.devfunTheta <- function(fm) 
-{
-  stopifnot(is(fm, "merMod"))
-  
-  np <- length(fm@pp$theta)
-  nf <- length(fixef(fm)) 
-  if (!lme4::isGLMM(fm)) 
-    np <- np + 1L
-  n <- nrow(fm@pp$V)
-  
-  ff <- .updateModel(fm, devFunOnly = TRUE)
-  reml <- lme4::getME(fm, "is_REML")
-  
-  envff <- environment(ff)
-  
-  if (lme4::isLMM(fm)) {
-    ans <- function(thpars) {
-      stopifnot(is.numeric(thpars), length(thpars) == np)
-      
-      ff(thpars[-np])
-      
-      sigsq <- thpars[np]^2
-      dev <- envff$pp$ldL2() + (envff$resp$wrss() + envff$pp$sqrL(1))/sigsq + n * log(2 * pi * sigsq)      
-      if(reml){
-        p <- ncol(envff$pp$RX())
-        dev <- dev + 2*determinant(envff$pp$RX())$modulus - p * log(2 * pi * sigsq)              
-      }
-      return(dev)     
-    }
-  }
-  
-  attr(ans, "thopt") <- fm@pp$theta
-  class(ans) <- ".devfunTheta"
-  ans
-}
-
-#############################################
-## calculate hessian matrix
-#############################################
-#' @keywords internal
-.myhess <- function(fun, x, fx=NULL, delta=1e-4, ...) {
-  nx <- length(x)
-  fx <- if(!is.null(fx)) fx else fun(x, ...)
-  H <- array(NA, dim=c(nx, nx))
-  for(j in 1:nx) {
-    ## Diagonal elements:
-    xadd <- xsub <- x
-    xadd[j] <- x[j] + delta
-    xsub[j] <- x[j] - delta
-    H[j, j] <- (fun(xadd, ...) - 2 * fx +
-                  fun(xsub, ...)) / delta^2
-    ## Upper triangular (off diagonal) elements:
-    for(i in 1:nx) {
-      if(i >= j) break
-      xaa <- xas <- xsa <- xss <- x
-      xaa[c(i, j)] <- x[c(i, j)] + c(delta, delta)
-      xas[c(i, j)] <- x[c(i, j)] + c(delta, -delta)
-      xsa[c(i, j)] <- x[c(i, j)] + c(-delta, delta)
-      xss[c(i, j)] <- x[c(i, j)] - c(delta, delta)
-      H[i, j] <- (fun(xaa, ...) - fun(xas, ...) -
-                    fun(xsa, ...) + fun(xss, ...)) /
-        (4 * delta^2)
-    }
-  }
-  ## Fill in lower triangle:
-  H[lower.tri(H)] <- t(H)[lower.tri(H)]
-  
-  H
-}
+# retired fuction (2020.12.17)
+#' #############################################
+#' ## calculates asymptotic variance covariance matrix of variance parameters based on theta
+#' #############################################
+#' #' @keywords internal
+#' .calcApvar <- function(rho){
+#'   ## based on theta parameters and sigma
+#'   dd <- .devfunTheta(rho$model)
+#'   h <- .myhess(dd, c(rho$thopt, sigma = rho$sigma))  
+#'   
+#'   ch <- try(chol(h), silent=TRUE)
+#'   if(inherits(ch, "try-error")) {
+#'     return(rho)
+#'   }
+#'   A <- 2*chol2inv(ch)
+#'   
+#'   eigval <- eigen(h, symmetric=TRUE, only.values=TRUE)$values
+#'   isposA <- TRUE
+#'   if(min(eigval) < sqrt(.Machine$double.eps)) ## tol ~ sqrt(.Machine$double.eps)
+#'     isposA <- FALSE
+#'   
+#'   if(!isposA)
+#'     print("Asymptotic covariance matrix A is not positive!")
+#'   
+#'   A
+#' }
+#' 
+#' #############################################
+#' ## devfun function as a function of optimal parameters
+#' #############################################
+#' #' @importFrom lme4 isGLMM isLMM getME
+#' #' @importFrom methods is
+#' #' @keywords internal
+#' .devfunTheta <- function(fm) 
+#' {
+#'   stopifnot(is(fm, "merMod"))
+#'   
+#'   np <- length(fm@pp$theta)
+#'   nf <- length(fixef(fm)) 
+#'   if (!lme4::isGLMM(fm)) 
+#'     np <- np + 1L
+#'   n <- nrow(fm@pp$V)
+#'   
+#'   ff <- .updateModel(fm, devFunOnly = TRUE)
+#'   reml <- lme4::getME(fm, "is_REML")
+#'   
+#'   envff <- environment(ff)
+#'   
+#'   if (lme4::isLMM(fm)) {
+#'     ans <- function(thpars) {
+#'       stopifnot(is.numeric(thpars), length(thpars) == np)
+#'       
+#'       ff(thpars[-np])
+#'       
+#'       sigsq <- thpars[np]^2
+#'       dev <- envff$pp$ldL2() + (envff$resp$wrss() + envff$pp$sqrL(1))/sigsq + n * log(2 * pi * sigsq)      
+#'       if(reml){
+#'         p <- ncol(envff$pp$RX())
+#'         dev <- dev + 2*determinant(envff$pp$RX())$modulus - p * log(2 * pi * sigsq)              
+#'       }
+#'       return(dev)     
+#'     }
+#'   }
+#'   
+#'   attr(ans, "thopt") <- fm@pp$theta
+#'   class(ans) <- ".devfunTheta"
+#'   ans
+#' }
+#' 
+#' #############################################
+#' ## calculate hessian matrix
+#' #############################################
+#' #' @keywords internal
+#' .myhess <- function(fun, x, fx=NULL, delta=1e-4, ...) {
+#'   nx <- length(x)
+#'   fx <- if(!is.null(fx)) fx else fun(x, ...)
+#'   H <- array(NA, dim=c(nx, nx))
+#'   for(j in 1:nx) {
+#'     ## Diagonal elements:
+#'     xadd <- xsub <- x
+#'     xadd[j] <- x[j] + delta
+#'     xsub[j] <- x[j] - delta
+#'     H[j, j] <- (fun(xadd, ...) - 2 * fx +
+#'                   fun(xsub, ...)) / delta^2
+#'     ## Upper triangular (off diagonal) elements:
+#'     for(i in 1:nx) {
+#'       if(i >= j) break
+#'       xaa <- xas <- xsa <- xss <- x
+#'       xaa[c(i, j)] <- x[c(i, j)] + c(delta, delta)
+#'       xas[c(i, j)] <- x[c(i, j)] + c(delta, -delta)
+#'       xsa[c(i, j)] <- x[c(i, j)] + c(-delta, delta)
+#'       xss[c(i, j)] <- x[c(i, j)] - c(delta, delta)
+#'       H[i, j] <- (fun(xaa, ...) - fun(xas, ...) -
+#'                     fun(xsa, ...) + fun(xss, ...)) /
+#'         (4 * delta^2)
+#'     }
+#'   }
+#'   ## Fill in lower triangle:
+#'   H[lower.tri(H)] <- t(H)[lower.tri(H)]
+#'   
+#'   H
+#' }
 
 #############################################
 ## returns Lc %*% vcov as a function of theta parameters %*% t(Lc)

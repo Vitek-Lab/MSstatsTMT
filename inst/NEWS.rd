@@ -2,6 +2,10 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 1.8.2 (2020-12-17)}{\itemize{
+\item Update progress bar
+\item Update groupComparisonTMT to avoid reusing the local function copied from lmer pacakge}}
+
 \section{Changes in version 1.8.1 (2020-12-10)}{\itemize{
 \item Add citation of the MSstatsTMT paper
 \item Fix the bug in groupComparisonTMT() due to the update of dependent pacakge
