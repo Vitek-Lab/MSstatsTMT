@@ -27,7 +27,7 @@
 #' # Compare condition 1 and 0.125
 #' comparison<-matrix(c(-1,0,0,1),nrow=1)
 #'
-#' # Set the names of each row
+#' # Set the nafmes of each row
 #' row.names(comparison)<-"1-0.125"
 #'
 #' # Set the column names
@@ -109,6 +109,13 @@ groupComparisonTMT <- function(data,
                              # sep = "_")
     # colnames(data)[colnames(data) == 'runchannel'] <- 'Subject'
     colnames(data)[colnames(data) == 'Condition'] <- 'Group'
+    
+    data$Group <- factor(data$Group)
+    data$Subject <- factor(data$Subject)
+    data$Run <- factor(data$Run)
+    data$Channel <- factor(data$Channel)
+    data$TechRepMixture <- factor(data$TechRepMixture)
+    data$Mixture <- factor(data$Mixture)
 
     ## report which options are used.
     processout <- rbind(processout, c(paste("Moderated t-stat :", moderated)))

@@ -92,11 +92,7 @@ fit_full_model <- function(data) {
                                            Group + #subplot
                                            (1|Subject:Group:Mixture), data = data), TRUE))
   
-  if(!inherits(fit, "try-error")){
-    return(fit)
-  } else{ # if the parameters are not estimable, return null
-    return(NULL)
-  }
+  return(fit)
 }
 
 #############################################
@@ -112,11 +108,7 @@ fit_reduced_model_techrep <- function(data) {
                                            Group + #subplot
                                            (1|Subject:Group), data = data), TRUE))
   
-  if(!inherits(fit, "try-error")){
-    return(fit)
-  } else{ # if the parameters are not estimable, return null
-    return(NULL)
-  }
+  return(fit)
 }
 
 #############################################
@@ -131,11 +123,7 @@ fit_full_model_spikedin <- function(data) {
   fit  <- suppressMessages(try(lmerTest::lmer(Abundance ~ 1 + (1|Mixture) + (1|Mixture:TechRepMixture) 
                                          + Group, data = data), TRUE))
   
-  if(!inherits(fit, "try-error")){
-    return(fit)
-  } else{ # if the parameters are not estimable, return null
-    return(NULL)
-  }
+  return(fit)
 }
 
 #############################################
@@ -150,11 +138,7 @@ fit_reduced_model_mulrun <- function(data) {
   
   fit <- suppressMessages(try(lmerTest::lmer(Abundance ~ 1 + (1|Run) + Group, data = data), TRUE))
   
-  if(!inherits(fit, "try-error")){
-    return(fit)
-  } else{ # if the parameters are not estimable, return null
-    return(NULL)
-  }
+  return(fit)
 }
 
 #############################################
@@ -167,12 +151,7 @@ fit_reduced_model_onerun <- function(data) {
   
   fit <- suppressMessages(try(lm(Abundance ~ 1 + Group, data = data), TRUE))
   
-  if(!inherits(fit, "try-error")){
-    return(fit)
-  } else{ # if the parameters are not estimable, return null
-    return(NULL)
-  }
-  
+  return(fit)
 }
 
 #############################################
@@ -196,10 +175,14 @@ fit_reduced_model_onerun <- function(data) {
   s2_df.all <- NULL # degree freedom of sigma^2
   pro.all <- NULL # testable proteins
   coeff.all <- list() # coefficients
+
+  message(paste0("Model fitting for ", num.protein , " proteins:"))
+  pb <- txtProgressBar(max=num.protein, style=3)
+  
   ## do inference for each protein individually
   for(i in seq_along(proteins)) {
     
-    message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
+    #message(paste("Model fitting for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
     sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
     # sub_groups <- as.character(unique(sub_data$Group))
     # if(length(sub_groups) == 1){
@@ -220,31 +203,27 @@ fit_reduced_model_onerun <- function(data) {
         # fit the full model with mixture and techrep effects for spiked-in data
         fit <- fit_full_model_spikedin(sub_data)
         
-        if(is.null(fit)){ # full model is not applicable 
+        if(inherits(fit, "try-error")){ # full model is not applicable 
           # fit the reduced model with only run effect
           fit <- fit_reduced_model_mulrun(sub_data)
-          
-        } 
+        }
         
-        if(is.null(fit)){ # the second model is not applicable
+        if(inherits(fit, "try-error")){ # the second model is not applicable
           # fit one-way anova model
           fit <- fit_reduced_model_onerun(sub_data) 
-          
         }
       } else{
         if(sub_TechReplicate | sub_bioMixture){ # multiple mixtures or multiple technical replicates
           # fit the reduced model with only run effect
           fit <- fit_reduced_model_mulrun(sub_data)
           
-          if(is.null(fit)){ # the second model is not applicable
+          if(inherits(fit, "try-error")){ # the second model is not applicable
             # fit one-way anova model
             fit <- fit_reduced_model_onerun(sub_data) 
-            
           }
         } else{ # single run case
           # fit one-way anova model
           fit <- fit_reduced_model_onerun(sub_data) 
-          
         }
       }
     } else{ # biological variation exists within each condition and mixture
@@ -253,12 +232,17 @@ fit_reduced_model_onerun <- function(data) {
           # fit the full model with mixture, techrep, subject effects
           fit <- fit_full_model(sub_data) 
           
-          if(is.null(fit)){ # full model is not applicable
+          if(!inherits(fit, "try-error")){ # full model is not applicable
             # fit the reduced model with run and subject effects
             fit <- fit_reduced_model_techrep(sub_data) 
           }
           
-          if(is.null(fit)){ # second model is not applicable
+          if(inherits(fit, "try-error")){ # full model is not applicable
+            # fit the reduced model with only run effect
+            fit <- fit_reduced_model_mulrun(sub_data) 
+          }
+          
+          if(inherits(fit, "try-error")){ # second model is not applicable
             # fit one-way anova model
             fit <- fit_reduced_model_onerun(sub_data) 
           }
@@ -267,7 +251,7 @@ fit_reduced_model_onerun <- function(data) {
           # fit the reduced model with only run effect
           fit <- fit_reduced_model_mulrun(sub_data) 
           
-          if(is.null(fit)){ # second model is not applicable
+          if(inherits(fit, "try-error")){ # second model is not applicable
             # fit one-way anova model
             fit <- fit_reduced_model_onerun(sub_data) 
           }
@@ -278,7 +262,7 @@ fit_reduced_model_onerun <- function(data) {
           # fit the reduced model with run and subject effects
           fit <- fit_reduced_model_techrep(sub_data)
           
-          if(is.null(fit)){ # second model is not applicable
+          if(inherits(fit, "try-error")){ # second model is not applicable
             # fit one-way anova model
             fit <- fit_reduced_model_onerun(sub_data) 
           }
@@ -292,7 +276,7 @@ fit_reduced_model_onerun <- function(data) {
     } # biological variation
     
     ## estimate variance and df from linear models
-    if(!is.null(fit)){ # the model is fittable
+    if(!inherits(fit, "try-error")){ # the model is fittable
       if(inherits(fit, "lm")){# single run case 
         ## Estimate the coeff from fixed model
         av <- anova(fit)
@@ -309,20 +293,15 @@ fit_reduced_model_onerun <- function(data) {
           
         }
 
-        linear.models[[proteins[i]]] <- list(model = fit)
+        linear.models[[proteins[i]]] <- fit
         
       } else{ 
-        ## Estimate the coeff from lmerTest model
-        rho <- list() ## environment containing info about model
-        rho <- .rhoInit(rho, fit, TRUE) ## save lmer outcome in rho envir variable
-        rho$A <- .calcApvar(rho) ## asymptotic variance-covariance matrix for theta and sigma
-        
-        av <- anova(rho$model)
-        coeff <- lme4::fixef(rho$model)
+        av <- anova(fit)
+        coeff <- lme4::fixef(fit)
         s2_df <- av$DenDF
         s2 <- av$'Mean Sq'/av$'F value'
         
-        linear.models[[proteins[i]]] <- rho 
+        linear.models[[proteins[i]]] <- fit 
       }
 
       pro.all <-  c(pro.all, proteins[i])
@@ -332,14 +311,21 @@ fit_reduced_model_onerun <- function(data) {
       
     } else{ # the model is not fittble
       # message(proteins[i], " is untestable due to no enough measurements.")
-      linear.models[[proteins[i]]] <- "unfittable" 
+      linear.models[[proteins[i]]] <- fit
       pro.all <-  c(pro.all, proteins[i])
       s2.all <- c(s2.all, NA)
       s2_df.all <- c(s2_df.all, NA)
       coeff.all[[proteins[i]]] <- NA
       
     }
+    
+    ## progress
+    setTxtProgressBar(pb, i)
+    
   } # for each protein
+  
+  close(pb)
+  
   names(s2.all) <- proteins
   names(s2_df.all) <- proteins
   

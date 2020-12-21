@@ -1,5 +1,6 @@
 #' @import statmod
 #' @importFrom limma squeezeVar
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom dplyr %>% group_by filter
 #' @importFrom stats aggregate anova coef lm median medpolish model.matrix p.adjust pt t.test xtabs
 #' @keywords internal
@@ -67,8 +68,12 @@
     data$Run <- as.factor(data$Run)
     nrun <- length(unique(data$Run)) # check the number of MS runs in the data
     count <- 0
+    
+    message(paste0("Testing for ", num.protein , " proteins:"))
+    pb <- txtProgressBar(max=num.protein, style = 3)
+    
     for(i in seq_along(proteins)){
-      message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
+      #message(paste("Testing for Protein :", proteins[i] , "(", i, " of ", num.protein, ")"))
       
       ## get the data for protein i
       sub_data <- data %>% dplyr::filter(Protein == proteins[i]) ## data for protein i
@@ -84,9 +89,17 @@
       s2_df <- s2_df.all[proteins[i]]
       coeff <- coeff.all[[proteins[i]]]
       
-      if(!is.character(fit)){ ## check the model is fittable 
+      if(!inherits(fit, "try-error")){ ## check the model is fittable 
         
         s2.post <- (s2.prior * df.prior + s2 * s2_df)/(df.prior + s2_df)
+        
+        if(!inherits(fit, "lm")){
+          ## prepare for df calculation
+          rho <- list() ## environment containing info about model
+          rho <- suppressMessages(.rhoInit(rho, fit, TRUE)) ## save lmer outcome in rho envir variable
+          # rho$A <- .calcApvar(rho) ## asymptotic variance-covariance matrix for theta and sigma
+          vss <- .vcovLThetaL(fit)
+        }
         
         ## Compare one specific contrast
         # perform testing for required contrasts
@@ -106,31 +119,30 @@
             contrast.matrix.single <- as.vector(sub.contrast.matrix[j,])
             names(contrast.matrix.single) <- colnames(sub.contrast.matrix)
             
-            cm <- .make.contrast.single(fit$model, contrast.matrix.single, sub_data)
+            cm <- .make.contrast.single(fit, contrast.matrix.single, sub_data)
             
             ## logFC
             FC <- (cm%*%coeff)[,1]
             
             ## variance and df
-            if(inherits(fit$model, "lm")){
+            if(inherits(fit, "lm")){
  
-              variance <- diag(t(cm) %*% summary(fit$model)$cov.unscaled %*% cm)*s2.post
+              se2.post <- diag(t(cm) %*% summary(fit)$cov.unscaled %*% cm)*s2.post
               df.post <- s2_df + df.prior
               
             } else{
               
-              vss <- .vcovLThetaL(fit$model)
-              varcor <- vss(t(cm), c(fit$thopt, fit$sigma)) ## for the theta and sigma parameters
-              vcov <- varcor$unscaled.varcor*s2
+              # Acknowlege: Tyler Bradshawthis contributed to this part of implementation
+              vcov <- fit@vcov_beta
               se2 <- as.matrix(t(cm) %*% as.matrix(vcov) %*% cm)
               
               ## calculate posterior variance
-              vcov.post <- varcor$unscaled.varcor*s2.post
-              variance <- as.matrix(t(cm) %*% as.matrix(vcov.post) %*% cm)
+              vcov.post <- fit@pp$unsc() * s2.post
+              se2.post <- as.matrix(t(cm) %*% as.matrix(vcov.post) %*% cm)
               
-              ## calculate df
-              g <- .mygrad(function(x)  vss(t(cm), x)$varcor, c(fit$thopt, fit$sigma))
-              denom <- try(t(g) %*% fit$A %*% g, silent=TRUE)
+              ## calculate posterior df
+              g <- .mygrad(function(x)  vss(t(cm), x)$varcor, c(rho$thopt, rho$sigma))
+              denom <- try(t(g) %*% fit@vcov_varpar %*% g, silent=TRUE)
               if(inherits(denom, "try-error")) {
                 
                 df.post <- s2_df + df.prior
@@ -141,7 +153,7 @@
             }
             
             ## calculate the t statistic
-            t <- FC/sqrt(variance)
+            t <- FC/sqrt(se2.post)
             
             ## calculate p-value
             p <- 2*pt(-abs(t), df = df.post)
@@ -149,7 +161,7 @@
             
             ## save testing results
             res[count, "log2FC"] <- FC
-            res[count, "SE"] <- sqrt(variance)
+            res[count, "SE"] <- sqrt(se2.post)
             res[count, "DF"] <- df.post
             
             if(s2_df == 0){
@@ -191,7 +203,13 @@
           
         } # end loop for comparison    
       } # if the linear model is fittable
+      
+      ## progress
+      setTxtProgressBar(pb, i)
+      
     } # for each protein
+    
+    close(pb)
     
     res <- as.data.frame(res[seq_len(count),])
     res$Protein <- as.factor(res$Protein)
