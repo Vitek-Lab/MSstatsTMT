@@ -17,15 +17,27 @@
         stop("Please check the Condition column in annotation file. There must be at least two conditions!")
     }
     
-    ## contrast matrix can be matrix or character vector.
-    if(is.matrix(contrast.matrix)){
-      # comparison come from contrast.matrix
+    ## check whether contrast.matrix is pairwise or matrix
+    if (!(is.matrix(contrast.matrix) | is.data.frame(contrast.matrix))) {
+      if(length(contrast.matrix) == 1){ # contrast.matrix is a character
+        if(contrast.matrix != "pairwise"){ 
+          stop("contrast.matrix must be 'pairwise' or a contrast matrix.")
+        } else{ # create constrast matrix for pairwise comparison
+          contrast.matrix <- .makeContrast(groups)
+        }
+      } else{
+        stop("contrast.matrix must be 'pairwise' or a contrast matrix.")
+      }
+    } else{ # contrast.matrix is a matrix or data frame
+      contrast.matrix <- as.matrix(contrast.matrix)
+      
       if (!all(colnames(contrast.matrix) %in% groups)) {
         stop("Please check the contrast.matrix. Column names of contrast.matrix must be matched with conditions!")
       }
-    } else{  
-      # create constrast matrix for pairwise comparison
-      contrast.matrix <- .makeContrast(groups)
+      
+      if(!is.numeric(contrast.matrix)){
+        stop("Please check the contrast.matrix. The elements of the contrast matrix must be all numeric!")
+      }
     }
     ncomp <- nrow(contrast.matrix)
    
