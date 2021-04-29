@@ -182,14 +182,14 @@ PDtoMSstatsTMTFormat <- function(input,
     }
 
     ##############################
-    ##  5. remove features which has 1 or 2 measurements across runs
+    ##  5. remove features which has 1 or 2 measurements within a run
     ##############################
     if (rmPSM_withfewMea_withinRun){
 
         tmp <- input[, channels]
         nmea <- apply(tmp, 1, function(x) sum(!is.na(x)))
         input <- input[nmea > 2, ]
-        message(paste0('** ', sum(nmea <= 2), ' features have 1 or 2 intensities across runs and are removed.'))
+        message(paste0('** ', sum(nmea <= 2), ' features have 1 or 2 intensities within a run and are removed.'))
     }
 
     ##############################
