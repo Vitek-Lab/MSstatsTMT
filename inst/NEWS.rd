@@ -2,7 +2,17 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
-\section{Changes in version 1.6.6 (2020-08-28)}{\itemize{
+\section{Changes in version 1.8.2 (2020-12-17)}{\itemize{
+\item Update progress bar
+\item Update groupComparisonTMT to avoid reusing the local function copied from lmer pacakge}}
+
+\section{Changes in version 1.8.1 (2020-12-10)}{\itemize{
+\item Add citation of the MSstatsTMT paper
+\item Fix the bug in groupComparisonTMT() due to the update of dependent pacakge
+\item Fix the bug in MedianPolish summarization
+\item proteinSummarization(): replace the zero values with NA before and after peptide normalization}}
+
+\section{Changes in version 1.6.6 (2020-10-13)}{\itemize{
 \item Fix the bug in converters due to fractions with same mean, sum and max values
 \item Fix the bug in converters due to summaryforMultipleRows
 \item Fix the bug in OpemMS converter due to duplicated rows}}

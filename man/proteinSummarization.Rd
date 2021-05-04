@@ -12,8 +12,7 @@ proteinSummarization(
   remove_norm_channel = TRUE,
   remove_empty_channel = TRUE,
   MBimpute = TRUE,
-  maxQuantileforCensored = NULL,
-  make_copy = TRUE
+  maxQuantileforCensored = NULL
 )
 }
 \arguments{
@@ -32,9 +31,6 @@ proteinSummarization(
 \item{MBimpute}{only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each peptide precursor ion.}
 
 \item{maxQuantileforCensored}{We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.}
-
-\item{make_copy}{logical, if TRUE, a copy of `data` will be used. 
-If FALSE, operations such as normalization will affect the input `data`.}
 }
 \value{
 data.frame with protein-level summarization for each run and channel
@@ -45,10 +41,10 @@ After all, global median normalization on peptide level data and normalization b
 }
 \examples{
 data(input.pd)
-quant.pd.msstats <- proteinSummarization(input.pd,
-                                         method = "msstats",
-                                         global_norm = TRUE,
-                                         reference_norm = TRUE)
-head(quant.pd.msstats)
 
+quant.pd.msstats <- proteinSummarization(input.pd,
+                                         method="msstats",
+                                         global_norm=TRUE,
+                                         reference_norm=TRUE)
+head(quant.pd.msstats)
 }
