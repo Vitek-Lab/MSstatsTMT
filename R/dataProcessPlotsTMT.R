@@ -11,7 +11,7 @@
 #' @importFrom graphics axis image legend mtext par plot.new title plot
 #' @importFrom grDevices dev.off hcl pdf
 #' @importFrom dplyr mutate
-#' @importFrom reshape2 dcast
+#' @importFrom data.table dcast
 #' @param data.peptide name of the data with peptide level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).
 #' @param data.summarization name of the data with protein-level, which can be the output of \code{\link{proteinSummarization}} function.
 #' @param type choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.

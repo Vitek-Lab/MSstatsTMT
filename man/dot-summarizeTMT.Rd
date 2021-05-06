@@ -4,7 +4,14 @@
 \alias{.summarizeTMT}
 \title{Performs summarization for TMT data}
 \usage{
-.summarizeTMT(input, method, annotation, impute, max_quantile_censored)
+.summarizeTMT(
+  input,
+  method,
+  annotation,
+  impute,
+  fill_incomplete,
+  max_quantile_censored
+)
 }
 \arguments{
 \item{input}{data.table}
@@ -16,6 +23,8 @@
 \item{impute}{only for method="msstats". TRUE (default) imputes missing 
 values by Accelated failure model. FALSE uses minimum value to impute the 
 missing value for each peptide precursor ion.}
+
+\item{fill_incomplete}{if TRUE, missing rows will be added with Intensity=NA.}
 
 \item{max_quantile_censored}{We assume missing values are censored. 
 maxQuantileforCensored is Maximum quantile for deciding censored missing 

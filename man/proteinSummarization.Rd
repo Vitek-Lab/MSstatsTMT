@@ -41,10 +41,10 @@ After all, global median normalization on peptide level data and normalization b
 }
 \examples{
 data(input.pd)
-
 quant.pd.msstats <- proteinSummarization(input.pd,
-                                         method="msstats",
-                                         global_norm=TRUE,
-                                         reference_norm=TRUE)
+                                         method = "msstats",
+                                         global_norm = TRUE,
+                                         reference_norm = TRUE)
 head(quant.pd.msstats)
+
 }

@@ -1,51 +1,62 @@
-#" Finding differentially abundant proteins across conditions in TMT experiment
-#"
-#" Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment.
-#" Experimental design of case-control study (patients are not repeatedly measured) is automatically determined based on proper statistical model.
-#"
-#" @export
-#" @param data Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Abundance.
-#" @param contrast.matrix Comparison between conditions of interests. 1) default is "pairwise", which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
-#" @param moderated TRUE will moderate t statistic; FALSE (default) uses ordinary t statistic.
-#" @param adj.method adjusted method for multiple comparison. "BH" is default.
-#" @param remove_norm_channel TRUE(default) removes "Norm" channels from protein level data.
-#" @param remove_empty_channel TRUE(default) removes "Empty" channels from protein level data.
-#" @return data.frame with result of inference
-#" @examples
-#" data(input.pd)
-#" # use protein.summarization() to get protein abundance data
-#" quant.pd.msstats = proteinSummarization(input.pd,
-#"                                        method="msstats",
-#"                                        global_norm=TRUE,
-#"                                        reference_norm=TRUE)
-#"
-#" test.pairwise = groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
-#"
-#" # Only compare condition 0.125 and 1
-#" levels(quant.pd.msstats$Condition)
-#"
-#" # Compare condition 1 and 0.125
-#" comparison=matrix(c(-1,0,0,1),nrow=1)
-#"
-#" # Set the nafmes of each row
-#" row.names(comparison)="1-0.125"
-#"
-#" # Set the column names
-#" colnames(comparison)= c("0.125", "0.5", "0.667", "1")
-#" test.contrast = groupComparisonTMT(data = quant.pd.msstats,
-#" contrast.matrix = comparison,
-#" moderated = TRUE)
-#" 
+#' Finding differentially abundant proteins across conditions in TMT experiment
+#'
+#' Tests for significant changes in protein abundance across conditions based on a family of linear mixed-effects models in TMT experiment.
+#' Experimental design of case-control study (patients are not repeatedly measured) is automatically determined based on proper statistical model.
+#'
+#' @param data Name of the output of \code{\link{proteinSummarization}} function. It should have columns named Protein, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Abundance.
+#' @param contrast.matrix Comparison between conditions of interests. 1) default is "pairwise", which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
+#' @param moderated TRUE will moderate t statistic; FALSE (default) uses ordinary t statistic.
+#' @param adj.method adjusted method for multiple comparison. "BH" is default.
+#' @param remove_norm_channel TRUE(default) removes "Norm" channels from protein level data.
+#' @param remove_empty_channel TRUE(default) removes "Empty" channels from protein level data.
+#' @inheritParams .documentFunction
+#' 
+#' @return data.frame with result of inference
+#' 
+#' @export
+#' 
+#' @examples
+#' data(input.pd)
+#' # use protein.summarization() to get protein abundance data
+#' quant.pd.msstats = proteinSummarization(input.pd,
+#'                                        method="msstats",
+#'                                        global_norm=TRUE,
+#'                                        reference_norm=TRUE)
+#'
+#' test.pairwise = groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
+#'
+#' # Only compare condition 0.125 and 1
+#' levels(quant.pd.msstats$Condition)
+#'
+#' # Compare condition 1 and 0.125
+#' comparison=matrix(c(-1,0,0,1),nrow=1)
+#'
+#' # Set the nafmes of each row
+#' row.names(comparison)="1-0.125"
+#'
+#' # Set the column names
+#' colnames(comparison)= c("0.125", "0.5", "0.667", "1")
+#' test.contrast = groupComparisonTMT(data = quant.pd.msstats,
+#' contrast.matrix = comparison,
+#' moderated = TRUE)
+#' 
 groupComparisonTMT = function(
     data, contrast.matrix = "pairwise", moderated = FALSE, adj.method = "BH",
-    remove_norm_channel = TRUE, remove_empty_channel = TRUE
+    remove_norm_channel = TRUE, remove_empty_channel = TRUE,
+    use_log_file = TRUE, append = FALSE, 
+    verbose = TRUE, log_file_path = NULL
 ){
-    # LOG: "MSstatsTMT - groupComparisonTMT function"
-    # LOG: paste("Moderated t-stat :", moderated)
-    # LOG: paste("Adjust p-value :", adj.method)
-    # LOG: "Remove empty channels :", remove_empty_channel)
-    # LOG: "Remove normalization channels :", remove_norm_channel)
-    # TODO: switch to new input (list with two elements)
+    MSstatsConvert::MSstatsLogsSettings(
+        use_log_file, use_log_file, verbose, log_file_path, 
+        base = "MSstatsTMT_log_groupComparison_"
+    )
+    getOption("MSstatsTMTLog")("INFO", "MSstatsTMT - groupComparisonTMT function")
+    getOption("MSstatsTMTLog")("INFO", paste("Moderated t-stat :", moderated))
+    getOption("MSstatsTMTLog")("INFO", paste("Adjust p-value :", adj.method))
+    getOption("MSstatsTMTLog")("INFO", paste("Remove empty channels :", 
+                                             remove_empty_channel))
+    getOption("MSstatsTMTLog")("INFO", paste("Remove normalization channels :",
+                               remove_norm_channel))
     summarized = MSstatsPrepareForGroupComparisonTMT(data, remove_norm_channel,
                                                      remove_empty_channel)
     fitted_models = MSstatsFitComparisonModelsTMT(summarized)
@@ -57,6 +68,16 @@ groupComparisonTMT = function(
 }
 
 
+#' Prepare output of proteinSummarization for group comparison
+#' 
+#' @param input output of proteinSummarization
+#' @param remove_norm_channel if TRUE, "Norm" channel will be removed
+#' @param remove_empty_channel, if TRUE, empty channel will be removed
+#' 
+#' @return data.table
+#' 
+#' @export
+#' 
 MSstatsPrepareForGroupComparisonTMT = function(input, remove_norm_channel,
                                                remove_empty_channel) {
     input = data.table::as.data.table(input)
@@ -84,6 +105,15 @@ MSstatsPrepareForGroupComparisonTMT = function(input, remove_norm_channel,
     input    
 }
 
+
+#' Fit linear models for group comparison
+#' 
+#' @param input output of the MSstatsPrepareForGroupComparisonTMT function
+#' 
+#' @return list 
+#' 
+#' @export
+#' 
 MSstatsFitComparisonModelsTMT = function(input) {
     Abundance = Group = Protein = NULL
     
@@ -105,6 +135,17 @@ MSstatsFitComparisonModelsTMT = function(input) {
     rbindlist(linear_models)
 }
 
+
+#' Fit a linear model for group comparison for a single protein
+#' 
+#' @param single_protein protein-level data for a single protein (single element
+#' of list created by the MSstatsPrepareForGroupComparisonTMT function)
+#' @param protein_name name of a protein from the single_protein data.table
+#' 
+#' @return list
+#'  
+#' @export
+#'  
 MSstatsComparisonModelSingleTMT = function(single_protein, protein_name) {
     annotation = unique(single_protein[, list(Run, Channel, Subject,
                                               Group, Mixture, TechRepMixture)])
@@ -119,6 +160,17 @@ MSstatsComparisonModelSingleTMT = function(single_protein, protein_name) {
     result
 }
 
+
+#' Moderate T statistic for group comparison
+#' 
+#' @param summarized protein-level data produced by the proteinSummarization function
+#' @param fitted_models output of the MSstatsFitComparisonModelsTMT function
+#' @param moderated if TRUE, moderation will be performed
+#' 
+#' @return list
+#' 
+#' @param export
+#' 
 MSstatsModerateTTest = function(summarized, fitted_models, moderated) {
     if (moderated) {
         eb_input_s2 = fitted_models[variance_df != 0 & !is.na(variance_df),
@@ -148,8 +200,19 @@ MSstatsModerateTTest = function(summarized, fitted_models, moderated) {
 }
 
 
+#' Group comparison for TMT data
+#' 
+#' @param fitted_models output of the MSstatsModerateTTest function
+#' @param contrast_matrix contrast matrix
+#' 
+#' @return data.table
+#' 
+#' @export
+#'  
 MSstatsGroupComparisonTMT = function(fitted_models, contrast_matrix) {
-    # LOG: paste0("Testing for ", length(all_proteins) , " proteins:")
+    msg = paste0("Testing for ", length(fitted_models) , " proteins:")
+    getOption("MSstatsTMTLog")("INFO", msg)
+    getOption("MSstatsTMTMsg")("INFO", msg)
     testing_results = vector("list", length(fitted_models))
     pb = txtProgressBar(max = length(fitted_models), style = 3)
     for (i in seq_along(fitted_models)) {
@@ -159,14 +222,23 @@ MSstatsGroupComparisonTMT = function(fitted_models, contrast_matrix) {
         setTxtProgressBar(pb, i)
     }
     close(pb)
-    data.table::rbindlist(testing_results)
+    testing_results
 }
 
 
+#' Hypothesis tests for a single protein in TMT data
+#' 
+#' @param fitted_model single element of the MSstatsModerateTTest output
+#' @param contrast_matrix contrast matrix
+#' 
+#' @return list
+#' 
+#' @export
+#' 
 MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
     single_protein = fitted_model[["data"]]
     groups = as.character(unique(single_protein$Group))
-    groups = sort(groups) # sort the groups based on alphabetic order
+    groups = sort(groups)
     coefs = fitted_model[["coefs"]][[1]]
     s2 = fitted_model[["variance"]]
     s2_df = fitted_model[["variance_df"]]
@@ -186,7 +258,7 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
             rho = NULL
             vss = NULL
         }
-         
+        
         for (row_id in seq_len(nrow(contrast_matrix))) {
             contrast = contrast_matrix[row_id, , drop = FALSE]
             positive.groups = colnames(contrast)[contrast > 0]
@@ -235,10 +307,9 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
             }
             
             results[[row_id]] = list(Protein = protein, comparison = row.names(contrast),
-                 log2FC = FC, pvalue = p, SE = se, DF = DF, issue = issue)
-            # results[[row_id]] = .handleSingleContrastTMT(contrast, fit, single_protein, 
-            #                                              coefs, protein, groups, s2_posterior, rho, vss,
-            #                                              df_prior, s2_df)
+                                     log2FC = FC, pvalue = p, SE = se, DF = DF, issue = issue)
+            # This code cannot be extracted to a new function yet due to 
+            # performance issues with environments
         }
     } else {
         # very few measurements so that the model is unfittable
@@ -255,7 +326,17 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
 }
 
 
+#' Combine testing results for individual proteins
+#' 
+#' @param testing_results output of the MSstatsGroupComparisonTMT function
+#' @param adj_method method that will be used to adjust p-values for multiple comparisons
+#' 
+#' @return data.table
+#' 
+#' @export 
+#' 
 MSstatsGroupComparisonOutputTMT = function(testing_results, adj_method) {
+    testing_results = data.table::rbindlist(testing_results)
     testing_results$Protein = as.factor(testing_results$Protein)
     testing_results[, adj.pvalue := p.adjust(pvalue, adj_method), 
                     by = "comparison"]
