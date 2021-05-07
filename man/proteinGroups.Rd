@@ -4,7 +4,9 @@
 \name{proteinGroups}
 \alias{proteinGroups}
 \title{Example of proteinGroups file from MaxQuant for TMT-10plex experiments.}
-\format{A data frame with 1075 rows and 105 variables.}
+\format{
+A data frame with 1075 rows and 105 variables.
+}
 \usage{
 proteinGroups
 }
