@@ -8,10 +8,6 @@
 #'
 #' @export
 #' @import ggplot2
-#' @importFrom graphics axis image legend mtext par plot.new title plot
-#' @importFrom grDevices dev.off hcl pdf
-#' @importFrom dplyr mutate
-#' @importFrom reshape2 dcast
 #' @param data.peptide name of the data with peptide level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).
 #' @param data.summarization name of the data with protein-level, which can be the output of \code{\link{proteinSummarization}} function.
 #' @param type choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
@@ -83,10 +79,19 @@ dataProcessPlotsTMT = function(
     }
     
     if (toupper(type) == "PROFILEPLOT") {
-        .plotProfileTMT()
+        .plotProfileTMT(processed, summarized, 
+                        ylimUp, ylimDown, x.axis.size, y.axis.size, 
+                        text.size, text.angle, legend.size, dot.size.profile, 
+                        ncol.guide, width, height, which.Protein, 
+                        originalPlot, summaryPlot,
+                        address)
     }
     if (toupper(type) == "QCPLOT") {
-        .plotQualityTMT()
+        .plotQualityTMT(processed, 
+                        ylimUp, ylimDown, x.axis.size, y.axis.size, 
+                        text.size, text.angle, legend.size, dot.size.profile, 
+                        ncol.guide, width, height, which.Protein,
+                        address)
     }
 }
 
@@ -99,17 +104,22 @@ dataProcessPlotsTMT = function(
     input$Condition = factor(input$Condition)
     if (log_transform) {
         input$abundance = log2(input$Intensity)
-        input$abundance = ifelse(!is.na(input$abundance) & input$abundance < 1,
+        input$abundance = ifelse(!is.na(input$Intensity) & input$Intensity < 1,
                                  0, input$abundance)
     }
     input
 }
 
 
-.plotProfileTMT = function(processed, summarized) {
-    all_proteins = unique(processed$Protein)
+.plotProfileTMT = function(processed, summarized, 
+                           ylimUp, ylimDown, x.axis.size, y.axis.size, 
+                           text.size, text.angle, legend.size, dot.size.profile, 
+                           ncol.guide, width, height, which.Protein, 
+                           originalPlot, summaryPlot,
+                           address) {
+    
     if (which.Protein != "all") {
-        chosen_proteins = .getSelectedProteins(which.Protein, all_proteins)
+        chosen_proteins = .getSelectedProteins(which.Protein, unique(processed$Protein))
         processed = processed[Protein %in% temp.name]
         processed$Protein = factor(processed$Protein)
         summarized = summarized[Protein %in% temp.name]
@@ -127,24 +137,22 @@ dataProcessPlotsTMT = function(
         y.limdown = 0
     }
     
+    all_proteins = unique(processed$Protein)
     processed = .getXAxisOrder(processed)
     tempGroupName = unique(processed[, list(Condition, xorder, Run, Channel)])
     groupline = .getGroupLabel(tempGroupName)
     groupline.all = groupline
-    # MATEUSZ: is there really need for separate groupline, groupline.all, groupline.tmp, groupline.all.tmp?
     ## remove last condition for vertical line between groups
     groupline = groupline[!(Condition %in% levels(Condition)[nlevels(Condition)])]
     
-    haverun = is.element("Run", colnames(summarized)) 
-    if (haverun) { # MATEUSZ: Is it still check really needed?
-        datamat = data.table::dcast(Protein + Channel ~ Run, 
-                                    data = summarized, 
-                                    value.var = "Abundance", keep = TRUE)
-        summarized = melt(datamat, id.vars = c("Protein", "Channel"))
-        data.table::setnames(summarized, c("variable", "value"),
-                             c("Run", "Abundance"))
-        summarized = merge(summarized, tempGroupName, by = c("Run", "Channel"))
-    }
+    datamat = data.table::dcast(Protein + Channel ~ Run, 
+                                data = summarized, 
+                                value.var = "Abundance", keep = TRUE)
+    summarized = data.table::melt(datamat, id.vars = c("Protein", "Channel"))
+    data.table::setnames(summarized, c("variable", "value"),
+                         c("Run", "Abundance"))
+    summarized = merge(summarized, tempGroupName, by = c("Run", "Channel"))
+    
     
     if (originalPlot) {
         .savePlot(address, "ProfilePlot", width, height)
@@ -155,13 +163,13 @@ dataProcessPlotsTMT = function(
             single_protein$Charge = factor(as.character(single_protein$Charge))
             single_protein$PSM = factor(as.character(single_protein$PSM))
             if (all(is.na(single_protein$abundance)) | 
-                (!is.na(single_protein$abundance) & single_protein$abundance == 0)) {
+                all(single_protein$abundance == 0)) {
                 next()
             }
             
             pept_feat = unique(single_protein[, list(PeptideSequence, PSM)])
             pept_feat = pept_feat[order(PeptideSequence, PSM)]
-            counts = pept_feat[, .(N = .N), by = "PEPTIDE"]$N
+            counts = pept_feat[, .(N = .N), by = "PeptideSequence"]$N
             s = rep(1:length(counts), times = counts)
             ss = unlist(lapply(counts, function(x) seq(1, x)), FALSE, FALSE)
             
@@ -198,20 +206,9 @@ dataProcessPlotsTMT = function(
                           size = text.size,
                           angle = text.angle,
                           color = "black") +
-                theme(
-                    panel.background = element_rect(fill = 'white', colour = "black"),
-                    legend.key = element_rect(fill = 'white', colour = 'white'),
-                    panel.grid.minor = element_blank(),
-                    strip.background = element_rect(fill = 'gray95'),
-                    axis.ticks.x = element_blank(),
-                    axis.text.x = element_blank(),
-                    axis.text.y = element_text(size = y.axis.size, colour = "black"),
-                    axis.ticks = element_line(colour = "black"),
-                    axis.title.x = element_text(size = x.axis.size + 5, vjust = -0.4),
-                    axis.title.y = element_text(size = y.axis.size + 5, vjust = 0.3),
-                    title = element_text(size = x.axis.size + 8, vjust = 1.5),
-                    legend.position = "top",
-                    legend.text = element_text(size = legend.size)) +
+                theme_msstats("PROFILEPLOT", x.axis.size, y.axis.size, legend.size) +
+                theme(axis.ticks.x = element_blank(),
+                      axis.text.x = element_blank())+
                 guides(color = guide_legend(title = paste("# peptide:", nlevels(single_protein$PeptideSequence)),
                                             title.theme = element_text(size = 13, angle = 0),
                                             keywidth = 0.4,
@@ -236,13 +233,14 @@ dataProcessPlotsTMT = function(
     
     if (summaryPlot) {
         .savePlot(address, "ProfilePlot_wSummarization", width, height)
-        for (i in seq_len(nlevels(processed$Protein))) {
+        pb = txtProgressBar(max = length(all_proteins), style=3)
+        for (i in seq_along(all_proteins)) {
             single_protein = processed[Protein == all_proteins[i]]
             single_protein$PeptideSequence = factor(as.character(single_protein$PeptideSequence))
             single_protein$Charge = factor(as.character(single_protein$Charge))
             single_protein$PSM = factor(as.character(single_protein$PSM))
-            if (all(is.na(single_protein$abundance)) |
-                all(!is.na(single_protein$abundance) & all(single_protein$abundance == 0))) {
+            if (all(is.na(single_protein$abundance)) | 
+                all(single_protein$abundance == 0)) {
                 next()
             }
             groupline.tmp = data.frame(groupline,
@@ -253,95 +251,84 @@ dataProcessPlotsTMT = function(
                                            "PSM" = unique(single_protein$PSM)[1],
                                            "PeptideSequence" = unique(single_protein$PeptideSequence)[1],
                                            "analysis" = 'Run summary')
-            if (haverun) { # MATEUSZ: is this check really needed?
-                quant = data.table::data.table(
+            
+            subrun = summarized[Protein == all_proteins[i], ]
+            if (nrow(subrun) != 0) {
+                quantrun = summarized[
+                    Protein == all_proteins[i],
+                    list(Protein, PeptideSequence = "Run summary", 
+                         Charge = "Run summary", PSM = "Run summary",
+                         Channel, Run, abundance = Abundance, xorder,
+                         analysis = "Run summary")]
+            } else {
+                quantrun = data.table::data.table(
                     Protein = all_proteins[i], PeptideSequence = "Run summary",
-                    Charge = "Run summary", PSM = "Run summary", 
-                    Channel = unique(single_protein$Channel), 
+                    Charge = "Run summary", PSM = "Run summary",
+                    abundance = NA, Intensity = NA
                 )
-                subrun = summarized[Protein == all_proteins[i], ]
-                if (nrow(subrun) != 0) {
-                    quantrun = summarized[
-                        Protein == all_proteins[i],
-                        list(Protein, PeptideSequence = "Run summary", 
-                             Charge = "Run summary", PSM = "Run summary",
-                             Channel, Run, abundance = Abundance, xorder,
-                             analysis = "Run summary")]
-                } else {
-                    quantrun = data.table::data.table(
-                        Protein = all_proteins[i], PeptideSequence = "Run summary",
-                        Charge = "Run summary", PSM = "Run summary",
-                        abundance = NA, Intensity = NA
-                    )
-                }
-                single_protein$analysis = "Processed feature-level data"
-                
-                final = rbind(single_protein[, colnames(quantrun), with = FALSE], 
-                              quantrun)
-                final$analysis = factor(final$analysis)
-                final$PSM = factor(final$PSM)
-                
-                ptempall = ggplot(final, 
-                                  aes_string(x = "xorder", y = "abundance",
-                                             color = "analysis", linetype = "PSM",
-                                             size = "analysis")) +
-                    facet_grid(~Run) +
-                    geom_point(size = dot.size.profile) +
-                    geom_line(size = 0.5) +
-                    scale_colour_manual(values = c("lightgray", "darkred")) +
-                    scale_shape_manual(values = c(16)) +
-                    scale_size_manual(values = c(1.7, 2), guide = "none") +
-                    scale_linetype_manual(values = c(rep(1, times = length(unique(final$PSM))-1), 2), guide = "none") +
-                    labs(title = unique(single_protein$Protein),
-                         x = 'MS runs') +
-                    scale_y_continuous(yaxis.name, limits = c(y.limdown, y.limup)) +
-                    geom_vline(data = groupline.tmp,
-                               aes(xintercept = cumGroupAxis),
-                               colour = "grey", linetype = "longdash") +
-                    geom_text(data = groupline.all.tmp,
-                              aes(x = xorder, y = abundance, label = Condition),
-                              size = text.size,
-                              angle = text.angle,
-                              color = "black") +
-                    theme(
-                        panel.background = element_rect(fill = 'white', colour = "black"),
-                        legend.key = element_rect(fill = 'white', colour = 'white'),
-                        panel.grid.minor = element_blank(),
-                        strip.background = element_rect(fill = 'gray95'),
-                        axis.ticks.x = element_blank(),
-                        axis.text.x = element_blank(),
-                        axis.text.y = element_text(size = y.axis.size, colour = "black"),
-                        axis.ticks = element_line(colour = "black"),
-                        axis.title.x = element_text(size = x.axis.size + 5, vjust = -0.4),
-                        axis.title.y = element_text(size = y.axis.size + 5, vjust = 0.3),
-                        title = element_text(size = x.axis.size + 8, vjust = 1.5),
-                        legend.position = "top",
-                        legend.text = element_text(size = legend.size),
-                        legend.title = element_blank()) +
-                    guides(color = guide_legend(order = 1,
-                                                title = NULL,
-                                                label.theme = element_text(size = 10, angle = 0)))
-                
-                ## draw point again because some red summary dots could be hiden
-                ptempall = ptempall + 
-                    geom_point(data = final, 
-                               aes(x = xorder, y = abundance, 
-                                   size = analysis, color = analysis))
-                print(ptempall)
             }
+            single_protein$analysis = "Processed feature-level data"
+            
+            final = rbind(single_protein[, colnames(quantrun), with = FALSE], 
+                          quantrun)
+            final$analysis = factor(final$analysis)
+            final$PSM = factor(final$PSM)
+            
+            ptempall = ggplot(final, 
+                              aes_string(x = "xorder", y = "abundance",
+                                         color = "analysis", linetype = "PSM",
+                                         size = "analysis")) +
+                facet_grid(~Run) +
+                geom_point(size = dot.size.profile) +
+                geom_line(size = 0.5) +
+                scale_colour_manual(values = c("lightgray", "darkred")) +
+                scale_shape_manual(values = c(16)) +
+                scale_size_manual(values = c(1.7, 2), guide = "none") +
+                scale_linetype_manual(values = c(rep(1, times = length(unique(final$PSM))-1), 2), guide = "none") +
+                labs(title = unique(single_protein$Protein),
+                     x = 'MS runs') +
+                scale_y_continuous(yaxis.name, limits = c(y.limdown, y.limup)) +
+                geom_vline(data = groupline.tmp,
+                           aes(xintercept = cumGroupAxis),
+                           colour = "grey", linetype = "longdash") +
+                geom_text(data = groupline.all.tmp,
+                          aes(x = xorder, y = abundance, label = Condition),
+                          size = text.size,
+                          angle = text.angle,
+                          color = "black") +
+                theme_msstats("PROFILEPLOT", x.axis.size, y.axis.size, 
+                              legend.size, legend.title = element_blank()) +
+                theme(axis.ticks.x = element_blank(),
+                      axis.text.x = element_blank())+
+                guides(color = guide_legend(order = 1,
+                                            title = NULL,
+                                            label.theme = element_text(size = 10, angle = 0)))
+            
+            ## draw point again because some red summary dots could be hiden
+            ptempall = ptempall + 
+                geom_point(data = final, 
+                           aes(x = xorder, y = abundance, 
+                               size = analysis, color = analysis))
+            print(ptempall)
+            setTxtProgressBar(pb, i)
+            
         } # end-loop for each protein
+        close(pb)
         if (address!=FALSE) {
             dev.off()
         }
     }
-    
 }
 
 
-.plotQualityTMT = function(processed) {
+.plotQualityTMT = function(processed, 
+                           ylimUp, ylimDown, x.axis.size, y.axis.size, 
+                           text.size, text.angle, legend.size, dot.size.profile, 
+                           ncol.guide, width, height, which.Protein,
+                           address) {
     yaxis.name = 'Log2-intensities'
     .savePlot(address, "QCPlot", width, height)
-
+    
     if (is.numeric(ylimUp)) {
         y.limup = ylimUp
     } else {
@@ -382,40 +369,16 @@ dataProcessPlotsTMT = function(
                       size = text.size,
                       angle = text.angle,
                       color = "black") +
-            theme(
-                panel.background = element_rect(fill = "white", colour = "black"),
-                legend.key = element_rect(fill = "white", colour = "white"),
-                panel.grid.minor = element_blank(),
-                strip.background = element_rect(fill = "gray95"),
-                axis.ticks.x = element_blank(),
-                axis.text.x = element_blank(),
-                axis.text.y = element_text(size = y.axis.size, colour = "black"),
-                axis.ticks = element_line(colour = "black"),
-                axis.title.x = element_text(size = x.axis.size + 5, vjust = -0.4),
-                axis.title.y = element_text(size = y.axis.size + 5, vjust = 0.3),
-                title = element_text(size = x.axis.size + 8, vjust = 1.5),
-                legend.position = "none")
+            theme_msstats("QCPLOT", x.axis.size, y.axis.size,
+                          legend_size = NULL) +
+            theme(axis.ticks.x = element_blank(),
+                  axis.text.x = element_blank())
         print(ptemp)
     }
     
     if (which.Protein != "allonly") {
-        if (which.Protein != "all") { # MATEUSZ: how to use .getSelectedProteins here?
-            if (is.character(which.Protein)) {
-                temp.name = which.Protein
-                if (length(setdiff(temp.name, unique(processed$Protein))) > 0) {
-                    dev.off()
-                    stop(paste0("Please check protein name. Data set does not have this protein. - ",
-                                toString(temp.name)))
-                }
-            }
-            if (is.numeric(which.Protein)) {
-                temp.name = levels(processed$Protein)[which.Protein]
-                if (length(levels(processed$Protein)) < max(which.Protein)) {
-                    dev.off()
-                    stop(paste0("Please check your ion of proteins. There are ",
-                                length(levels(processed$Protein)), " proteins in this dataset."))
-                }
-            }
+        if (which.Protein != "all") {
+            chosen_proteins = .getSelectedProteins(which.Protein, unique(processed$Protein))
             processed = processed[Protein %in% temp.name]
             processed$Protein = factor(processed$Protein)
         }
@@ -424,8 +387,9 @@ dataProcessPlotsTMT = function(
         pb = txtProgressBar(max = length(all_proteins), style=3)
         for (i in seq_along(all_proteins)) {
             single_protein = processed[Protein == all_proteins[i]]
-            single_protein = single_protein[!is.na(abundance), ]
-            if (all(is.na(single_protein$abundance))) {
+            #single_protein = single_protein[!is.na(abundance), ]
+            if (all(is.na(single_protein$abundance)) | 
+                all(single_protein$abundance == 0)) {
                 next()
             }
             
@@ -452,19 +416,10 @@ dataProcessPlotsTMT = function(
                           size = text.size,
                           angle = text.angle,
                           color = "black") +
-                theme(
-                    panel.background = element_rect(fill = 'white', colour = "black"),
-                    legend.key = element_rect(fill = 'white', colour = 'white'),
-                    panel.grid.minor = element_blank(),
-                    strip.background = element_rect(fill = 'gray95'),
-                    axis.ticks.x = element_blank(),
-                    axis.text.x = element_blank(),
-                    axis.text.y = element_text(size = y.axis.size, colour = "black"),
-                    axis.ticks = element_line(colour = "black"),
-                    axis.title.x = element_text(size = x.axis.size + 5, vjust = -0.4),
-                    axis.title.y = element_text(size = y.axis.size + 5, vjust = 0.3),
-                    title = element_text(size = x.axis.size + 8, vjust = 1.5),
-                    legend.position = "none")
+                theme_msstats("QCPLOT", x.axis.size, y.axis.size,
+                              legend_size = NULL) +
+                theme(axis.ticks.x = element_blank(),
+                      axis.text.x = element_blank())
             print(ptemp)
             setTxtProgressBar(pb, i)
         }
@@ -500,3 +455,4 @@ dataProcessPlotsTMT = function(
 #' @importFrom utils getFromNamespace
 .savePlot = utils::getFromNamespace(".savePlot", "MSstatsdev")
 .getSelectedProteins = utils::getFromNamespace(".getSelectedProteins", "MSstatsdev")
+theme_msstats = utils::getFromNamespace("theme_msstats", "MSstatsdev")

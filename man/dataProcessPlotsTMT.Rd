@@ -81,7 +81,7 @@ and generate two types of figures in pdf files as output :
 }
 \examples{
 data(input.pd)
-quant.msstats <- proteinSummarization(input.pd,
+quant.msstats = proteinSummarization(input.pd,
                                       method="msstats",
                                       global_norm=TRUE,
                                       reference_norm=TRUE)
@@ -99,4 +99,5 @@ dataProcessPlotsTMT(data.peptide=input.pd,
                     # type='QCPlot',
                     # width = 21,
                     # height = 7)
+                    
 }

@@ -11,7 +11,8 @@ Authors@R: c(person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut
 License: Artistic-2.0
 Depends: R (>= 4.0)
 Imports: limma, lme4, lmerTest, statmod, methods, data.table, matrixStats, 
-         stats, utils, ggplot2, grDevices, graphics, MSstats
+         stats, utils, ggplot2, grDevices, graphics, MSstats, MSstatsdev,
+         MSstatsConvert, checkmate
 Suggests: BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 biocViews: ImmunoOncology, MassSpectrometry, Proteomics, Software
