@@ -48,7 +48,7 @@ groupComparisonTMT = function(
 ){
     MSstatsConvert::MSstatsLogsSettings(
         use_log_file, use_log_file, verbose, log_file_path, 
-        base = "MSstatsTMT_log_groupComparison_"
+        base = "MSstatsTMT_groupComparison_log_"
     )
     getOption("MSstatsTMTLog")("INFO", "MSstatsTMT - groupComparisonTMT function")
     getOption("MSstatsTMTLog")("INFO", paste("Moderated t-stat :", moderated))
