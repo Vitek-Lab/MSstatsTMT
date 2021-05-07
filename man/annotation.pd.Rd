@@ -5,9 +5,7 @@
 \alias{annotation.pd}
 \title{Example of annotation file for raw.pd,
 which is the PSM output of Proteome Discoverer}
-\format{
-A data frame with 150 rows and 7 variables.
-}
+\format{A data frame with 150 rows and 7 variables.}
 \usage{
 annotation.pd
 }
