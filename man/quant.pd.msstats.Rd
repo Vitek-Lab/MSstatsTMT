@@ -4,7 +4,9 @@
 \name{quant.pd.msstats}
 \alias{quant.pd.msstats}
 \title{Example of output from proteinSummarizaiton function}
-\format{A data frame with 100 rows and 8 variables.}
+\format{
+A data frame with 100 rows and 8 variables.
+}
 \usage{
 quant.pd.msstats
 }
