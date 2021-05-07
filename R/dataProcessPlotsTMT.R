@@ -140,7 +140,7 @@ dataProcessPlotsTMT = function(
     all_proteins = unique(processed$Protein)
     processed = .getXAxisOrder(processed)
     tempGroupName = unique(processed[, list(Condition, xorder, Run, Channel)])
-    groupline = .getGroupLabel(tempGroupName)
+    groupline = .getGroupLabel(tempGroupName, y.limup)
     groupline.all = groupline
     ## remove last condition for vertical line between groups
     groupline = groupline[!(Condition %in% levels(Condition)[nlevels(Condition)])]
@@ -156,6 +156,7 @@ dataProcessPlotsTMT = function(
     
     if (originalPlot) {
         .savePlot(address, "ProfilePlot", width, height)
+        message(paste0("Drew the Profile plot for ", length(all_proteins), " proteins."))
         pb = txtProgressBar(max = length(all_proteins), style=3)
         for (i in seq_along(all_proteins)) {
             single_protein = processed[Protein == all_proteins[i]]
@@ -233,6 +234,7 @@ dataProcessPlotsTMT = function(
     
     if (summaryPlot) {
         .savePlot(address, "ProfilePlot_wSummarization", width, height)
+        message(paste0("Drew the Profile plot with summarization for ", length(all_proteins), " proteins."))
         pb = txtProgressBar(max = length(all_proteins), style=3)
         for (i in seq_along(all_proteins)) {
             single_protein = processed[Protein == all_proteins[i]]
@@ -342,11 +344,12 @@ dataProcessPlotsTMT = function(
     
     processed = .getXAxisOrder(processed)    
     tempGroupName = unique(processed[, c("Condition", "xorder", "Run", "Channel")])
-    groupline = .getGroupLabel(tempGroupName)
+    groupline = .getGroupLabel(tempGroupName, y.limup)
     groupline.all = groupline
     groupline = groupline[!(Condition %in% levels(Condition)[nlevels(Condition)])]
     
     if (which.Protein == "all" | which.Protein == "allonly") {
+        message("Drew the Quality Contol plot(boxplot) over all proteins.")
         groupline.tmp = data.frame(groupline,
                                    "PSM" = unique(processed$PSM)[1],
                                    "PeptideSequence" = unique(processed$PeptideSequence)[1])
@@ -384,6 +387,7 @@ dataProcessPlotsTMT = function(
         }
         
         all_proteins = unique(processed$Protein)
+        message(paste0("Drew the Quality Contol plot(boxplot) for each of ", length(all_proteins), " proteins."))
         pb = txtProgressBar(max = length(all_proteins), style=3)
         for (i in seq_along(all_proteins)) {
             single_protein = processed[Protein == all_proteins[i]]
@@ -433,8 +437,6 @@ dataProcessPlotsTMT = function(
 
 .getXAxisOrder = function(processed) {
     processed = processed[order(Run, Condition, Channel)]
-    processed$Run = factor(processed$Run)
-    summarized$Run = factor(summarized$Run)
     processed$group.channel = paste(processed$Condition, processed$Channel, sep = "_")
     xorder = unique(processed[, list(Run, group.channel)])
     xorder[, xorder := 1:.N, by = "Run"]
@@ -443,7 +445,7 @@ dataProcessPlotsTMT = function(
 }
 
 
-.getGroupLabel = function(input) {
+.getGroupLabel = function(input, y.limup) {
     groupline = input[, list(groupAxis = .N), by = c("Condition", "Run")]
     groupline[, cumGroupAxis := cumsum(groupAxis) + 0.5, by = "Run"]
     groupline$xorder = groupline$cumGroupAxis - groupline$groupAxis / 2
