@@ -12,7 +12,11 @@ proteinSummarization(
   remove_norm_channel = TRUE,
   remove_empty_channel = TRUE,
   MBimpute = TRUE,
-  maxQuantileforCensored = NULL
+  maxQuantileforCensored = NULL,
+  use_log_file = TRUE,
+  append = FALSE,
+  verbose = TRUE,
+  log_file_path = NULL
 )
 }
 \arguments{

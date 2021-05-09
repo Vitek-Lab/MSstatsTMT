@@ -17,7 +17,6 @@ SpectroMinetoMSstatsTMTFormat(
   append = FALSE,
   verbose = TRUE,
   log_file_path = NULL,
-  session_info_path = NULL,
   ...
 )
 }

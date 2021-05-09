@@ -10,7 +10,8 @@
   annotation,
   impute,
   fill_incomplete,
-  max_quantile_censored
+  max_quantile_censored,
+  log_file_path
 )
 }
 \arguments{
@@ -24,11 +25,11 @@
 values by Accelated failure model. FALSE uses minimum value to impute the 
 missing value for each peptide precursor ion.}
 
-\item{fill_incomplete}{if TRUE, missing rows will be added with Intensity=NA.}
-
 \item{max_quantile_censored}{We assume missing values are censored. 
 maxQuantileforCensored is Maximum quantile for deciding censored missing 
 value, for instance, 0.999. Default is Null.}
+
+\item{log_file_path}{path to a MSstats log file}
 }
 \value{
 data.table
