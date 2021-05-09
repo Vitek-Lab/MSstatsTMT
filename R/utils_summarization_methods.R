@@ -8,9 +8,8 @@
 #' 
 #' @export
 #' 
-MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
-                               max_quantile_censored = NULL
-) {
+MSstatsSummarizeTMT = function(input, method, impute,
+                               max_quantile_censored = NULL) {
   log2Intensity = NULL
   
   annotation = unique(input[!is.na(log2Intensity),
@@ -19,7 +18,7 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
                             with = FALSE])
   
   summarized = .summarizeTMT(input, method, annotation, impute, 
-                             fill_incomplete, max_quantile_censored)
+                             max_quantile_censored)
   .makeFactorColumnsTMT(summarized)
   summarized[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
                  "Condition", "TechRepMixture", "Mixture"),
@@ -66,8 +65,8 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
     method_msg = "median"
   }
   msg = paste0("** Protein-level summarization done by ", method_msg, ".")
-  getOption("MSstatsLog")("INFO", msg)
-  getOption("MSstatsMsg")("INFO", msg)
+  getOption("MSstatsTMTLog")("INFO", msg)
+  getOption("MSstatsTMTMsg")("INFO", msg)
   summarized
 }
 
@@ -78,14 +77,13 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
 #' @param impute only for method="msstats". TRUE (default) imputes missing 
 #' values by Accelated failure model. FALSE uses minimum value to impute the 
 #' missing value for each peptide precursor ion.
-#' @param fill_incomplete if TRUE, missing rows will be added with Intensity=NA.
 #' @param max_quantile_censored We assume missing values are censored. 
 #' maxQuantileforCensored is Maximum quantile for deciding censored missing 
 #' value, for instance, 0.999. Default is Null.
 #' @importFrom MSstatsdev dataProcess
 #' @return data.table
 #' @keywords internal
-.summarizeMSstats = function(input, annotation, impute, fill_incomplete,
+.summarizeMSstats = function(input, annotation, impute, 
                              max_quantile_censored = NULL) {
   MSRun = NULL
   
@@ -111,7 +109,6 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
       summaryMethod = "TMP",
       censoredInt = "NA",
       MBimpute = impute,
-      #fillIncompleteRows = fill_incomplete,
       maxQuantileforCensored = max_quantile_censored
     )
     msstats_summary = msstats_summary$RunlevelData

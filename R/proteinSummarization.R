@@ -29,13 +29,21 @@
 proteinSummarization = function(
   data, method = 'msstats', global_norm = TRUE, reference_norm = TRUE,
   remove_norm_channel = TRUE, remove_empty_channel = TRUE, MBimpute = TRUE,
-  maxQuantileforCensored = NULL
+  maxQuantileforCensored = NULL,
+  use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL
 ){
+  MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
+                                      log_file_path, 
+                                      base = "MSstatsTMT_summarization_log_",
+                                      pkg_name = "MSstatsTMT")
+  current_msstats_log = getOption("MSstatsLog")
+  current_msstats_msg = getOption("MSstatsMsg")
+  MSstatsConvert::MSstatsLogsSettings(FALSE, FALSE, FALSE, NULL)
+  getOption("MSstatsTMTLog")("INFO", 
+                             "** MSstatsTMT - proteinSummarization function")
+  getOption("MSstatsTTMMsg")("INFO", 
+                             "** MSstatsTMT - proteinSummarization function")
   
-  getOption("MSstatsLog")("INFO", "** MSstatsTMT - proteinSummarization function")
-  getOption("MSstatsMsg")("INFO", "** MSstatsTMT - proteinSummarization function")
-  
-  MSstatsConvert::MSstatsSaveSessionInfo(NULL, FALSE, "MSstatsTMT_session_info_")
   .checkSummarizationParams(data, method, global_norm, reference_norm, 
                             remove_norm_channel, remove_empty_channel,
                             MBimpute, maxQuantileforCensored)
@@ -66,6 +74,8 @@ proteinSummarization = function(
                                    reference_norm & n_runs > 1)
   summarized = .removeRedundantChannels(summarized, remove_empty_channel,
                                         remove_norm_channel)
+  options(MSstatsLog = current_msstats_log,
+          MSstatsMsg = current_msstats_msg)
   as.data.frame(summarized)
 }
 
@@ -87,6 +97,6 @@ proteinSummarization = function(
     input[, log2Intensity := ifelse(!is.na(Intensity) & Intensity < 1,
                                     NA, log2Intensity)]
     msg = "** Negative log2 intensities were replaced with NA."
-    getOption("MSstatsMsg")("INFO", msg)
+    getOption("MSstatsTMTMsg")("INFO", msg)
   }
 }

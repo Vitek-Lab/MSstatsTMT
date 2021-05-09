@@ -44,7 +44,7 @@
     paste("Remove 'Empty' channels before inference:", remove_empty_channel),
     sep = "\n"
   )
-  getOption("MSstatsLog")("INFO", msg)
+  getOption("MSstatsTMTLog")("INFO", msg)
   invisible(TRUE)
 }
 

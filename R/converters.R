@@ -233,7 +233,7 @@ SpectroMinetoMSstatsTMTFormat <- function(
   MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
                                       log_file_path, 
                                       base = "MSstatsTMT_converter_log_")
-
+  
   input = MSstatsConvert::MSstatsImport(list(input = input), 
                                         "MSstatsTMT", "SpectroMine", ...)
   input = MSstatsConvert::MSstatsClean(input)
