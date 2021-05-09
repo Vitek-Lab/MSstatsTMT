@@ -123,8 +123,9 @@ MSstatsFitComparisonModelsTMT = function(input) {
     num_proteins = length(all_proteins)
     linear_models = vector("list", num_proteins)
     
-    # LOG: paste0("Model fitting for ", num_proteins , " proteins:")
-    message(paste0("Model fitting for ", num_proteins, " proteins."))
+    msg = paste0("Model fitting for ", num_proteins , " proteins.")
+    getOption("MSstatsTMTLog")("INFO", msg)
+    getOption("MSstatsTMTMsg")("INFO", msg)
     pb = txtProgressBar(max=num_proteins, style=3)
     for (i in seq_along(all_proteins)) {
         protein = all_proteins[i]
@@ -217,7 +218,6 @@ MSstatsGroupComparisonTMT = function(fitted_models, contrast_matrix) {
     getOption("MSstatsTMTLog")("INFO", msg)
     getOption("MSstatsTMTMsg")("INFO", msg)
     testing_results = vector("list", length(fitted_models))
-    message(paste0("Model testing for ", length(fitted_models), " proteins."))
     pb = txtProgressBar(max = length(fitted_models), style = 3)
     for (i in seq_along(fitted_models)) {
         testing_result = MSstatsTestSingleProteinTMT(fitted_models[[i]], 

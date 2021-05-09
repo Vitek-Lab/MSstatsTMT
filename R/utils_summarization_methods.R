@@ -102,6 +102,12 @@ MSstatsSummarizeTMT = function(input, method, impute,
   summarized_results = vector("list", num_runs)
   
   for (i in seq_len(num_runs)) {
+    ## For each run, use msstats dataprocess
+    msg = paste("Summarizing for Run :", runs[i] ,
+                "(", i, " of ", num_runs, ")")
+    getOption("MSstatsTMTLog")("INFO", msg)
+    getOption("MSstatsTMTMsg")("INFO", msg)
+    
     msstats_summary = MSstatsdev::dataProcess(
       as.data.frame(input[MSRun == runs[i],
             list(ProteinName, PeptideSequence, PrecursorCharge,
