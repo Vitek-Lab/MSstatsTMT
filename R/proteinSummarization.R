@@ -38,7 +38,8 @@ proteinSummarization = function(
                                       pkg_name = "MSstatsTMT")
   current_msstats_log = getOption("MSstatsLog")
   current_msstats_msg = getOption("MSstatsMsg")
-  MSstatsConvert::MSstatsLogsSettings(FALSE, FALSE, FALSE, NULL)
+  MSstatsConvert::MSstatsLogsSettings(TRUE, TRUE, FALSE, 
+                                      "MSstatsTMT_log_MSstats_")
   getOption("MSstatsTMTLog")("INFO", 
                              "** MSstatsTMT - proteinSummarization function")
   getOption("MSstatsTTMMsg")("INFO", 
