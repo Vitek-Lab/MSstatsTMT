@@ -43,7 +43,7 @@ proteinSummarization = function(
   log_name = paste0("MSstatsTMT_processing_MSstats_log_", time_now)
   getOption("MSstatsTMTLog")("INFO", 
                              "** MSstatsTMT - proteinSummarization function")
-  getOption("MSstatsTTMMsg")("INFO", 
+  getOption("MSstatsTMTMsg")("INFO", 
                              "** MSstatsTMT - proteinSummarization function")
   
   .checkSummarizationParams(data, method, global_norm, reference_norm, 
