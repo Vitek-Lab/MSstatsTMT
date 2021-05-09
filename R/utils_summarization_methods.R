@@ -111,7 +111,7 @@ MSstatsSummarizeTMT = function(input, method, impute, fill_incomplete,
       summaryMethod = "TMP",
       censoredInt = "NA",
       MBimpute = impute,
-      fillIncompleteRows = fill_incomplete,
+      #fillIncompleteRows = fill_incomplete,
       maxQuantileforCensored = max_quantile_censored
     )
     msstats_summary = msstats_summary$RunlevelData
