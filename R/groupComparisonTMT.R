@@ -47,13 +47,13 @@ groupComparisonTMT = function(
     verbose = TRUE, log_file_path = NULL
 ){
     MSstatsConvert::MSstatsLogsSettings(
-        use_log_file, use_log_file, verbose, log_file_path, 
+        use_log_file, append, verbose, log_file_path,
         base = "MSstatsTMT_log_groupComparison_", pkg_name = "MSstatsTMT"
     )
     getOption("MSstatsTMTLog")("INFO", "MSstatsTMT - groupComparisonTMT function")
     getOption("MSstatsTMTLog")("INFO", paste("Moderated t-stat :", moderated))
     getOption("MSstatsTMTLog")("INFO", paste("Adjust p-value :", adj.method))
-    getOption("MSstatsTMTLog")("INFO", paste("Remove empty channels :", 
+    getOption("MSstatsTMTLog")("INFO", paste("Remove empty channels :",
                                              remove_empty_channel))
     getOption("MSstatsTMTLog")("INFO", paste("Remove normalization channels :",
                                remove_norm_channel))
@@ -124,6 +124,7 @@ MSstatsFitComparisonModelsTMT = function(input) {
     linear_models = vector("list", num_proteins)
     
     # LOG: paste0("Model fitting for ", num_proteins , " proteins:")
+    message(paste0("Model fitting for ", num_proteins, " proteins."))
     pb = txtProgressBar(max=num_proteins, style=3)
     for (i in seq_along(all_proteins)) {
         protein = all_proteins[i]
@@ -216,6 +217,7 @@ MSstatsGroupComparisonTMT = function(fitted_models, contrast_matrix) {
     getOption("MSstatsTMTLog")("INFO", msg)
     getOption("MSstatsTMTMsg")("INFO", msg)
     testing_results = vector("list", length(fitted_models))
+    message(paste0("Model testing for ", length(fitted_models), " proteins."))
     pb = txtProgressBar(max = length(fitted_models), style = 3)
     for (i in seq_along(fitted_models)) {
         testing_result = MSstatsTestSingleProteinTMT(fitted_models[[i]], 
