@@ -9,7 +9,8 @@
 #' @export
 #' 
 MSstatsSummarizeTMT = function(input, method, impute,
-                               max_quantile_censored = NULL) {
+                               max_quantile_censored = NULL,
+                               log_file_path = NULL) {
   log2Intensity = NULL
   
   annotation = unique(input[!is.na(log2Intensity),
@@ -18,7 +19,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
                             with = FALSE])
   
   summarized = .summarizeTMT(input, method, annotation, impute, 
-                             max_quantile_censored)
+                             max_quantile_censored, log_file_path)
   .makeFactorColumnsTMT(summarized)
   summarized[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
                  "Condition", "TechRepMixture", "Mixture"),
@@ -48,7 +49,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @return data.table
 #' @keywords internal
 .summarizeTMT = function(input, method, annotation, impute, fill_incomplete,
-                         max_quantile_censored
+                         max_quantile_censored, log_file_path
 ) {
   if (method == "msstats") {
     summarized = .summarizeMSstats(input, annotation, impute, fill_incomplete,
@@ -80,11 +81,13 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @param max_quantile_censored We assume missing values are censored. 
 #' maxQuantileforCensored is Maximum quantile for deciding censored missing 
 #' value, for instance, 0.999. Default is Null.
+#' @param log_file_path path to a MSstats log file
 #' @importFrom MSstatsdev dataProcess
 #' @return data.table
 #' @keywords internal
 .summarizeMSstats = function(input, annotation, impute, 
-                             max_quantile_censored = NULL) {
+                             max_quantile_censored = NULL,
+                             log_file_path = NULL) {
   MSRun = NULL
   
   runs = na.omit(unique(annotation$Run))
@@ -109,7 +112,9 @@ MSstatsSummarizeTMT = function(input, method, impute,
       summaryMethod = "TMP",
       censoredInt = "NA",
       MBimpute = impute,
-      maxQuantileforCensored = max_quantile_censored
+      maxQuantileforCensored = max_quantile_censored,
+      use_log_file = TRUE, append = TRUE, verbose = FALSE,
+      log_file_path = log_file_path
     )
     msstats_summary = msstats_summary$RunlevelData
     msstats_summary = msstats_summary[, c("Protein", "LogIntensities",

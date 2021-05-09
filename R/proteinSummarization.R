@@ -38,8 +38,9 @@ proteinSummarization = function(
                                       pkg_name = "MSstatsTMT")
   current_msstats_log = getOption("MSstatsLog")
   current_msstats_msg = getOption("MSstatsMsg")
-  MSstatsConvert::MSstatsLogsSettings(TRUE, TRUE, FALSE, 
-                                      "MSstatsTMT_log_MSstats_")
+  MSstatsConvert::MSstatsLogsSettings(TRUE, TRUE, FALSE, NULL)
+  time_now = gsub("[ \\:\\-]", "_", as.character(Sys.time()))
+  log_name = paste0("MSstatsTMT_processing_MSstats_log_", time_now)
   getOption("MSstatsTMTLog")("INFO", 
                              "** MSstatsTMT - proteinSummarization function")
   getOption("MSstatsTTMMsg")("INFO", 
@@ -69,7 +70,8 @@ proteinSummarization = function(
                                    method,
                                    MBimpute,
                                    !is_validated,
-                                   maxQuantileforCensored)
+                                   maxQuantileforCensored,
+                                   log_name)
   n_runs = data.table::uniqueN(summarized$Run, na.rm = TRUE)
   summarized = MSstatsNormalizeTMT(summarized, "proteins",
                                    reference_norm & n_runs > 1)
