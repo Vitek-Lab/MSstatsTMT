@@ -69,7 +69,6 @@ proteinSummarization = function(
   summarized = MSstatsSummarizeTMT(input,
                                    method,
                                    MBimpute,
-                                   !is_validated,
                                    maxQuantileforCensored,
                                    log_name)
   n_runs = data.table::uniqueN(summarized$Run, na.rm = TRUE)
