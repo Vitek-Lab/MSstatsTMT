@@ -29,30 +29,69 @@
 proteinSummarization = function(
   data, method = 'msstats', global_norm = TRUE, reference_norm = TRUE,
   remove_norm_channel = TRUE, remove_empty_channel = TRUE, MBimpute = TRUE,
-  maxQuantileforCensored = NULL,
-  use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL
+  maxQuantileforCensored = NULL, use_log_file = TRUE, append = FALSE, 
+  verbose = TRUE, log_file_path = NULL, msstats_log_path = NULL
 ){
   MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
                                       log_file_path, 
                                       base = "MSstatsTMT_summarization_log_",
                                       pkg_name = "MSstatsTMT")
+  input = MSstatsPrepareForSummarizationTMT(
+    data, method, global_norm, reference_norm,remove_norm_channel, 
+    remove_empty_channel, MBimpute, maxQuantileforCensored
+  )
+  input = MSstatsNormalizeTMT(input, "peptides", global_norm)
+  summarized = MSstatsSummarizeTMT(input,
+                                   method,
+                                   MBimpute,
+                                   maxQuantileforCensored,
+                                   msstats_log_path)
+  processed = getProcessedTMT(summarized, input)
+  summarized = getSummarizedTMT(summarized)
+  summarized = MSstatsNormalizeTMT(summarized, "proteins", reference_norm)
+  output = MSstatsSummarizationOutputTMT(summarized, processed,
+                                         remove_empty_channel,
+                                         remove_norm_channel)
+  output
+}
+
+
+getProcessedTMT = function(summarized, input) {
+  if (is.list(summarized) & !is.data.table(summarized)) {
+    processed = summarized[[2]]
+  } else {
+    processed = input
+  }
+  processed
+}
+
+getSummarizedTMT = function(summarized) {
+  if (is.list(summarized) & !is.data.table(summarized)) {
+    summarized = summarized[[1]]
+  }
+  summarized = .makeFactorColumnsTMT(summarized)
+  summarized[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
+                 "Condition", "TechRepMixture", "Mixture"),
+             with = FALSE]
+}
+
+MSstatsPrepareForSummarizationTMT = function(
+  data, method, global_norm, reference_norm,remove_norm_channel, 
+  remove_empty_channel, MBimpute, maxQuantileforCensored
+) {
   current_msstats_log = getOption("MSstatsLog")
   current_msstats_msg = getOption("MSstatsMsg")
   MSstatsConvert::MSstatsLogsSettings(FALSE, FALSE, FALSE, NULL)
-  time_now = gsub("[ \\:\\-]", "_", as.character(Sys.time()))
-  log_name = paste0("MSstatsTMT_processing_MSstats_log_", time_now)
   getOption("MSstatsTMTLog")("INFO", 
                              "** MSstatsTMT - proteinSummarization function")
   getOption("MSstatsTMTMsg")("INFO", 
                              "** MSstatsTMT - proteinSummarization function")
-  
   .checkSummarizationParams(data, method, global_norm, reference_norm, 
                             remove_norm_channel, remove_empty_channel,
                             MBimpute, maxQuantileforCensored)
   .logSummarizationParams(method, global_norm, reference_norm,
                           remove_norm_channel, remove_empty_channel)
   is_validated = inherits(data, "MSstatsValidated")
-  
   input = data.table::as.data.table(unclass(data))
   if (!is_validated) {
     data.table::setnames(input, "Charge", "PrecursorCharge")
@@ -63,24 +102,20 @@ proteinSummarization = function(
     input = data.table::as.data.table(unclass(input))
     data.table::setnames(input, "PrecursorCharge", "Charge")
   }
-  .prepareForSummarization(input)
-  input = MSstatsNormalizeTMT(input, "peptides", global_norm)
-  
-  summarized = MSstatsSummarizeTMT(input,
-                                   method,
-                                   MBimpute,
-                                   maxQuantileforCensored,
-                                   log_name)
-  n_runs = data.table::uniqueN(summarized$Run, na.rm = TRUE)
-  summarized = MSstatsNormalizeTMT(summarized, "proteins",
-                                   reference_norm & n_runs > 1)
-  summarized = .removeRedundantChannels(summarized, remove_empty_channel,
-                                        remove_norm_channel)
   options(MSstatsLog = current_msstats_log,
           MSstatsMsg = current_msstats_msg)
-  as.data.frame(summarized)
+  input = .prepareForSummarization(input)
+  input
 }
 
+MSstatsSummarizationOutputTMT = function(summarized, processed,
+                                         remove_empty_channel,
+                                         remove_norm_channel) {
+  summarized = .removeRedundantChannels(summarized, remove_empty_channel,
+                                        remove_norm_channel)
+  list(FeatureLevelData = as.data.frame(processed),
+       RunLevelData = as.data.frame(summarized))
+}
 
 #' Prepare TMT data for protein-level summarization
 #' @param input data.table
@@ -101,4 +136,5 @@ proteinSummarization = function(
     msg = "** Negative log2 intensities were replaced with NA."
     getOption("MSstatsTMTMsg")("INFO", msg)
   }
+  input
 }

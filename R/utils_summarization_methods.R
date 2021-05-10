@@ -17,13 +17,9 @@ MSstatsSummarizeTMT = function(input, method, impute,
                             c("Run", "Channel", "BioReplicate", "Condition",
                               "Mixture", "TechRepMixture", "RunChannel"),
                             with = FALSE])
-  
   summarized = .summarizeTMT(input, method, annotation, impute, 
                              max_quantile_censored, log_file_path)
-  .makeFactorColumnsTMT(summarized)
-  summarized[, c("Run", "Protein", "Abundance", "Channel", "BioReplicate",
-                 "Condition", "TechRepMixture", "Mixture"),
-             with = FALSE]
+  summarized
 }
 
 
@@ -39,6 +35,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
   input[, Condition := as.factor(Condition)]
   input[, TechRepMixture := as.factor(TechRepMixture)]
   input[, Mixture := as.factor(Mixture)]
+  input
 }
 
 
@@ -90,6 +87,14 @@ MSstatsSummarizeTMT = function(input, method, impute,
                              log_file_path = NULL) {
   MSRun = NULL
   
+  current_msstats_log = options("MSstatsLog")
+  current_msstats_msg = options("MSstatsMsg")
+  if (is.null(log_file_path)) {
+    now = gsub("[ \\:\\-]", "_", Sys.time())
+    log_file_path = paste0("MSstatsTMT_summarization_MSstats_", now, ".log")
+  }
+  MSstatsConvert::MSstatsLogsSettings(TRUE, TRUE, FALSE, log_file_path)
+  
   runs = na.omit(unique(annotation$Run))
   num_runs = length(runs)
   
@@ -99,8 +104,8 @@ MSstatsSummarizeTMT = function(input, method, impute,
   input[, ProductCharge := NA]
   input[, IsotopeLabelType := "L"]
   
+  processed_data = vector("list", num_runs)
   summarized_results = vector("list", num_runs)
-  
   for (i in seq_len(num_runs)) {
     ## For each run, use msstats dataprocess
     msg = paste("Summarizing for Run :", runs[i] ,
@@ -122,12 +127,16 @@ MSstatsSummarizeTMT = function(input, method, impute,
       use_log_file = TRUE, append = TRUE, verbose = FALSE,
       log_file_path = log_file_path
     )
+    processed_data[[i]] = msstats_summary$ProcessedData # MATEUSZ: TODO: pick just the columns we need
     msstats_summary = msstats_summary$RunlevelData
     msstats_summary = msstats_summary[, c("Protein", "LogIntensities",
                                           "originalRUN")]
     summarized_results[[i]] = msstats_summary
   }
+  options(MSstatsLog = current_msstats_log,
+          MSstatsMsg = current_msstats_msg)
 
+  processed = data.table::rbindlist(processed_data)
   summarized_results = data.table::rbindlist(summarized_results)
   data.table::setnames(summarized_results,
                        c("LogIntensities", "originalRUN"),
@@ -141,9 +150,9 @@ MSstatsSummarizeTMT = function(input, method, impute,
   input[, ProductCharge := NULL]
   input[, IsotopeLabelType := NULL]
 
-  summarized_results[, colnames(summarized_results) != "RunChannel",
-                     with = FALSE]
-  summarized_results
+  summarized_results = summarized_results[, colnames(summarized_results) != "RunChannel",
+                                          with = FALSE]
+  list(summarized_results, processed)
 }
 
 
