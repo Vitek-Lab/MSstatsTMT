@@ -48,12 +48,12 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @inheritParams .summarizeMSstats
 #' @return data.table
 #' @keywords internal
-.summarizeTMT = function(input, method, annotation, impute, fill_incomplete,
+.summarizeTMT = function(input, method, annotation, impute,
                          max_quantile_censored, log_file_path
 ) {
   if (method == "msstats") {
-    summarized = .summarizeMSstats(input, annotation, impute, fill_incomplete,
-                                   max_quantile_censored)
+    summarized = .summarizeMSstats(input, annotation, impute,
+                                   max_quantile_censored, log_file_path)
     method_msg = "MSstats"
   } else if (method == "MedianPolish") {
     summarized = .summarizeTMP(input, annotation)
