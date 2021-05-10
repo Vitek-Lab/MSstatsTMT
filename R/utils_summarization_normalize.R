@@ -58,7 +58,8 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
   Abundance = NormalizationAbundance = Run = Condition = MedianNormalized = NULL
   Mixture = TechRepMixture = Channel = Protein = BioReplicate = Condition = NULL
   
-  if (normalize) {
+  n_runs = data.table::uniqueN(input$Run, na.rm = TRUE)
+  if (normalize & (n_runs > 1)) {
     group_info = unique(input$Condition)
     if (is.element("Norm", group_info)) {
       input[!is.na(Abundance),
