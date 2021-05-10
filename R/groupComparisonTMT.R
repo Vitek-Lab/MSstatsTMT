@@ -60,7 +60,7 @@ groupComparisonTMT = function(
     summarized = MSstatsPrepareForGroupComparisonTMT(data, remove_norm_channel,
                                                      remove_empty_channel)
     contrast_matrix = MSstatsdev::MSstatsContrastMatrix(contrast.matrix,
-                                                        unique(summarized$Groups))
+                                                        unique(summarized$Group))
     fitted_models = MSstatsFitComparisonModelsTMT(summarized)
     fitted_models = MSstatsModerateTTest(summarized, fitted_models, moderated)
     testing_results = MSstatsGroupComparisonTMT(fitted_models, contrast_matrix)
