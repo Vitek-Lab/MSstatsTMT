@@ -271,7 +271,7 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
             if (any(positive.groups %in% groups) & 
                 any(negative.groups %in% groups)) {
                 cm = .makeContrastSingleTMT(fit, contrast, single_protein, coefs)
-                FC = (cm %*% coefs)[, 1]
+                FC = (cm %*% coefs)[1, 1]
                 if (inherits(fit, "lm")) {
                     se2.post = diag(t(cm) %*% summary(fit)$cov.unscaled %*% cm) * s2_posterior
                     df.post = s2_df + df_prior
@@ -292,10 +292,10 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
                     }
                 }
                 
-                t = FC / sqrt(se2.post)[1, 1]
+                t = FC / sqrt(se2.post)
                 p = 2*pt(-abs(t), df = df.post)
-                se = sqrt(se2.post)[1, 1]
-                DF = df.post[1, 1]
+                se = sqrt(se2.post)
+                DF = df.post
                 if (s2_df == 0) {
                     issue = "SingleMeasurePerCondition"
                 } else{
