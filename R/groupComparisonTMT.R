@@ -310,7 +310,7 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
                 issue = result[["issue"]]
             }
             
-            results[[row_id]] = list(Protein = protein, comparison = row.names(contrast),
+            results[[row_id]] = list(Protein = protein, Comparison = row.names(contrast),
                                      log2FC = FC, pvalue = p, SE = se, DF = DF, issue = issue)
             # This code cannot be extracted to a new function yet due to 
             # performance issues with environments
@@ -343,7 +343,7 @@ MSstatsGroupComparisonOutputTMT = function(testing_results, adj_method) {
     testing_results = data.table::rbindlist(testing_results)
     testing_results$Protein = as.factor(testing_results$Protein)
     testing_results[, adj.pvalue := p.adjust(pvalue, adj_method), 
-                    by = "comparison"]
-    testing_results[, list(Protein, Label = comparison, log2FC, SE, DF,
+                    by = "Comparison"]
+    testing_results[, list(Protein, Label = Comparison, log2FC, SE, DF,
                            pvalue, adj.pvalue, issue)]
 }

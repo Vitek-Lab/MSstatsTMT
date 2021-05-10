@@ -9,7 +9,6 @@
   method,
   annotation,
   impute,
-  fill_incomplete,
   max_quantile_censored,
   log_file_path
 )
