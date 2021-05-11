@@ -18,7 +18,6 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
                                       NA, log2Intensity)]
       input[, Intensity := ifelse(Intensity < 1 & !is.na(Intensity), 
                                   NA, Intensity)]
-      input = new("MSstatsValidated", input)
     }
   } else {
     input = .normalizeProteins(input, normalize)
