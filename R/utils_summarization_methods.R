@@ -113,7 +113,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
     getOption("MSstatsTMTLog")("INFO", msg)
     getOption("MSstatsTMTMsg")("INFO", msg)
     
-    single_run = ainput[MSRun == runs[i],
+    single_run = input[MSRun == runs[i],
             list(ProteinName, PeptideSequence, PrecursorCharge,
                  FragmentIon, ProductCharge, Run, Condition,
                  BioReplicate, Intensity, IsotopeLabelType,
