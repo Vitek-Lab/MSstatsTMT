@@ -87,8 +87,8 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
                   "is required for normalization.",
                   "Please check it. At this moment,", 
                   "normalization is not performed.")
-      getOption("MSstatsLog")("INFO", msg)
-      getOption("MSstatsMsg")("INFO", msg)
+      getOption("MSstatsTMTLog")("INFO", msg)
+      getOption("MSstatsTMTMsg")("INFO", msg)
     }
   }
   input[, list(Mixture, TechRepMixture, Run, Channel, 
