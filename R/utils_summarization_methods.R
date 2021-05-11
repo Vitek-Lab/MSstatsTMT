@@ -129,8 +129,8 @@ MSstatsSummarizeTMT = function(input, method, impute,
       use_log_file = TRUE, append = TRUE, verbose = FALSE,
       log_file_path = log_file_path
     )
-    processed_data[[i]] = msstats_summary$ProcessedData # MATEUSZ: TODO: pick just the columns we need
-    msstats_summary = msstats_summary$RunlevelData
+    processed_data[[i]] = msstats_summary$FeatureLevelData # MATEUSZ: TODO: pick just the columns we need
+    msstats_summary = msstats_summary$ProteinLevelData
     msstats_summary = msstats_summary[, c("Protein", "LogIntensities",
                                           "originalRUN")]
     summarized_results[[i]] = msstats_summary
