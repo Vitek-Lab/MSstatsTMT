@@ -113,12 +113,14 @@ MSstatsSummarizeTMT = function(input, method, impute,
     getOption("MSstatsTMTLog")("INFO", msg)
     getOption("MSstatsTMTMsg")("INFO", msg)
     
-    msstats_summary = MSstatsdev::dataProcess(
-      as.data.frame(input[MSRun == runs[i],
+    single_run = ainput[MSRun == runs[i],
             list(ProteinName, PeptideSequence, PrecursorCharge,
                  FragmentIon, ProductCharge, Run, Condition,
                  BioReplicate, Intensity, IsotopeLabelType,
-                 Fraction = 1)]),
+                 Fraction = 1)]
+    single_run = new("MSstatsValidated", single_run)
+    msstats_summary = MSstatsdev::dataProcess(
+      single_run,
       normalization = FALSE,
       summaryMethod = "TMP",
       censoredInt = "NA",
