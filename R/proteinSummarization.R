@@ -114,7 +114,7 @@ MSstatsSummarizationOutputTMT = function(summarized, processed,
   summarized = .removeRedundantChannels(summarized, remove_empty_channel,
                                         remove_norm_channel)
   list(FeatureLevelData = as.data.frame(processed),
-       RunLevelData = as.data.frame(summarized))
+       ProteinLevelData = as.data.frame(summarized))
 }
 
 #' Prepare TMT data for protein-level summarization
