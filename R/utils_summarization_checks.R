@@ -67,3 +67,26 @@
   input$Condition = factor(input$Condition)
   input
 }
+
+
+#' Prepare TMT data for protein-level summarization
+#' @param input data.table
+#' @return NULL
+#' @keywords internal
+.prepareForSummarization = function(input) {
+  ProteinName = Intensity = Run = Channel = NULL
+  log2Intensity = RunChannel = PSM = NULL
+  
+  input[, log2Intensity := log(Intensity, 2)]
+  input[, ProteinName := as.character(ProteinName)]
+  input[, PSM := as.character(PSM)]
+  input[, RunChannel := paste(Run, Channel, sep = "_")]
+  
+  if (any(!is.na(input$Intensity) & input$Intensity < 1)) {
+    input[, log2Intensity := ifelse(!is.na(Intensity) & Intensity < 1,
+                                    NA, log2Intensity)]
+    msg = "** Negative log2 intensities were replaced with NA."
+    getOption("MSstatsTMTMsg")("INFO", msg)
+  }
+  input
+}

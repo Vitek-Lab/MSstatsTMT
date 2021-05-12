@@ -341,7 +341,7 @@ fit_reduced_model_onerun = function(data) {
   list(logFC = logFC, issue = issue)
 }
 
-## make constrast
+#' Make a contrast
 #' @importFrom stats coef
 #' @importFrom lme4 fixef
 #' @keywords internal
