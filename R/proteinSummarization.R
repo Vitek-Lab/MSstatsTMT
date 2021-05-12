@@ -56,6 +56,15 @@ proteinSummarization = function(
 }
 
 
+#' Get processed feature-level data
+#' 
+#' @param summarized output of the MSstatsSummarizeTMT function
+#' @param input output of MSstatsNormalizeTMT function
+#' 
+#' @return data.table
+#' 
+#' @export
+#' 
 getProcessedTMT = function(summarized, input) {
   if (is.list(summarized) & !is.data.table(summarized)) {
     processed = summarized[[2]]
@@ -68,6 +77,15 @@ getProcessedTMT = function(summarized, input) {
   processed
 }
 
+
+#' Get protein-level data from MSstatsSummarizeTMT output
+#' 
+#' @param summarized output of the MSstatsSummarizeTMT function
+#' 
+#' @return data.table
+#' 
+#' @export
+#' 
 getSummarizedTMT = function(summarized) {
   if (is.list(summarized) & !is.data.table(summarized)) {
     summarized = summarized[[1]]
@@ -78,6 +96,15 @@ getSummarizedTMT = function(summarized) {
              with = FALSE]
 }
 
+
+#' Prepare output of MSstatsTMT converters for protein-level summarization
+#' 
+#' @inheritParams proteinSummarization
+#' 
+#' @return data.table
+#' 
+#' @export
+#' 
 MSstatsPrepareForSummarizationTMT = function(
   data, method, global_norm, reference_norm,remove_norm_channel, 
   remove_empty_channel, MBimpute, maxQuantileforCensored
@@ -111,6 +138,17 @@ MSstatsPrepareForSummarizationTMT = function(
   input
 }
 
+
+#' Combine feature-level and protein-level data into single output
+#'
+#' @param summarized output of the getSummarizedTMT function
+#' @param processed output of the getProcessedTMT function
+#' @inheritParams proteinSummarization
+#' 
+#' @return list that consists of two data.frames with feature-level and protein-level data
+#' 
+#' @export
+#' 
 MSstatsSummarizationOutputTMT = function(summarized, processed,
                                          remove_empty_channel,
                                          remove_norm_channel) {
@@ -118,26 +156,4 @@ MSstatsSummarizationOutputTMT = function(summarized, processed,
                                         remove_norm_channel)
   list(FeatureLevelData = as.data.frame(processed),
        ProteinLevelData = as.data.frame(summarized))
-}
-
-#' Prepare TMT data for protein-level summarization
-#' @param input data.table
-#' @return NULL
-#' @keywords internal
-.prepareForSummarization = function(input) {
-  ProteinName = Intensity = Run = Channel = NULL
-  log2Intensity = RunChannel = PSM = NULL
-  
-  input[, log2Intensity := log(Intensity, 2)]
-  input[, ProteinName := as.character(ProteinName)]
-  input[, PSM := as.character(PSM)]
-  input[, RunChannel := paste(Run, Channel, sep = "_")]
-  
-  if (any(!is.na(input$Intensity) & input$Intensity < 1)) {
-    input[, log2Intensity := ifelse(!is.na(Intensity) & Intensity < 1,
-                                    NA, log2Intensity)]
-    msg = "** Negative log2 intensities were replaced with NA."
-    getOption("MSstatsTMTMsg")("INFO", msg)
-  }
-  input
 }
