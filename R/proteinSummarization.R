@@ -60,7 +60,10 @@ getProcessedTMT = function(summarized, input) {
   if (is.list(summarized) & !is.data.table(summarized)) {
     processed = summarized[[2]]
   } else {
-    processed = input
+    processed = input[, `:=`(censored = FALSE, 
+                             predicted = NA, 
+                             Intensity = NULL, 
+                             RunChannel = NULL)]
   }
   processed
 }

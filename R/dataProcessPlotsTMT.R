@@ -56,15 +56,17 @@
 #'                     # height = 7)
 #'                     
 dataProcessPlotsTMT = function(
-    data.peptide, data.summarization, type, ylimUp = FALSE, ylimDown = FALSE,
+    data, type, ylimUp = FALSE, ylimDown = FALSE,
     x.axis.size = 10, y.axis.size = 10, text.size = 4, text.angle = 90,
     legend.size = 7, dot.size.profile = 2, ncol.guide = 5, width = 10,
     height = 10, which.Protein = "all", originalPlot = TRUE, summaryPlot = TRUE,
     address = ""
 ) {
+    data.peptide <- data$FeatureLevelData
+    data.summarization <- data$ProteinLevelData
     common_groups = intersect(data.peptide$Condition, data.summarization$Condition)
-    processed = .prepareDataForPlot(data.peptide, common_groups, TRUE)
-    summarized = .prepareDataForPlot(data.summarization, common_groups, FALSE)
+    processed = .prepareDataForPlot(data.peptide, common_groups, "peptides")
+    summarized = .prepareDataForPlot(data.summarization, common_groups, "proteins")
     
     checkmate::assertChoice(toupper(type), c("PROFILEPLOT", "QCPLOT"), 
                             .var.name = "type")
@@ -96,16 +98,14 @@ dataProcessPlotsTMT = function(
 }
 
 
-.prepareDataForPlot = function(input, common_groups, log_transform) {
+.prepareDataForPlot = function(input, common_groups, type) {
     input = data.table::as.data.table(input)
     input = input[Condition %in% common_groups]
     data.table::setnames(input, "ProteinName", "Protein", skip_absent = TRUE)
     input$Protein = factor(input$Protein)
     input$Condition = factor(input$Condition)
-    if (log_transform) {
-        input$abundance = log2(input$Intensity)
-        input$abundance = ifelse(!is.na(input$Intensity) & input$Intensity < 1,
-                                 0, input$abundance)
+    if (type == "peptides") {
+        input[,abundance := log2Intensity]
     }
     input
 }

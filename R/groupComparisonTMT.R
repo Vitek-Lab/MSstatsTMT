@@ -57,7 +57,9 @@ groupComparisonTMT = function(
                                              remove_empty_channel))
     getOption("MSstatsTMTLog")("INFO", paste("Remove normalization channels :",
                                remove_norm_channel))
-    summarized = MSstatsPrepareForGroupComparisonTMT(data, remove_norm_channel,
+ 
+    summarized = MSstatsPrepareForGroupComparisonTMT(data$ProteinLevelData, 
+                                                     remove_norm_channel,
                                                      remove_empty_channel)
     contrast_matrix = MSstatsdev::MSstatsContrastMatrix(contrast.matrix,
                                                         unique(summarized$Group))

@@ -129,31 +129,39 @@ MSstatsSummarizeTMT = function(input, method, impute,
       use_log_file = TRUE, append = TRUE, verbose = FALSE,
       log_file_path = log_file_path
     )
-    processed_data[[i]] = msstats_summary$FeatureLevelData # MATEUSZ: TODO: pick just the columns we need
-    msstats_summary = msstats_summary$ProteinLevelData
-    msstats_summary = msstats_summary[, c("Protein", "LogIntensities",
+    feature_level_data = msstats_summary$FeatureLevelData 
+    feature_level_data = feature_level_data[, c("PROTEIN", "PEPTIDE",
+                                                "originalRUN", "censored",
+                                                "predicted", "newABUNDANCE")]
+    processed_data[[i]] = feature_level_data
+    
+    protein_level_data = msstats_summary$ProteinLevelData
+    protein_level_data = protein_level_data[, c("Protein", "LogIntensities",
                                           "originalRUN")]
-    summarized_results[[i]] = msstats_summary
+    summarized_results[[i]] = protein_level_data
   }
   options(MSstatsLog = current_msstats_log,
           MSstatsMsg = current_msstats_msg)
 
   processed = data.table::rbindlist(processed_data)
   summarized_results = data.table::rbindlist(summarized_results)
+  
   data.table::setnames(summarized_results,
                        c("LogIntensities", "originalRUN"),
                        c("Abundance", "RunChannel"))
   summarized_results = merge(summarized_results, annotation,
                              by = "RunChannel", all.x = TRUE)
-
-  data.table::setnames(input, c("MSRun", "Run", "PrecursorCharge"),
-                       c("Run", "RunChannel", "Charge"))
-  input[, FragmentIon := NULL]
-  input[, ProductCharge := NULL]
-  input[, IsotopeLabelType := NULL]
-
   summarized_results = summarized_results[, colnames(summarized_results) != "RunChannel",
                                           with = FALSE]
+  data.table::setnames(processed, 
+                       c("PROTEIN", "PEPTIDE",
+                         "originalRUN", "newABUNDANCE"),
+                       c("ProteinName", "PSM", 
+                         "RunChannel", "log2Intensity"))
+  processed = merge(processed, annotation,
+                    by = "RunChannel", all.x = TRUE)
+  processed[, c("PeptideSequence", "Charge") := tstrsplit(PSM, "_", fixed=TRUE)]
+  processed[, RunChannel := NULL]
   list(summarized_results, processed)
 }
 
