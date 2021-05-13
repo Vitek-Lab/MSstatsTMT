@@ -6,7 +6,7 @@
 #' 
 #' @return data.table
 #' 
-#' @export
+#' @keywords internal
 #' 
 MSstatsSummarizeTMT = function(input, method, impute,
                                max_quantile_censored = NULL,
@@ -43,11 +43,17 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @param input data.table
 #' @param method "mstats"/"MedianPolish"/"LogSum"/"Median"
 #' @inheritParams .summarizeMSstats
+#' @importFrom methods new
 #' @return data.table
 #' @keywords internal
 .summarizeTMT = function(input, method, annotation, impute,
                          max_quantile_censored, log_file_path
 ) {
+  
+  FragmentIon <- ProductCharge <- IsotopeLabelType <- ProteinName <- 
+    PeptideSequence <- PrecursorCharge <- Run <- Condition <- BioReplicate <- 
+    Intensity <- PSM <- RunChannel <- NULL
+  
   if (method == "msstats") {
     summarized = .summarizeMSstats(input, annotation, impute,
                                    max_quantile_censored, log_file_path)
@@ -80,12 +86,16 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' value, for instance, 0.999. Default is Null.
 #' @param log_file_path path to a MSstats log file
 #' @importFrom MSstatsdev dataProcess
+#' @importFrom methods new
+#' 
 #' @return data.table
 #' @keywords internal
 .summarizeMSstats = function(input, annotation, impute, 
                              max_quantile_censored = NULL,
                              log_file_path = NULL) {
-  MSRun = NULL
+  MSRun = FragmentIon = ProductCharge = IsotopeLabelType = ProteinName = 
+    PeptideSequence = PrecursorCharge = Run = Condition = BioReplicate =
+    Intensity = PSM = RunChannel = NULL
   
   current_msstats_log = options("MSstatsLog")
   current_msstats_msg = options("MSstatsMsg")
@@ -201,6 +211,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' Summarize TMT data with median polish
 #' @param input data.table
 #' @param annotation data.table with run and channel annotation
+#' @keywords internal
 .summarizeTMP = function(input, annotation) {
   log2Intensity = Run = Channel = ProteinName = RunChannel = PSM = NULL
   channel_len = data.table::uniqueN(annotation$Channel, na.rm = TRUE)
@@ -225,7 +236,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @param intensities vector of log-intensities per protein and run
 #' @param num_channels number of channels
 #' @importFrom stats medpolish
-#' @return
+#' @return numeric vector with length `num_channels`
 #' @keywords internal
 .medianPolish <- function(intensities, num_channels){
   wide = matrix(intensities, byrow = TRUE, ncol = num_channels)

@@ -17,3 +17,4 @@ data.table
 \description{
 Group comparison for TMT data
 }
+\keyword{internal}

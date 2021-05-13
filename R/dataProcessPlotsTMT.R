@@ -1,15 +1,16 @@
 #' Visualization for explanatory data analysis - TMT experiment
 #'
 #' To illustrate the quantitative data and quality control of MS runs,
-#' dataProcessPlotsTMT takes the quantitative data from converter functions (\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}) as input
+#' dataProcessPlotsTMT takes the quantitative data  and summarized data from function `proteinSummarization` as input 
 #' and generate two types of figures in pdf files as output :
 #' (1) profile plot (specify "ProfilePlot" in option type), to identify the potential sources of variation for each protein;
-#' (2) quality control plot (specify "QCPlot" in option type), to evaluate the systematic bias between MS runs.
+#' (2) quality control plot (specify "QCPlot" in option type), to evaluate the systematic bias between MS runs and channels.
 #'
 #' @export
 #' @import ggplot2
-#' @param data.peptide name of the data with peptide level, which can be the output of converter functions(\code{\link{PDtoMSstatsTMTFormat}}, \code{\link{MaxQtoMSstatsTMTFormat}}, \code{\link{SpectroMinetoMSstatsTMTFormat}}).
-#' @param data.summarization name of the data with protein-level, which can be the output of \code{\link{proteinSummarization}} function.
+#' @importFrom graphics axis image legend mtext par plot.new title plot
+#' @importFrom grDevices dev.off hcl pdf
+#' @param data the output of \code{\link{proteinSummarization}} function. It is a list with data frames `FeatureLevelData` and `ProteinLevelData`
 #' @param type choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 #' "QCPlot" represents box plots of log intensities across channels and MS runs.
 #' @param ylimUp upper limit for y-axis in the log scale.
@@ -42,15 +43,13 @@
 #'                                       reference_norm=TRUE)
 #'
 #' ## Profile plot
-#' dataProcessPlotsTMT(data.peptide=input.pd,
-#'                    data.summarization=quant.msstats,
+#' dataProcessPlotsTMT(data=quant.msstats,
 #'                    type='ProfilePlot',
 #'                    width = 21,
 #'                    height = 7)
 #'
 #' ## NottoRun: QC plot
-#' # dataProcessPlotsTMT(data.peptide=input.pd,
-#'                     # data.summarization=quant.msstats,
+#' # dataProcessPlotsTMT(data=quant.msstats,
 #'                     # type='QCPlot',
 #'                     # width = 21,
 #'                     # height = 7)
@@ -99,6 +98,9 @@ dataProcessPlotsTMT = function(
 
 
 .prepareDataForPlot = function(input, common_groups, type) {
+    
+    Condition <- log2Intensity <- abundance <- Protein <- NULL
+    
     input = data.table::as.data.table(input)
     input = input[Condition %in% common_groups]
     data.table::setnames(input, "ProteinName", "Protein", skip_absent = TRUE)
@@ -118,11 +120,15 @@ dataProcessPlotsTMT = function(
                            originalPlot, summaryPlot,
                            address) {
     
+    Protein <- Condition <- xorder <- Run <- NULL
+    Channel <- PeptideSequence <- PSM <- cumGroupAxis <- NULL
+    abundance <- Abundance <- analysis <- NULL
+    
     if (which.Protein != "all") {
         chosen_proteins = .getSelectedProteins(which.Protein, unique(processed$Protein))
-        processed = processed[Protein %in% temp.name]
+        processed = processed[Protein %in% chosen_proteins]
         processed$Protein = factor(processed$Protein)
-        summarized = summarized[Protein %in% temp.name]
+        summarized = summarized[Protein %in% chosen_proteins]
         summarized$Protein = factor(summarized$Protein)
     }
     yaxis.name = "Log2-intensities"
@@ -328,6 +334,9 @@ dataProcessPlotsTMT = function(
                            text.size, text.angle, legend.size, dot.size.profile, 
                            ncol.guide, width, height, which.Protein,
                            address) {
+    
+    Condition <- cumGroupAxis <- xorder <- abundance <- Protein <- NULL
+    
     yaxis.name = 'Log2-intensities'
     .savePlot(address, "QCPlot", width, height)
     
@@ -382,7 +391,7 @@ dataProcessPlotsTMT = function(
     if (which.Protein != "allonly") {
         if (which.Protein != "all") {
             chosen_proteins = .getSelectedProteins(which.Protein, unique(processed$Protein))
-            processed = processed[Protein %in% temp.name]
+            processed = processed[Protein %in% chosen_proteins]
             processed$Protein = factor(processed$Protein)
         }
         
@@ -436,6 +445,9 @@ dataProcessPlotsTMT = function(
 
 
 .getXAxisOrder = function(processed) {
+    
+    Channel <- group.channel <- Run <- Condition <- NULL
+    
     processed = processed[order(Run, Condition, Channel)]
     processed$group.channel = paste(processed$Condition, processed$Channel, sep = "_")
     xorder = unique(processed[, list(Run, group.channel)])
@@ -446,6 +458,9 @@ dataProcessPlotsTMT = function(
 
 
 .getGroupLabel = function(input, y.limup) {
+    
+    cumGroupAxis <- groupAxis <- NULL
+    
     groupline = input[, list(groupAxis = .N), by = c("Condition", "Run")]
     groupline[, cumGroupAxis := cumsum(groupAxis) + 0.5, by = "Run"]
     groupline$xorder = groupline$cumGroupAxis - groupline$groupAxis / 2

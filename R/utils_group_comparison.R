@@ -1,3 +1,4 @@
+#' @keywords internal
 .checkGroupComparisonInput = function(input) {
   required_cols = c("Protein", "BioReplicate", "Abundance", "Run", 
                     "Channel", "Condition", "TechRepMixture", "Mixture")
@@ -20,10 +21,12 @@
   input
 }
 
-
+#' @keywords internal
 .checkContrastMatrix = function(contrast_matrix) { 
   # TODO: use MSstatsdev::MSstatsContrastMatrix
   # TODO: add checking data.frame/validity in MSstatsContrastMatrix
+  
+  groups <- NULL
   ## check whether contrast.matrix is pairwise or matrix
   if (!(is.matrix(contrast.matrix) | is.data.frame(contrast.matrix))) {
     if(length(contrast.matrix) == 1){ # contrast.matrix is a character
@@ -49,7 +52,7 @@
   ncomp = nrow(contrast.matrix)
 }
 
-
+#' @keywords internal
 .fitModelTMT = function(single_protein, has_single_subject, has_techreps, 
                         has_biomixtures, has_single_run) {
   if (has_single_subject) {
@@ -105,6 +108,7 @@
   fit
 }
 
+#' @keywords internal
 .addVarianceInformation = function(fitted_model, protein_name) {
   if (!inherits(fitted_model, "try-error")) {
     if (inherits(fitted_model, "lm")) { # single run case 
@@ -164,8 +168,10 @@
   return(contrast.matrix)
 }
 
-
+## check whether single subject per mixture and group
+#' @keywords internal
 .checkSingleSubject = function(annotation) {
+  Subject <- NULL
   count_subjects = annotation[, .(NumSubjects = uniqueN(Subject)),
                               by = c("Mixture", "Group")]
   all(count_subjects$NumSubjects <= 1)
@@ -173,6 +179,7 @@
 
 
 ## check .checkTechReplicate
+#' @importFrom stats xtabs
 #' @keywords internal
 .checkTechReplicate = function(annotation) {
   temp = unique(annotation[, c("Mixture", "Run")])
@@ -390,7 +397,7 @@ fit_reduced_model_onerun = function(data) {
   new_contrast
 }
 
-
+#' @keywords internal
 .normalizeContrastGroups = function(contrast, type) {
   if (type == "negative") {
     condition = contrast < 0

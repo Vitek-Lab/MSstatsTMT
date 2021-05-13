@@ -26,3 +26,4 @@ list that consists of two data.frames with feature-level and protein-level data
 \description{
 Combine feature-level and protein-level data into single output
 }
+\keyword{internal}

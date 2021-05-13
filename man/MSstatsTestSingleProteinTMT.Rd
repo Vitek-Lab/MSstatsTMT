@@ -17,3 +17,4 @@ list
 \description{
 Hypothesis tests for a single protein in TMT data
 }
+\keyword{internal}

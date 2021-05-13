@@ -14,3 +14,4 @@
 \description{
 Summarize TMT data with median polish
 }
+\keyword{internal}

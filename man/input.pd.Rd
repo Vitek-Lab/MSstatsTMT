@@ -4,7 +4,9 @@
 \name{input.pd}
 \alias{input.pd}
 \title{Example of output from PDtoMSstatsTMTFormat function}
-\format{A data frame with 20110 rows and 11 variables.}
+\format{
+A data frame with 20110 rows and 11 variables.
+}
 \usage{
 input.pd
 }
@@ -12,7 +14,6 @@ input.pd
 It is made from \code{\link{raw.pd}} and \code{\link{annotation.pd}},
 which is the output of PDtoMSstatsTMTFormat function.
 It should include the required columns as below.
-The variables are as follows:
 }
 \details{
 \itemize{

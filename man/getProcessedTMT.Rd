@@ -17,3 +17,4 @@ data.table
 \description{
 Get processed feature-level data
 }
+\keyword{internal}

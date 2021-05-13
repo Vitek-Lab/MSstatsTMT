@@ -15,3 +15,4 @@ list
 \description{
 Fit linear models for group comparison
 }
+\keyword{internal}

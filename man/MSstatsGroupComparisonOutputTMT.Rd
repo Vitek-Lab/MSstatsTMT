@@ -17,3 +17,4 @@ data.table
 \description{
 Combine testing results for individual proteins
 }
+\keyword{internal}

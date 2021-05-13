@@ -18,3 +18,4 @@ list
 \description{
 Fit a linear model for group comparison for a single protein
 }
+\keyword{internal}

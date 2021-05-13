@@ -15,9 +15,13 @@
 \arguments{
 \item{method}{Four different summarization methods to protein-level can be performed : "msstats"(default), "MedianPolish", "Median", "LogSum".}
 
-\item{global_norm}{Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. It will be performed before protein-level summarization.}
+\item{global_norm}{Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. 
+It will be performed before protein-level summarization.}
 
-\item{reference_norm}{Reference channel based normalization between MS runs on protein level data. TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform this normalization step. If data only has one run, then reference_norm=FALSE.}
+\item{reference_norm}{Reference channel based normalization between MS runs on protein level data. 
+TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condtion column. 
+It will be performed after protein-level summarization. FALSE will not perform this normalization step. 
+If data only has one run, then reference_norm=FALSE.}
 
 \item{remove_norm_channel}{TRUE(default) removes 'Norm' channels from protein level data.}
 

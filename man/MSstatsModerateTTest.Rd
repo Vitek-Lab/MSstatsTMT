@@ -12,8 +12,6 @@ MSstatsModerateTTest(summarized, fitted_models, moderated)
 \item{fitted_models}{output of the MSstatsFitComparisonModelsTMT function}
 
 \item{moderated}{if TRUE, moderation will be performed}
-
-\item{export}{}
 }
 \value{
 list
@@ -21,3 +19,4 @@ list
 \description{
 Moderate T statistic for group comparison
 }
+\keyword{internal}

@@ -6,10 +6,10 @@
 #' 
 #' @return data.table
 #' 
-#' @export
+#' @keywords internal
 #' 
 MSstatsNormalizeTMT = function(input, type, normalize) {
-  Intensity = NULL
+  Intensity = log2Intensity = NULL
   
   if (type == "peptides") {
     input = .normalizePeptides(input, normalize)
@@ -33,6 +33,7 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
 #' @keywords internal
 .normalizePeptides = function(input, normalize) {
   log2Intensity = Intensity = Run = Channel = NULL
+  MedianLog2Int = Diff = NULL
   
   if (normalize) {
     input[, MedianLog2Int := median(log2Intensity, na.rm = TRUE),
@@ -58,6 +59,7 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
 .normalizeProteins = function(input, normalize) {
   Abundance = NormalizationAbundance = Run = Condition = MedianNormalized = NULL
   Mixture = TechRepMixture = Channel = Protein = BioReplicate = Condition = NULL
+  NumRuns = NumRunsWithNorm = Diff = NormalizedAbundance  = NULL
   
   n_runs = data.table::uniqueN(input$Run, na.rm = TRUE)
   if (normalize & (n_runs > 1)) {

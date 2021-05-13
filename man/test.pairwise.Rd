@@ -4,15 +4,19 @@
 \name{test.pairwise}
 \alias{test.pairwise}
 \title{Example of output from groupComparisonTMT function}
-\format{A data frame with 60 rows and 7 variables.}
+\format{
+A data frame with 60 rows and 7 variables.
+}
 \usage{
 test.pairwise
 }
 \description{
 It is the output of groupComparisonTMT function,
-which is the result of group comparions with the output of proteinSummarization function.
-It should include the columns as below.
-The variables are as follows:
+which is made from \code{\link{quant.pd.msstats}}.
+It is a list that consists of the following elements: 
+(1) ComparisonResult: statistical testing results; 
+(2) FittedModel: the fitted linear models
+ComparisonResult should include the columns as below.
 }
 \details{
 \itemize{
@@ -34,7 +38,7 @@ The variables are as follows:
 }
 }
 \examples{
-head(test.pairwise)
+head(test.pairwise$ComparisonResult)
 
 }
-\keyword{datasets}
+\keyword{internal}

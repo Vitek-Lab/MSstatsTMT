@@ -4,15 +4,18 @@
 \name{quant.pd.msstats}
 \alias{quant.pd.msstats}
 \title{Example of output from proteinSummarizaiton function}
-\format{A data frame with 100 rows and 8 variables.}
+\format{
+A data frame with 100 rows and 8 variables.
+}
 \usage{
 quant.pd.msstats
 }
 \description{
 It is made from \code{\link{input.pd}}.
 It is the output of proteinSummarization function.
-It should include the required columns as below.
-The variables are as follows:
+It is a list that consists of two data.frames with 
+feature-level (FeatureLevelData) and protein-level data (ProteinLevelData).
+ProteinLevelData should include the required columns as below.
 }
 \details{
 \itemize{
@@ -27,7 +30,7 @@ The variables are as follows:
 }
 }
 \examples{
-head(quant.pd.msstats)
+head(quant.pd.msstats$ProteinLevelData)
 
 }
-\keyword{datasets}
+\keyword{internal}

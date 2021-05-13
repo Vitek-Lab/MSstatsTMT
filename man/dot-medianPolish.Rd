@@ -12,7 +12,7 @@
 \item{num_channels}{number of channels}
 }
 \value{
-
+numeric vector with length `num_channels`
 }
 \description{
 Tukey median polish

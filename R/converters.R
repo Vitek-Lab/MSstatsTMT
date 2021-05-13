@@ -50,6 +50,7 @@
 #' @param rmProtein_with1Feature TRUE will remove the proteins which have only 1 peptide and charge. Defaut is FALSE.
 #' @param summaryforMultipleRows sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.
 #' @param ... additional parameters to `data.table::fread`.
+#' @inheritParams .documentFunction
 #' 
 #' @return data.frame of class "MSstatsTMT"
 #' 
@@ -106,7 +107,8 @@ MaxQtoMSstatsTMTFormat = function(
 #' @param rmProtein_with1Feature TRUE will remove the proteins which have only 1 peptide and charge. Defaut is FALSE.
 #' @param summaryforMultiplePSMs sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.
 #' @param ... additional parameters to `data.table::fread`.
-#' 
+#' @inheritParams .documentFunction
+#'  
 #' @return `data.frame` of class `MSstatsTMT`.
 #' 
 #' @export
@@ -160,6 +162,7 @@ OpenMStoMSstatsTMTFormat = function(
 #' @param rmProtein_with1Feature TRUE will remove the proteins which have only 1 peptide and charge. Defaut is FALSE.
 #' @param summaryforMultipleRows sum (default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.
 #' @param ... additional parameters to `data.table::fread`.
+#' @inheritParams .documentFunction
 #' 
 #' @return `data.frame` of class `MSstatsTMT`
 #' 
@@ -219,7 +222,8 @@ PDtoMSstatsTMTFormat <- function(
 #' @param rmProtein_with1Feature TRUE will remove the proteins which have only 1 peptide and charge. Defaut is FALSE.
 #' @param summaryforMultipleRows sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.
 #' @param ... additional parameters to `data.table::fread`.
-#' 
+#' @inheritParams .documentFunction
+#'  
 #' @return `data.frame` of class `MSstatsTMT`
 #' 
 #' @export 

@@ -1,6 +1,6 @@
 ---
 title: "MSstatsTMT : A package for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling"
-author: "Ting Huang (<thuang0703@gmail.com>), Meena Choi (<mnchoi67@gmail.com>), Sicheng Hao (<hao.sic@husky.neu.edu>), Olga Vitek(<o.vitek@northeastern.edu>)"
+author: "Ting Huang (<thuang0703@gmail.com>), Meena Choi (<mnchoi67@gmail.com>), Mateusz Staniak (<mtst@mstaniak.pl>), Sicheng Hao (<hao.sic@husky.neu.edu>), Olga Vitek(<o.vitek@northeastern.edu>)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -16,10 +16,18 @@ knitr::opts_chunk$set(
 )
 ```
 
+## 0. Load MSstatsTMT
+
+Load MSstatsTMT first. Then you are ready to start MSstatsTMT
 ```{r}
+# ## Install MSstatsTMT package from Bioconductor
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# 
+# BiocManager::install("MSstatsTMT")
+
 library(MSstatsTMT)
 ```
-
 
 This vignette summarizes the introduction and various options of all functionalities in MSstatsTMT. 
 
@@ -35,6 +43,13 @@ MSstatsTMT includes the following three steps for statistical testing:
 
 ## 1. Converters for different peptide quantification tools
 
+`MSstatsTMT` performs statistical analysis steps, that follow peptide identification and quantitation. Therefore, input to MSstatsTMT is the output of other software tools (such as `Proteome Discoverer`, `MaxQuant` and so on) that read raw spectral files
+, identify and quantify peptide ions. The preferred structure of data for use in MSstatsTMT is a .csv file in a *long* format with at least 9 columns representing the following variables: **ProteinName**, **PeptideSequence**, **Charge**, **PSM**, **Channel**, **Condition**, **BioReplicate**, **Mixture**, **Intensity**. The variable names are fixed, but are case-insensitive.
+
+```{r, eval=T, echo=F, warning=F}
+head(input.pd)
+```
+
 ### PDtoMSstatsTMTFormat()
 
 Preprocess PSM data from Proteome Discoverer and convert into the required input format for MSstatsTMT.
@@ -47,7 +62,6 @@ Preprocess PSM data from Proteome Discoverer and convert into the required input
 * `which.proteinid` : Use `Protein.Accessions`(default) column for protein name. `Master.Protein.Accessions` can be used instead.
 * `useNumProteinsColumn` : TURE(default) remove shared peptides by information of # Proteins column in PSM sheet.
 * `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
-* `rmPSM_withMissing_withinRun` : TRUE will remove PSM with any missing value within each Run. Default is FALSE.
 * `rmPSM_withfewMea_withinRun` : only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
 * `removeProtein_with1Peptide` : TRUE will remove the proteins which have only 1 peptide and charge. Default is FALSE.
 * `summaryforMultipleRows` : sum(default) or max - when there are multiple measurements for certain PSM in certain run, select the PSM with the largest summation or maximal value.
@@ -64,15 +78,24 @@ head(raw.pd)
 # annotation.pd <- read.csv(file="PD_Annotation.csv", header=TRUE)
 head(annotation.pd)
 
-# do not remove PSM with missing values within one run
-input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
+# use Protein.Accessions as protein name
+input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd, 
+                                 which.proteinid = "Protein.Accessions")
 head(input.pd)
 
-# remove PSM with missing values within one run
-input.pd.no.miss <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd,
-                                 rmPSM_withMissing_withinRun = TRUE)
-head(input.pd.no.miss)
+# use Master.Protein.Accessions as protein name
+input.pd.master <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd,
+                                 which.proteinid = "Master.Protein.Accessions")
+head(input.pd.master)
 ```
+
+Here is the summary of pre-processing steps in `PDtoMSstatsTMTFormat` function.
+
++ Peptide ions which are shared by more than one protein are removed
++ If one spectrum has multiple identifications within one run, it only keeps the best identification with the minimal number of missing reporter ion intensities, highest reporter ion intensity, or lowest interference score if the information was available
++ If a spectrum only has one or two reporter ion intensities within one MS run, it removes the spectrum from that run
++ Ambiguous protein groups which contained multiple proteins were filtered out
++ For fractionation, If a peptide ion was shared by multiple fractions, we kept the fraction with maximal average reporter ion abundance across all the channel in the fraction.
 
 ### MaxQtoMSstatsTMTFormat()
 
@@ -87,7 +110,6 @@ Preprocess PSM-level data from MaxQuant and convert into the required input form
 * `which.proteinid` : Use `Proteins`(default) column for protein name. `Leading.proteins` or `Leading.razor.proteins` can be used instead. However, those can potentially have the shared peptides.
 * `rmProt_Only.identified.by.site` : TRUE will remove proteins with '+' in 'Only.identified.by.site' column from proteinGroups.txt, which was identified only by a modification site. FALSE is the default.
 * `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
-* `rmPSM_withMissing_withinRun` : TRUE will remove PSM with any missing value within each Run. Default is FALSE.
 * `rmPSM_withfewMea_withinRun` : only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
 * `removeProtein_with1Peptide` : TRUE will remove the proteins which have only 1 peptide and charge. Default is FALSE.
 * `summaryforMultipleRows` : sum(default) or max - when there are multiple measurements for certain PSM in certain run, select the PSM with the largest summation or maximal value.
@@ -119,12 +141,9 @@ Preprocess PSM data from SpectroMine and convert into the required input format 
 * `filter_with_Qvalue` : TRUE(default) will filter out the intensities that have greater than qvalue_cutoff in EG.Qvalue column. Those intensities will be replaced with NA and will be considered as censored missing values for imputation purpose.
 * `qvalue_cutoff` : Cutoff for EG.Qvalue. default is 0.01.
 * `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
-* `rmPSM_withMissing_withinRun` : TRUE will remove PSM with any missing value within each Run. Default is FALSE.
 * `rmPSM_withfewMea_withinRun` : only for `rmPSM_withMissing_withinRun = FALSE`. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
 * `removeProtein_with1Peptide` : TRUE will remove the proteins which have only 1 peptide and charge. Default is FALSE.
 * `summaryforMultipleRows` : sum(default) or max - when there are multiple measurements for certain PSM in certain run, select the PSM with the largest summation or maximal value.
-* `remove_norm_channel` : TRUE(default) removes `Norm` channels from protein level data.
-* `remove_empty_channel` : TRUE(default) removes `Empty` channels from protein level data.
 
 
 #### Example
@@ -148,7 +167,6 @@ Preprocess MSstatsTMT report from OpenMS and convert into the required input for
 
 * `input`: data name of MSstatsTMT report from OpenMS. Read csv file.
 * `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
-* `rmPSM_withMissing_withinRun` : TRUE will remove PSM with any missing value within each Run. Default is FALSE.
 * `rmPSM_withfewMea_withinRun` : only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
 * `removeProtein_with1Peptide` : TRUE will remove the proteins which have only 1 peptide and charge. Default is FALSE.
 * `summaryforMultipleRows` : sum(default) or max - when there are multiple measurements for certain PSM in certain run, select the PSM with the largest summation or maximal value.
@@ -168,7 +186,18 @@ head(input.om)
 
 ### 2.1. proteinSummarization()
 
-Global median normalization is first applied to peptide level quantification data (equalizing the medians across all the channels and MS runs). Protein-level summarization from peptide level quantification should be performed before testing differentially abundant proteins. Then, normalization between MS runs using normalization channels will be implemented. In particular, protein summarization method `MSstats` assumes missing values are censored and then imputes the missing values before summarizing peptide level data into protein level data. Other methods, including `MedianPolish`, `Median` and `LogSum`, do not impute missing values.
+After reading the input files and get the data with required format, `MSstatsTMT` performs 
+
+* 1) logarithm transformation of `Intensity` column
+
+* 2) global median normalization between channels
+
+* 3) protein summarization per MS run and channel
+
+* 4) local protein-level normalization with reference channel
+
+Global median normalization is first applied to peptide level quantification data (equalizing the medians across all the channels and MS runs). Protein summarization from peptide level quantification should be performed before testing differentially abundant proteins. Then, normalization between MS runs using reference channels will be implemented. In particular, protein summarization method `MSstats` assumes missing values are censored and then imputes the missing values before summarizing peptide level data into protein level data. Other methods, including `MedianPolish`, `Median` and `LogSum`, do not impute missing values.
+
 
 #### Arguments
 
@@ -182,7 +211,7 @@ Global median normalization is first applied to peptide level quantification dat
 * `maxQuantileforCensored` : We assume missing values are censored. `maxQuantileforCensored` is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
 
 #### Example
-```{r message = FALSE , warning = FALSE}
+```{r, message=F, warning=F, results='hide'}
 # use MSstats for protein summarization
 quant.msstats <- proteinSummarization(input.pd,
                                       method="msstats",
@@ -190,34 +219,31 @@ quant.msstats <- proteinSummarization(input.pd,
                                       reference_norm=TRUE,
                                       remove_norm_channel = TRUE,
                                       remove_empty_channel = TRUE)
-head(quant.msstats)
+head(quant.pd.msstats$ProteinLevelData)
 
 # use Median for protein summarization
-# since median method doesn't impute missing values, 
-# we need to use the input data without missing values
-quant.median <- proteinSummarization(input.pd.no.miss,
+quant.median <- proteinSummarization(input.pd,
                                      method="Median",
                                      global_norm=TRUE,
                                      reference_norm=TRUE,
                                      remove_norm_channel = TRUE,
                                      remove_empty_channel = TRUE)
 
-head(quant.median)
+head(quant.median$ProteinLevelData)
 ```
 
 ### 2.2 dataProcessPlotsTMT()
 
-Visualization for explanatory data analysis. To illustrate the quantitative data after data-preprocessing and quality control of TMT runs, dataProcessPlotsTMT takes the quantitative data from converter functions (`PDtoMSstatsTMTFormat`, `MQtoMSstatsTMTFormat` and `SpectroMinetoMSstatsTMTFormat`) and summarized data from function `proteinSummarization` as input. It generates two types of figures in pdf files as output :
+Visualization for explanatory data analysis. To illustrate the quantitative data after data-preprocessing and quality control of TMT runs, dataProcessPlotsTMT takes the quantitative data and summarized data from function `proteinSummarization` as input. It generates two types of figures in pdf files as output :
 
 (1) profile plot (specify "ProfilePlot" in option type), to identify the potential sources of variation for each protein;
 
-(2) quality control plot (specify "QCPlot" in option type), to evaluate the systematic bias between MS runs.
+(2) quality control plot (specify "QCPlot" in option type), to evaluate the systematic bias between MS runs and channels.
 
 
 #### Arguments
 
-* `data.peptide` : name of the data with peptide-level, which can be the output of converter functions (`PDtoMSstatsTMTFormat`, `MQtoMSstatsTMTFormat` and `SpectroMinetoMSstatsTMTFormat`).
-* `data.summarization` : name of the data with protein-level, which can be the output of `proteinSummarization` function.
+* `data` : the output of `proteinSummarization` function. It is a list with data frames `FeatureLevelData` and `ProteinLevelData`
 * `type` : choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 "QCPlot" represents quality control plot of log intensities across MS runs.
 * `ylimUp` : upper limit for y-axis in the log scale.
@@ -243,30 +269,28 @@ The command address can help to specify where to store the file as well as how t
 If address=FALSE, plot will be not saved as pdf file but showed in window.
 
 #### Example
-```{r}
+```{r, message=F, warning=F}
 ## Profile plot without norm channnels and empty channels
-dataProcessPlotsTMT(data.peptide = input.pd,
-                     data.summarization = quant.msstats,
+dataProcessPlotsTMT(data=quant.msstats,
                      type = 'ProfilePlot',
                      width = 21, # adjust the figure width since there are 15 TMT runs.
                      height = 7)
+```
 
-# ## Profile plot with all the channels
-# quant.msstats.all <- proteinSummarization(input.pd,
-#                                       method="msstats",
-#                                       normalization=TRUE,
-#                                       remove_norm_channel=FALSE,
-#                                       remove_empty_channel=FALSE)
-# 
-# dataProcessPlotsTMT(data.peptide = input.pd,
-#                      data.summarization = quant.msstats.all,
-#                      type = 'ProfilePlot',
-#                      width = 21, # adjust the figure width since there are 15 TMT runs.
-#                      height = 7)
+There are two pdfs with all the proteins, first is profile plot and second plot is profile plot with summarized and normalized data. `XXX_ProfilePlot.pdf` shows each peptide ions across runs and channels, grouped per condition. Each panel represents one MS run and each dot within one panel is one channel within one Run. Each peptide has a different colour/type layout. The dots are linked with line per peptide ion If line is disconnected, that means there is no value (missing value). Profile plot is good visualization to check individual measurements. `XXX_ProfilePlot_wSummarization.pdf` shows the same peptide ions in grey, with the values as summarized by the model overlayed in red.
 
+Instead of making all profile plots for all proteins, we can make plot for individual protein. Here is the example of protein`P04406`
+```{r, message=F, warning=F}
+dataProcessPlotsTMT(data=quant.msstats,
+                    type='ProfilePlot', # choice of visualization
+                    width = 21,
+                    height = 7,
+                    which.Protein = 'P04406') 
+```
+
+```{r}
 ## Quality control plot 
-# dataProcessPlotsTMT(data.peptide=input.pd,
-                     # data.summarization=quant.msstats, 
+# dataProcessPlotsTMT(data=quant.msstats, 
                      # type='QCPlot',
                      # width = 21, # adjust the figure width since there are 15 TMT runs. 
                      # height = 7)
@@ -278,21 +302,39 @@ Tests for significant changes in protein abundance across conditions based on a 
 
 ### Arguments
 
-* `data` : Name of the output of proteinSummarization function. It should have columns named `Protein`, `TechRepMixture`,  `Mixture`, `Run`, `Channel`, `Condition`, `BioReplicate`, `Abundance`.
+* `data` : the output of `proteinSummarization` function. It is a list with data frames `FeatureLevelData` and `ProteinLevelData`
 * `contrast.matrix` : Comparison between conditions of interests. 1) default is `pairwise`, which compare all possible pairs between two conditions. 2) Otherwise, users can specify the comparisons of interest. Based on the levels of conditions, specify 1 or -1 to the conditions of interests and 0 otherwise. The levels of conditions are sorted alphabetically.
 * `moderated` : If moderated = TRUE, then moderated t statistic will be calculated; otherwise, ordinary t statistic will be used.
 * `adj.method` : adjusted method for multiple comparison. 'BH` is default.
+* `save_fitted_models`: logical, if TRUE, fitted models will be added to
 * `remove_norm_channel` :  TRUE(default) removes `Norm` channels from protein level data.
 * `remove_empty_channel` :  TRUE(default) removes `Empty` channels from protein level data.
 
-### Example
-```{r message = FALSE, warning = FALSE}
-# test for all the possible pairs of conditions
-test.pairwise <- groupComparisonTMT(quant.msstats)
-head(test.pairwise)
+If you want to make all the pairwise comparison,`MSstatsTMT` has an easy option for it. Setting `contrast.matrix = pairwise` compares all the possible pairs between two conditions.
 
-# Check the conditions in the protein data
-levels(quant.msstats$Condition)
+### Example
+```{r, message=F, warning=F, results='hide'}
+# test for all the possible pairs of conditions
+test.pairwise <- groupComparisonTMT(quant.msstats, moderated = TRUE)
+
+# Show test result
+# Label : which comparison is used
+# log2FC : estimated log2 fold change between two conditions (the contrast)
+# adj.pvalue : adjusted p value
+head(test.pairwise$ComparisonResult)
+```
+
+If you would like to compare some specific combination of conditions, you need to tell `groupComparisonTMT` the contrast of the conditions to compare. You can make your `contrast.matrix` in R in a text editor. We define our contrast matrix by adding a column for every condition. We add a row for every comparison we would like to make between groups of conditions.  
+
+**0** is for conditions we would like to ignore.
+**1** is for conditions we would like to put in the numerator of the ratio or fold-change.
+**-1** is for conditions we would like to put in the denumerator of the ratio or fold-change.
+
+If you have multiple groups, you can assign any group comparisons you are interested in.
+
+```{r, message=F, warning=F, results='hide'}
+# Check the conditions in the protein level data
+levels(quant.msstats$ProteinLevelData$Condition)
 # Only compare condition 0.125 and 1
 comparison<-matrix(c(-1,0,0,1),nrow=1)
 # Set the names of each row
@@ -301,6 +343,6 @@ row.names(comparison)<-"1-0.125"
 colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
 comparison
 
-test.contrast <- groupComparisonTMT(data = quant.msstats, contrast.matrix = comparison)
-head(test.contrast)
+test.contrast <- groupComparisonTMT(data = quant.msstats, contrast.matrix = comparison, moderated = TRUE)
+head(test.contrast$ComparisonResult)
 ```

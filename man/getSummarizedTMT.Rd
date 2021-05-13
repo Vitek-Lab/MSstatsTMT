@@ -15,3 +15,4 @@ data.table
 \description{
 Get protein-level data from MSstatsSummarizeTMT output
 }
+\keyword{internal}

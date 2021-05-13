@@ -20,3 +20,4 @@ data.table
 \description{
 Normalization for TMT data
 }
+\keyword{internal}

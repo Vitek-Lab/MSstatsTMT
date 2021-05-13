@@ -3,18 +3,29 @@
 #' We assume missing values are censored and then impute the missing values. Protein-level summarization from peptide level quantification are performed.
 #' After all, global median normalization on peptide level data and normalization between MS runs using reference channels will be implemented.
 #'
-#' @param data Name of the output of PDtoMSstatsTMTFormat function or peptide-level quantified data from other tools. It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity
+#' @param data Name of the output of PDtoMSstatsTMTFormat function or peptide-level quantified data from other tools. 
+#' It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity
 #' @param method Four different summarization methods to protein-level can be performed : "msstats"(default), "MedianPolish", "Median", "LogSum".
-#' @param global_norm  Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. It will be performed before protein-level summarization.
-#' @param reference_norm Reference channel based normalization between MS runs on protein level data. TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform this normalization step. If data only has one run, then reference_norm=FALSE.
-#' @param MBimpute only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each peptide precursor ion.
-#' @param maxQuantileforCensored We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
+#' @param global_norm  Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. 
+#' It will be performed before protein-level summarization.
+#' @param reference_norm Reference channel based normalization between MS runs on protein level data. 
+#' TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condtion column. 
+#' It will be performed after protein-level summarization. FALSE will not perform this normalization step. 
+#' If data only has one run, then reference_norm=FALSE.
+#' @param MBimpute only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. 
+#' FALSE uses minimum value to impute the missing value for each peptide precursor ion.
+#' @param maxQuantileforCensored We assume missing values are censored. 
+#' maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.
 #' @param remove_norm_channel TRUE(default) removes 'Norm' channels from protein level data.
 #' @param remove_empty_channel TRUE(default) removes 'Empty' channels from protein level data.
-#' 
+#' @param msstats_log_path path to a MSstats log file
+#' @inheritParams .documentFunction
+#'
 #' @importFrom MSstatsConvert MSstatsSaveSessionInfo
+#' @importFrom stats lm median model.matrix na.omit
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #'   
-#' @return data.frame with protein-level summarization for each run and channel
+#' @return list that consists of two data.frames with feature-level (FeatureLevelData) and protein-level data (ProteinLevelData)
 #' 
 #' @export
 #' 
@@ -24,7 +35,7 @@
 #'                                          method = "msstats",
 #'                                          global_norm = TRUE,
 #'                                          reference_norm = TRUE)
-#' head(quant.pd.msstats)
+#' head(quant.pd.msstats$ProteinLevelData)
 #' 
 proteinSummarization = function(
   data, method = 'msstats', global_norm = TRUE, reference_norm = TRUE,
@@ -63,7 +74,7 @@ proteinSummarization = function(
 #' 
 #' @return data.table
 #' 
-#' @export
+#' @keywords internal
 #' 
 getProcessedTMT = function(summarized, input) {
   if (is.list(summarized) & !is.data.table(summarized)) {
@@ -84,7 +95,7 @@ getProcessedTMT = function(summarized, input) {
 #' 
 #' @return data.table
 #' 
-#' @export
+#' @keywords internal
 #' 
 getSummarizedTMT = function(summarized) {
   if (is.list(summarized) & !is.data.table(summarized)) {
@@ -103,7 +114,7 @@ getSummarizedTMT = function(summarized) {
 #' 
 #' @return data.table
 #' 
-#' @export
+#' @keywords internal
 #' 
 MSstatsPrepareForSummarizationTMT = function(
   data, method, global_norm, reference_norm,remove_norm_channel, 
@@ -147,7 +158,7 @@ MSstatsPrepareForSummarizationTMT = function(
 #' 
 #' @return list that consists of two data.frames with feature-level and protein-level data
 #' 
-#' @export
+#' @keywords internal
 #' 
 MSstatsSummarizationOutputTMT = function(summarized, processed,
                                          remove_empty_channel,

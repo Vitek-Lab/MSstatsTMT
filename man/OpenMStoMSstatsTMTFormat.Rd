@@ -28,6 +28,20 @@ OpenMStoMSstatsTMTFormat(
 
 \item{summaryforMultiplePSMs}{sum(default) or max - when there are multiple measurements for certain feature in certain run, select the feature with the largest summation or maximal value.}
 
+\item{use_log_file}{logical. If TRUE, information about data processing
+will be saved to a file.}
+
+\item{append}{logical. If TRUE, information about data processing will be added
+to an existing log file.}
+
+\item{verbose}{logical. If TRUE, information about data processing wil be printed
+to the console.}
+
+\item{log_file_path}{character. Path to a file to which information about 
+data processing will be saved. 
+If not provided, such a file will be created automatically.
+If `append = TRUE`, has to be a valid path to a file.}
+
 \item{...}{additional parameters to `data.table::fread`.}
 }
 \value{

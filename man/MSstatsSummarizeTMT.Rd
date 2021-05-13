@@ -34,3 +34,4 @@ data.table
 \description{
 Protein summarization for TMT data
 }
+\keyword{internal}

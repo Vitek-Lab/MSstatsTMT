@@ -23,3 +23,4 @@ data.table
 \description{
 Prepare output of proteinSummarization for group comparison
 }
+\keyword{internal}
