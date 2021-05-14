@@ -71,7 +71,7 @@
 
 #' Prepare TMT data for protein-level summarization
 #' @param input data.table
-#' @return NULL
+#' @return data.table with required column types
 #' @keywords internal
 .prepareForSummarization = function(input) {
   ProteinName = Intensity = Run = Channel = NULL

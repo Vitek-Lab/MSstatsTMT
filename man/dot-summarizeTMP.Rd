@@ -11,6 +11,9 @@
 
 \item{annotation}{data.table with run and channel annotation}
 }
+\value{
+data.table with summaried protein intensities
+}
 \description{
 Summarize TMT data with median polish
 }

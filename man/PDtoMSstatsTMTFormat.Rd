@@ -60,3 +60,10 @@ If `append = TRUE`, has to be a valid path to a file.}
 \description{
 Convert Proteome Discoverer output to MSstatsTMT format.
 }
+\examples{
+head(raw.pd)
+head(annotation.pd)
+input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
+head(input.pd)
+
+}

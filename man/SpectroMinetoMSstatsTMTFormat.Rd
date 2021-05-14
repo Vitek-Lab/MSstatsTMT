@@ -59,3 +59,10 @@ If `append = TRUE`, has to be a valid path to a file.}
 \description{
 Import data from SpectroMine
 }
+\examples{
+head(raw.mine)
+head(annotation.mine)
+input.mine <- SpectroMinetoMSstatsTMTFormat(raw.mine, annotation.mine)
+head(input.mine)
+
+}

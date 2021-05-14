@@ -6,6 +6,9 @@
 \usage{
 .makeContrastSingleTMT(fit, contrast, single_protein, coefs)
 }
+\value{
+a contrast vector
+}
 \description{
 Make a contrast
 }

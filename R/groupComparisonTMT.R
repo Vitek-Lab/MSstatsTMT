@@ -19,6 +19,7 @@
 #' @export
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats anova lm median model.matrix na.omit p.adjust pt
+#' @importFrom MSstatsdev MSstatsContrastMatrix
 #' 
 #' @examples
 #' data(input.pd)

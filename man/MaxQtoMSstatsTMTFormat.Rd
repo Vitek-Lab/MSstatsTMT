@@ -62,3 +62,11 @@ data.frame of class "MSstatsTMT"
 \description{
 Generate MSstatsTMT required input format from MaxQuant output
 }
+\examples{
+head(evidence)
+head(proteinGroups)
+head(annotation.mq)
+input.mq <- MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
+head(input.mq)
+
+}

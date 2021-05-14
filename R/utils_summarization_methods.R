@@ -25,7 +25,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 
 #' Converts required columns to factor in summarization output
 #' @param input data.table
-#' @return NULL 
+#' @return a data table with factored columns
 #' @keywords internal
 .makeFactorColumnsTMT = function(input) {
   Run = Channel = Condition = TechRepMixture = Mixture = NULL
@@ -212,6 +212,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @param input data.table
 #' @param annotation data.table with run and channel annotation
 #' @keywords internal
+#' @return data.table with summaried protein intensities
 .summarizeTMP = function(input, annotation) {
   log2Intensity = Run = Channel = ProteinName = RunChannel = PSM = NULL
   channel_len = data.table::uniqueN(annotation$Channel, na.rm = TRUE)

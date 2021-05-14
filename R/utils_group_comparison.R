@@ -21,7 +21,10 @@
   input
 }
 
+#' check whether pairwise comparison. If pairwise, generate a contrast matrix.
+#' @importFrom stats coef
 #' @keywords internal
+#' @return a contrast matrix
 .checkContrastMatrix = function(contrast_matrix) { 
   # TODO: use MSstatsdev::MSstatsContrastMatrix
   # TODO: add checking data.frame/validity in MSstatsContrastMatrix
@@ -349,9 +352,8 @@ fit_reduced_model_onerun = function(data) {
 }
 
 #' Make a contrast
-#' @importFrom stats coef
-#' @importFrom lme4 fixef
 #' @keywords internal
+#' @return a contrast vector
 .makeContrastSingleTMT = function(fit, contrast, single_protein, coefs) {
   sub_groups = as.character(unique(single_protein$Group))
   positive = names(contrast)[contrast > 0]

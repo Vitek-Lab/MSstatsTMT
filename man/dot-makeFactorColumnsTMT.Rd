@@ -9,6 +9,9 @@
 \arguments{
 \item{input}{data.table}
 }
+\value{
+a data table with factored columns
+}
 \description{
 Converts required columns to factor in summarization output
 }

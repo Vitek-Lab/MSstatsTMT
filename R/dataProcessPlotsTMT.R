@@ -96,7 +96,7 @@ dataProcessPlotsTMT = function(
     }
 }
 
-
+#' @keywords internal
 .prepareDataForPlot = function(input, common_groups, type) {
     
     Condition <- log2Intensity <- abundance <- Protein <- NULL
@@ -113,6 +113,8 @@ dataProcessPlotsTMT = function(
 }
 
 
+#' @importFrom MSstatsdev theme_msstats savePlot
+#' @keywords internal
 .plotProfileTMT = function(processed, summarized, 
                            ylimUp, ylimDown, x.axis.size, y.axis.size, 
                            text.size, text.angle, legend.size, dot.size.profile, 
@@ -125,7 +127,7 @@ dataProcessPlotsTMT = function(
     abundance <- Abundance <- analysis <- NULL
     
     if (which.Protein != "all") {
-        chosen_proteins = .getSelectedProteins(which.Protein, unique(processed$Protein))
+        chosen_proteins = getSelectedProteins(which.Protein, unique(processed$Protein))
         processed = processed[Protein %in% chosen_proteins]
         processed$Protein = factor(processed$Protein)
         summarized = summarized[Protein %in% chosen_proteins]
@@ -161,7 +163,7 @@ dataProcessPlotsTMT = function(
     
     
     if (originalPlot) {
-        .savePlot(address, "ProfilePlot", width, height)
+        savePlot(address, "ProfilePlot", width, height)
         message(paste0("Drew the Profile plot for ", length(all_proteins), " proteins."))
         pb = txtProgressBar(max = length(all_proteins), style=3)
         for (i in seq_along(all_proteins)) {
@@ -177,7 +179,7 @@ dataProcessPlotsTMT = function(
             pept_feat = unique(single_protein[, list(PeptideSequence, PSM)])
             pept_feat = pept_feat[order(PeptideSequence, PSM)]
             counts = pept_feat[, .(N = .N), by = "PeptideSequence"]$N
-            s = rep(1:length(counts), times = counts)
+            s = rep(seq_along(counts), times = counts)
             ss = unlist(lapply(counts, function(x) seq(1, x)), FALSE, FALSE)
             
             ## for annotation of condition
@@ -239,7 +241,7 @@ dataProcessPlotsTMT = function(
     }
     
     if (summaryPlot) {
-        .savePlot(address, "ProfilePlot_wSummarization", width, height)
+        savePlot(address, "ProfilePlot_wSummarization", width, height)
         message(paste0("Drew the Profile plot with summarization for ", length(all_proteins), " proteins."))
         pb = txtProgressBar(max = length(all_proteins), style=3)
         for (i in seq_along(all_proteins)) {
@@ -328,7 +330,8 @@ dataProcessPlotsTMT = function(
     }
 }
 
-
+#' @importFrom MSstatsdev theme_msstats getSelectedProteins savePlot
+#' @keywords internal
 .plotQualityTMT = function(processed, 
                            ylimUp, ylimDown, x.axis.size, y.axis.size, 
                            text.size, text.angle, legend.size, dot.size.profile, 
@@ -338,7 +341,7 @@ dataProcessPlotsTMT = function(
     Condition <- cumGroupAxis <- xorder <- abundance <- Protein <- NULL
     
     yaxis.name = 'Log2-intensities'
-    .savePlot(address, "QCPlot", width, height)
+    savePlot(address, "QCPlot", width, height)
     
     if (is.numeric(ylimUp)) {
         y.limup = ylimUp
@@ -390,7 +393,7 @@ dataProcessPlotsTMT = function(
     
     if (which.Protein != "allonly") {
         if (which.Protein != "all") {
-            chosen_proteins = .getSelectedProteins(which.Protein, unique(processed$Protein))
+            chosen_proteins = getSelectedProteins(which.Protein, unique(processed$Protein))
             processed = processed[Protein %in% chosen_proteins]
             processed$Protein = factor(processed$Protein)
         }
@@ -443,7 +446,7 @@ dataProcessPlotsTMT = function(
     }
 }
 
-
+#' @keywords internal
 .getXAxisOrder = function(processed) {
     
     Channel <- group.channel <- Run <- Condition <- NULL
@@ -456,7 +459,7 @@ dataProcessPlotsTMT = function(
     processed 
 }
 
-
+#' @keywords internal
 .getGroupLabel = function(input, y.limup) {
     
     cumGroupAxis <- groupAxis <- NULL
@@ -467,9 +470,3 @@ dataProcessPlotsTMT = function(
     groupline$abundance = y.limup - 0.5
     groupline
 }
-
-
-#' @importFrom utils getFromNamespace
-.savePlot = utils::getFromNamespace(".savePlot", "MSstatsdev")
-.getSelectedProteins = utils::getFromNamespace(".getSelectedProteins", "MSstatsdev")
-theme_msstats = utils::getFromNamespace("theme_msstats", "MSstatsdev")

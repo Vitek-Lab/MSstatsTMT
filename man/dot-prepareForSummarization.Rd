@@ -9,6 +9,9 @@
 \arguments{
 \item{input}{data.table}
 }
+\value{
+data.table with required column types
+}
 \description{
 Prepare TMT data for protein-level summarization
 }

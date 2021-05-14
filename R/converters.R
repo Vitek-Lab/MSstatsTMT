@@ -24,9 +24,8 @@
 #' If not provided, such a file will be created automatically.
 #' If `append = TRUE`, has to be a valid path to a file.
 #' 
+#' @return NULL.
 #' @keywords internal
-#' 
-
 .documentFunction = function(fewMeasurements, 
                              useUniquePeptide,
                              summaryforMultipleRows, 
@@ -55,6 +54,13 @@
 #' @return data.frame of class "MSstatsTMT"
 #' 
 #' @export
+#' 
+#' @examples
+#' head(evidence)
+#' head(proteinGroups)
+#' head(annotation.mq)
+#' input.mq <- MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
+#' head(input.mq)
 #' 
 MaxQtoMSstatsTMTFormat = function(
   evidence, proteinGroups, annotation, which.proteinid = 'Proteins',
@@ -113,6 +119,11 @@ MaxQtoMSstatsTMTFormat = function(
 #' 
 #' @export
 #' 
+#' @examples
+#' head(raw.om)
+#' input.om <- OpenMStoMSstatsTMTFormat(raw.om)
+#' head(input.om)
+#' 
 OpenMStoMSstatsTMTFormat = function(
   input, useUniquePeptide = TRUE, rmPSM_withfewMea_withinRun = TRUE, 
   rmProtein_with1Feature = FALSE, summaryforMultiplePSMs = sum, 
@@ -167,6 +178,12 @@ OpenMStoMSstatsTMTFormat = function(
 #' @return `data.frame` of class `MSstatsTMT`
 #' 
 #' @export
+#' 
+#' @examples
+#' head(raw.pd)
+#' head(annotation.pd)
+#' input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
+#' head(input.pd)
 #' 
 PDtoMSstatsTMTFormat <- function(
   input, annotation, which.proteinid = 'Protein.Accessions', 
@@ -227,6 +244,11 @@ PDtoMSstatsTMTFormat <- function(
 #' @return `data.frame` of class `MSstatsTMT`
 #' 
 #' @export 
+#' @examples
+#' head(raw.mine)
+#' head(annotation.mine)
+#' input.mine <- SpectroMinetoMSstatsTMTFormat(raw.mine, annotation.mine)
+#' head(input.mine)
 #' 
 SpectroMinetoMSstatsTMTFormat <- function(
   input, annotation, filter_with_Qvalue = TRUE, qvalue_cutoff = 0.01,

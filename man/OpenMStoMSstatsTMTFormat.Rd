@@ -50,3 +50,9 @@ If `append = TRUE`, has to be a valid path to a file.}
 \description{
 Generate MSstatsTMT required input format for OpenMS output
 }
+\examples{
+head(raw.om)
+input.om <- OpenMStoMSstatsTMTFormat(raw.om)
+head(input.om)
+
+}
