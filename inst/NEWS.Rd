@@ -2,6 +2,9 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 2.0.0 (2021-05-14)}{\itemize{
+\item Refactor the pacakge to make it modulized}}
+
 \section{Changes in version 1.8.2 (2020-12-17)}{\itemize{
 \item Update progress bar
 \item Update groupComparisonTMT to avoid reusing the local function copied from lmer pacakge}}
