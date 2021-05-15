@@ -1,3 +1,22 @@
+#' MSstatsTMT: A package for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling
+#'
+#' A set of tools for detecting differentially abundant peptides and proteins in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling.
+#'
+#' @section functions :
+#' \itemize{
+#'   \item \code{\link{PDtoMSstatsTMTFormat}} : generates MSstatsTMT required input format for Proteome discoverer output.
+#'   \item \code{\link{MaxQtoMSstatsTMTFormat}} : generates MSstatsTMT required input format for MaxQuant output.
+#'   \item \code{\link{SpectroMinetoMSstatsTMTFormat}} : generates MSstatsTMT required input format for SpectroMine output.
+#'   \item \code{\link{OpenMStoMSstatsTMTFormat}} : generates MSstatsTMT required input format for OpenMS output.
+#'   \item \code{\link{proteinSummarization}} : summarizes PSM level quantification to protein level quantification.
+#'   \item \code{\link{dataProcessPlotsTMT}} : visualizes for explanatory data analysis.
+#'   \item \code{\link{groupComparisonTMT}} : tests for significant changes in protein abundance across conditions.
+#' }
+#'
+#' @docType package
+#' @name MSstatsTMT
+NULL
+
 
 #' Example of output from Proteome Discoverer 2.2 for TMT-10plex experiments.
 #'
@@ -227,7 +246,6 @@
 #' It is made from \code{\link{raw.pd}} and \code{\link{annotation.pd}},
 #' which is the output of PDtoMSstatsTMTFormat function.
 #' It should include the required columns as below.
-#' The variables are as follows:
 #'
 #' \itemize{
 #'   \item ProteinName : Protein ID
@@ -253,8 +271,9 @@
 #'
 #' It is made from \code{\link{input.pd}}.
 #' It is the output of proteinSummarization function.
-#' It should include the required columns as below.
-#' The variables are as follows:
+#' It is a list that consists of two data.frames with 
+#' feature-level (FeatureLevelData) and protein-level data (ProteinLevelData).
+#' ProteinLevelData should include the required columns as below.
 #'
 #' \itemize{
 #'   \item Run : MS run ID
@@ -269,16 +288,20 @@
 #'
 #' @format A data frame with 100 rows and 8 variables.
 #' @examples
-#' head(quant.pd.msstats)
+#' head(quant.pd.msstats$ProteinLevelData)
 #'
+#' @keywords internal
+#' 
 "quant.pd.msstats"
 
 #' Example of output from groupComparisonTMT function
 #'
 #' It is the output of groupComparisonTMT function,
-#' which is the result of group comparions with the output of proteinSummarization function.
-#' It should include the columns as below.
-#' The variables are as follows:
+#' which is made from \code{\link{quant.pd.msstats}}.
+#' It is a list that consists of the following elements: 
+#' (1) ComparisonResult: statistical testing results; 
+#' (2) FittedModel: the fitted linear models
+#' ComparisonResult should include the columns as below.
 #'
 #' \itemize{
 #'   \item Protein : Protein ID
@@ -300,6 +323,8 @@
 #'
 #' @format A data frame with 60 rows and 7 variables.
 #' @examples
-#' head(test.pairwise)
+#' head(test.pairwise$ComparisonResult)
 #'
+#' @keywords internal
+#' 
 "test.pairwise"

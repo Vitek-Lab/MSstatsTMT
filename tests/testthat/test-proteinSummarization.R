@@ -6,7 +6,7 @@ test_that("proteinSummarization works", {
                                method = "msstats", 
                                global_norm=TRUE,
                                reference_norm=TRUE)
-  expect_equal(output, quant.pd.msstats, tolerance=1e-4)
+  expect_equal(output$ProteinLevelData, quant.pd.msstats$ProteinLevelData, tolerance=1e-4)
   
 })
 
