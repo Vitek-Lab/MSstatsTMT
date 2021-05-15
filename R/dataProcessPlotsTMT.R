@@ -113,7 +113,7 @@ dataProcessPlotsTMT = function(
 }
 
 
-#' @importFrom MSstatsdev theme_msstats savePlot
+#' @importFrom MSstats theme_msstats savePlot
 #' @keywords internal
 .plotProfileTMT = function(processed, summarized, 
                            ylimUp, ylimDown, x.axis.size, y.axis.size, 
@@ -330,7 +330,7 @@ dataProcessPlotsTMT = function(
     }
 }
 
-#' @importFrom MSstatsdev theme_msstats getSelectedProteins savePlot
+#' @importFrom MSstats theme_msstats getSelectedProteins savePlot
 #' @keywords internal
 .plotQualityTMT = function(processed, 
                            ylimUp, ylimDown, x.axis.size, y.axis.size, 

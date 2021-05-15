@@ -19,7 +19,7 @@
 #' @export
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats anova lm median model.matrix na.omit p.adjust pt
-#' @importFrom MSstatsdev MSstatsContrastMatrix
+#' @importFrom MSstats MSstatsContrastMatrix
 #' 
 #' @examples
 #' data(input.pd)
@@ -71,7 +71,7 @@ groupComparisonTMT = function(
     summarized = MSstatsPrepareForGroupComparisonTMT(data$ProteinLevelData, 
                                                      remove_norm_channel,
                                                      remove_empty_channel)
-    contrast_matrix = MSstatsdev::MSstatsContrastMatrix(contrast.matrix,
+    contrast_matrix = MSstats::MSstatsContrastMatrix(contrast.matrix,
                                                         unique(summarized$Group))
     fitted_models = MSstatsFitComparisonModelsTMT(summarized)
     FittedModel <- fitted_models$fitted_model

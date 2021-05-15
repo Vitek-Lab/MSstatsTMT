@@ -85,7 +85,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' maxQuantileforCensored is Maximum quantile for deciding censored missing 
 #' value, for instance, 0.999. Default is Null.
 #' @param log_file_path path to a MSstats log file
-#' @importFrom MSstatsdev dataProcess
+#' @importFrom MSstats dataProcess
 #' @importFrom methods new
 #' 
 #' @return data.table
@@ -129,7 +129,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
                  BioReplicate, Intensity, IsotopeLabelType,
                  Fraction = 1)]
     single_run = new("MSstatsValidated", single_run)
-    msstats_summary = MSstatsdev::dataProcess(
+    msstats_summary = MSstats::dataProcess(
       single_run,
       normalization = FALSE,
       summaryMethod = "TMP",
