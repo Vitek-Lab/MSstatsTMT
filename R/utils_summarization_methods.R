@@ -140,9 +140,10 @@ MSstatsSummarizeTMT = function(input, method, impute,
       log_file_path = log_file_path
     )
     feature_level_data = msstats_summary$FeatureLevelData 
-    feature_level_data = feature_level_data[, c("PROTEIN", "PEPTIDE",
-                                                "originalRUN", "censored",
-                                                "predicted", "newABUNDANCE")]
+    msstats_cols = c("PROTEIN", "PEPTIDE", "originalRUN", "censored",
+                     "predicted", "newABUNDANCE")
+    msstats_cols = intersect(msstats_cols, colnames(feature_level_data))
+    feature_level_data = feature_level_data[, msstats_cols]
     processed_data[[i]] = feature_level_data
     
     protein_level_data = msstats_summary$ProteinLevelData
