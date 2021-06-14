@@ -2,8 +2,19 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 2.0.1 (2021-06-14)}{\itemize{
+\item update comments of PD converter function
+\item fix bug in proteinSummarization() function when MBimpute = F}}
+
 \section{Changes in version 2.0.0 (2021-05-14)}{\itemize{
-\item Refactor the pacakge to make it modulized}}
+\item Refactor the pacakge to make it modulized
+\item parameter rmPSM_withMissing_withinRun was retired
+\item change converter function output from data.frame to MSstatsValidated
+\item change proteinSummarization() function output from data.frame to a list with two data.frames: FeatureLevelData and ProteinLevelData
+\item change dataProcessPlotsTMT() function input from two data.frames to a list with two data.frames, which is the output of function proteinSummarization()
+\item change groupComparisonTMT() function input from a data.frame to a list with two data.frames, which is the output of function proteinSummarization()
+\item change groupComparisonTMT() function output from data.frame to a list with three items, ComparisonResult, FittedModel and ModelQC
+}}
 
 \section{Changes in version 1.8.2 (2020-12-17)}{\itemize{
 \item Update progress bar
