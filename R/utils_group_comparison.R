@@ -386,7 +386,7 @@ fit_reduced_model_onerun = function(data) {
     group_c = NULL
   } else {
     tempcontrast = contrast[1, sub_groups]
-    group_c = tempcontrast[gsub("Group", "", temp)] 
+    group_c = tempcontrast[gsub("^Group", "", temp)] 
     names(group_c) = temp
   }
   
