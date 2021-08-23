@@ -41,7 +41,7 @@ proteinSummarization = function(
   data, method = 'msstats', global_norm = TRUE, reference_norm = TRUE,
   remove_norm_channel = TRUE, remove_empty_channel = TRUE, MBimpute = TRUE,
   maxQuantileforCensored = NULL, use_log_file = TRUE, append = FALSE, 
-  verbose = TRUE, log_file_path = NULL, msstats_log_path = NULL
+  verbose = TRUE, log_file_path = NULL, msstats_log_path = NULL, ...
 ){
   MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
                                       log_file_path, 
@@ -56,7 +56,7 @@ proteinSummarization = function(
                                    method,
                                    MBimpute,
                                    maxQuantileforCensored,
-                                   msstats_log_path)
+                                   msstats_log_path, ...)
   processed = getProcessedTMT(summarized, input)
   summarized = getSummarizedTMT(summarized)
   summarized = MSstatsNormalizeTMT(summarized, "proteins", reference_norm)
