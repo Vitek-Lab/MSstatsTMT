@@ -10,7 +10,7 @@
 #' 
 MSstatsSummarizeTMT = function(input, method, impute,
                                max_quantile_censored = NULL,
-                               log_file_path = NULL) {
+                               log_file_path = NULL, ...) {
   log2Intensity = NULL
   
   annotation = unique(input[!is.na(log2Intensity),
@@ -18,7 +18,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
                               "Mixture", "TechRepMixture", "RunChannel"),
                             with = FALSE])
   summarized = .summarizeTMT(input, method, annotation, impute, 
-                             max_quantile_censored, log_file_path)
+                             max_quantile_censored, log_file_path, ...)
   summarized
 }
 
@@ -47,7 +47,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @return data.table
 #' @keywords internal
 .summarizeTMT = function(input, method, annotation, impute,
-                         max_quantile_censored, log_file_path
+                         max_quantile_censored, log_file_path, ...
 ) {
   
   FragmentIon <- ProductCharge <- IsotopeLabelType <- ProteinName <- 
@@ -56,7 +56,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
   
   if (method == "msstats") {
     summarized = .summarizeMSstats(input, annotation, impute,
-                                   max_quantile_censored, log_file_path)
+                                   max_quantile_censored, log_file_path, ...)
     method_msg = "MSstats"
   } else if (method == "MedianPolish") {
     summarized = .summarizeTMP(input, annotation)
