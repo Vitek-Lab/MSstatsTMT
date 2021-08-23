@@ -92,7 +92,7 @@ MSstatsSummarizeTMT = function(input, method, impute,
 #' @keywords internal
 .summarizeMSstats = function(input, annotation, impute, 
                              max_quantile_censored = NULL,
-                             log_file_path = NULL) {
+                             log_file_path = NULL, ...) {
   MSRun = FragmentIon = ProductCharge = IsotopeLabelType = ProteinName = 
     PeptideSequence = PrecursorCharge = Run = Condition = BioReplicate =
     Intensity = PSM = RunChannel = NULL
@@ -137,7 +137,8 @@ MSstatsSummarizeTMT = function(input, method, impute,
       MBimpute = impute,
       maxQuantileforCensored = max_quantile_censored,
       use_log_file = TRUE, append = TRUE, verbose = FALSE,
-      log_file_path = log_file_path
+      log_file_path = log_file_path,
+      ...
     )
     feature_level_data = msstats_summary$FeatureLevelData 
     msstats_cols = c("PROTEIN", "PEPTIDE", "originalRUN", "censored",
