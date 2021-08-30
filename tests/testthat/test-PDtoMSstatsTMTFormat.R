@@ -23,6 +23,6 @@ test_that("SpectroMinetoMSstatsTMTFormat works", {
 
     expect_error(SpectroMinetoMSstatsTMTFormat(input = MSstatsTMT::raw.mine,
                                         annotation = MSstatsTMT::annotation.mine,
-                                        summaryforMultipleRows = min)) # wrong argument value
+                                        summaryforMultipleRows = average)) # wrong argument value
 
 })

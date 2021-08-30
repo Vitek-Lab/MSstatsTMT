@@ -12,28 +12,56 @@ proteinSummarization(
   remove_norm_channel = TRUE,
   remove_empty_channel = TRUE,
   MBimpute = TRUE,
-  maxQuantileforCensored = NULL
+  maxQuantileforCensored = NULL,
+  use_log_file = TRUE,
+  append = FALSE,
+  verbose = TRUE,
+  log_file_path = NULL,
+  msstats_log_path = NULL
 )
 }
 \arguments{
-\item{data}{Name of the output of PDtoMSstatsTMTFormat function or peptide-level quantified data from other tools. It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity}
+\item{data}{Name of the output of PDtoMSstatsTMTFormat function or peptide-level quantified data from other tools. 
+It should have columns ProteinName, PeptideSequence, Charge, PSM, Mixture, TechRepMixture, Run, Channel, Condition, BioReplicate, Intensity}
 
 \item{method}{Four different summarization methods to protein-level can be performed : "msstats"(default), "MedianPolish", "Median", "LogSum".}
 
-\item{global_norm}{Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. It will be performed before protein-level summarization.}
+\item{global_norm}{Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. 
+It will be performed before protein-level summarization.}
 
-\item{reference_norm}{Reference channel based normalization between MS runs on protein level data. TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condtion column. It will be performed after protein-level summarization. FALSE will not perform this normalization step. If data only has one run, then reference_norm=FALSE.}
+\item{reference_norm}{Reference channel based normalization between MS runs on protein level data. 
+TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condtion column. 
+It will be performed after protein-level summarization. FALSE will not perform this normalization step. 
+If data only has one run, then reference_norm=FALSE.}
 
 \item{remove_norm_channel}{TRUE(default) removes 'Norm' channels from protein level data.}
 
 \item{remove_empty_channel}{TRUE(default) removes 'Empty' channels from protein level data.}
 
-\item{MBimpute}{only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. FALSE uses minimum value to impute the missing value for each peptide precursor ion.}
+\item{MBimpute}{only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. 
+FALSE uses minimum value to impute the missing value for each peptide precursor ion.}
 
-\item{maxQuantileforCensored}{We assume missing values are censored. maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.}
+\item{maxQuantileforCensored}{We assume missing values are censored. 
+maxQuantileforCensored is Maximum quantile for deciding censored missing value, for instance, 0.999. Default is Null.}
+
+\item{use_log_file}{logical. If TRUE, information about data processing
+will be saved to a file.}
+
+\item{append}{logical. If TRUE, information about data processing will be added
+to an existing log file.}
+
+\item{verbose}{logical. If TRUE, information about data processing wil be printed
+to the console.}
+
+\item{log_file_path}{character. Path to a file to which information about 
+data processing will be saved. 
+If not provided, such a file will be created automatically.
+If `append = TRUE`, has to be a valid path to a file.}
+
+\item{msstats_log_path}{path to a MSstats log file}
 }
 \value{
-data.frame with protein-level summarization for each run and channel
+list that consists of two data.frames with feature-level (FeatureLevelData) and protein-level data (ProteinLevelData)
 }
 \description{
 We assume missing values are censored and then impute the missing values. Protein-level summarization from peptide level quantification are performed.
@@ -41,10 +69,10 @@ After all, global median normalization on peptide level data and normalization b
 }
 \examples{
 data(input.pd)
-
 quant.pd.msstats <- proteinSummarization(input.pd,
-                                         method="msstats",
-                                         global_norm=TRUE,
-                                         reference_norm=TRUE)
-head(quant.pd.msstats)
+                                         method = "msstats",
+                                         global_norm = TRUE,
+                                         reference_norm = TRUE)
+head(quant.pd.msstats$ProteinLevelData)
+
 }
