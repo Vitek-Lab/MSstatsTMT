@@ -147,7 +147,8 @@ dataProcessPlotsTMT = function(
     
     all_proteins = unique(processed$Protein)
     processed = .getXAxisOrder(processed)
-    tempGroupName = unique(processed[, list(Condition, xorder, Run, Channel)])
+    tempGroupName = unique(processed[, list(xorder, Condition, Run, Channel)])
+    tempGroupName = tempGroupName[order(xorder), ]
     groupline = .getGroupLabel(tempGroupName, y.limup)
     groupline.all = groupline
     ## remove last condition for vertical line between groups
