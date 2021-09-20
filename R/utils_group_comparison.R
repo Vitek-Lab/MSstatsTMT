@@ -57,54 +57,91 @@
 
 #' @keywords internal
 .fitModelTMT = function(single_protein, has_single_subject, has_techreps, 
-                        has_biomixtures, has_single_run) {
-  if (has_single_subject) {
-    if (has_techreps & has_biomixtures) {
-      fit = fit_full_model_spikedin(single_protein)
+                        has_biomixtures, has_single_run, has_Repeated_Measures) {
+  if (has_single_subject) { # the data has no biological variation 
+    if (has_techreps & has_biomixtures) { # multiple mixtures and tech MS runs
+      fit = fit_Mix_TechRep_Group_model(single_protein)
       if (inherits(fit, "try-error")) { # full model is not applicable 
-        fit = fit_reduced_model_mulrun(single_protein) # fit the reduced model with only run effect
+        fit = fit_Run_Group_model(single_protein) # fit the reduced model with only run effect
       }
       if (inherits(fit, "try-error")) { # second model not applicable - fit one-way anova model
-        fit = fit_reduced_model_onerun(single_protein) 
+        fit = fit_Group_model(single_protein) 
       }
     } else {
-      if (has_techreps | has_biomixtures) {
+      if (has_techreps | has_biomixtures) { # multiple runs
         # fit the reduced model with only run effect
-        fit = fit_reduced_model_mulrun(single_protein)
-        if (inherits(fit, "try-error")) { # second model not applicable - fit one-way anova model
-          fit = fit_reduced_model_onerun(single_protein) 
+        fit = fit_Run_Group_model(single_protein)
+        if (inherits(fit, "try-error")) { # run model not applicable - fit one-way anova model
+          fit = fit_Group_model(single_protein) 
         }
-      } else {
-        fit = fit_reduced_model_onerun(single_protein) 
+      } else { # single run
+        fit = fit_Group_model(single_protein) 
       }
     }
-  } else {
-    if (has_biomixtures) {
-      if (has_techreps) {
-        fit = fit_full_model(single_protein) # fit the full model with mixture, techrep, subject effects
-        if (!inherits(fit, "try-error")) { # full model is not applicable
-          fit = fit_reduced_model_techrep(single_protein) # fit the reduced model with run and subject effects
+  } else { # the data has biological variation 
+    if(has_Repeated_Measures){ # time course design
+      if (has_biomixtures) { # multiple mixtures
+        if (has_techreps) { # multiple tech MS runs
+          fit = fit_Mix_TechRep_Group_Sub_model(single_protein) # fit the full model with mixture, techrep, subject effects
+          if (!inherits(fit, "try-error")) { # full model is not applicable, fit the model with run and subject effects
+            fit = fit_Run_Group_Sub_model(single_protein) 
+          }
+          if (inherits(fit, "try-error")) { # second model not applicable - fit model with only subject effect
+            fit = fit_Group_Sub_model(single_protein) 
+          }
+          if (inherits(fit, "try-error")) { # subject model not applicable - fit one-way anova model
+            fit = fit_Group_model(single_protein) 
+          }
+        } else { # single MS run per mixture
+          fit = fit_Group_Sub_model(single_protein) # fit the model with subject effect
+          if (inherits(fit, "try-error")) { # subject model not applicable - fit one-way anova model
+            fit = fit_Group_model(single_protein) 
+          }
         }
-        if (inherits(fit, "try-error")) { # full model not applicable - fit model with only run effect
-          fit = fit_reduced_model_mulrun(single_protein) 
-        }
-        if (inherits(fit, "try-error")) { # second model not applicable - fit one-way anova model
-          fit = fit_reduced_model_onerun(single_protein) 
-        }
-      } else {
-        fit = fit_reduced_model_mulrun(single_protein) # fit the reduced model with only run effect
-        if (inherits(fit, "try-error")) { # second model not applicable - fit one-way anova model
-          fit = fit_reduced_model_onerun(single_protein) 
+      } else { # single mixture
+        if (has_techreps) { # multiple tech MS runs
+          fit = fit_Run_Group_Sub_model(single_protein) # fit the model with run and subject effects
+          if (inherits(fit, "try-error")) { # full model not applicable - fit model with only run effect
+            fit = fit_Group_Sub_model(single_protein) 
+          }
+          if (inherits(fit, "try-error")) { # model not applicable - fit one-way anova model
+            fit = fit_Group_model(single_protein) 
+          }
+        } else { # single MS run per mixture
+          fit = fit_Group_Sub_model(single_protein) 
+          if (inherits(fit, "try-error")) { # model not applicable - fit one-way anova model
+            fit = fit_Group_model(single_protein) 
+          }
         }
       }
-    } else {
-      if (has_techreps) {
-        fit = fit_reduced_model_techrep(single_protein) # fit the reduced model with run and subject effects
-        if (inherits(fit, "try-error")) { # second model not applicable - fit one-way anova model
-          fit = fit_reduced_model_onerun(single_protein) 
+    } else{  # group comparison design
+      if (has_biomixtures) { # multiple mixtures
+        if (has_techreps) { # multiple tech MS runs
+          fit = fit_Mix_TechRep_Group_Sub_model(single_protein) # fit the full model with mixture, techrep, subject effects
+          if (!inherits(fit, "try-error")) { # full model is not applicable
+            fit = fit_Run_Group_Sub_model(single_protein) # fit the reduced model with run and subject effects
+          }
+          if (inherits(fit, "try-error")) { # full model not applicable - fit model with only run effect
+            fit = fit_Run_Group_model(single_protein) 
+          }
+          if (inherits(fit, "try-error")) { # run model not applicable - fit one-way anova model
+            fit = fit_Group_model(single_protein) 
+          }
+        } else {
+          fit = fit_Run_Group_model(single_protein) # fit the reduced model with only subject effect
+          if (inherits(fit, "try-error")) { # subject model not applicable - fit one-way anova model
+            fit = fit_Group_model(single_protein) 
+          }
         }
-      } else {
-        fit = fit_reduced_model_onerun(single_protein) 
+      } else { # single mixture
+        if (has_techreps) { # multiple tech MS runs
+          fit = fit_Run_Group_Sub_model(single_protein) # fit the reduced model with run and subject effects
+          if (inherits(fit, "try-error")) { # model not applicable - fit one-way anova model
+            fit = fit_Group_model(single_protein) 
+          }
+        } else { # single MS run per mixture
+          fit = fit_Group_model(single_protein) 
+        }
       }
     }
   }
@@ -182,13 +219,12 @@
 
 
 ## check .checkTechReplicate
-#' @importFrom stats xtabs
 #' @keywords internal
 .checkTechReplicate = function(annotation) {
-  temp = unique(annotation[, c("Mixture", "Run")])
-  temp$Mixture = factor(temp$Mixture)
-  temp1 = xtabs(~ Mixture, data = temp)
-  all(temp1 != "1")
+  Run <- NULL
+  count_runs = annotation[, .(NumRuns = uniqueN(Run)),
+                              by = c("Mixture")]
+  any(count_runs$NumRuns > 1)
 }
 
 
@@ -205,17 +241,25 @@
   uniqueN(annotation$Run) == 1
 }
 
+# check whether the data has repeated measures
+#' @keywords internal
+.checkRepeatedMeasures = function(annotation) {
+  Group <- NULL
+  count_groups = annotation[, .(NumGroups = uniqueN(Group)),
+                              by = c("Subject")]
+  any(count_groups$NumGroups > 1)
+}
 
 ## fit the full model with mixture, techrep and subject effects
 #' @importFrom lmerTest lmer
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has 
 #' multiple mixtures, multiple technical replicate runs per mixture and biological variation
-fit_full_model = function(data) {
+fit_Mix_TechRep_Group_Sub_model = function(data) {
   suppressMessages(try(
     lmerTest::lmer(Abundance ~ 1 + (1|Mixture) + (1|Mixture:TechRepMixture) +  # whole plot
                      Group + #subplot
-                     (1|Subject:Group:Mixture), data = data), TRUE))
+                     (1|Subject), data = data), TRUE))
 }
 
 ## fit the reduced model with run and subject effects
@@ -223,11 +267,11 @@ fit_full_model = function(data) {
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has 
 #' single mixture with multiple technical replicate runs
-fit_reduced_model_techrep = function(data) {
+fit_Run_Group_Sub_model = function(data) {
   suppressMessages(try(
     lmerTest::lmer(Abundance ~ 1 + (1|Run) +  # whole plot
                      Group + #subplot
-                     (1|Subject:Group), data = data), TRUE))
+                     (1|Subject), data = data), TRUE))
 }
 
 ## fit the reduced model with mixture and techrep effects
@@ -235,7 +279,7 @@ fit_reduced_model_techrep = function(data) {
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has no biological variation,
 #' multiple mixtures with multiple technical replicate runs
-fit_full_model_spikedin = function(data) {
+fit_Mix_TechRep_Group_model = function(data) {
   suppressMessages(try(
     lmerTest::lmer(
       Abundance ~ 1 + (1|Mixture) + (1|Mixture:TechRepMixture) + Group,
@@ -250,7 +294,7 @@ fit_full_model_spikedin = function(data) {
 #' fit the whole plot and subplot model if the data has no biological variation,
 #' multiple mixtures or multiple technical replicate runs
 #' or if the data has multiple mixtures but single technical replicate MS run
-fit_reduced_model_mulrun = function(data) {
+fit_Run_Group_model = function(data) {
   suppressMessages(try(lmerTest::lmer(Abundance ~ 1 + (1|Run) + Group,
                                       data = data), TRUE))
 }
@@ -259,11 +303,26 @@ fit_reduced_model_mulrun = function(data) {
 #' @importFrom lmerTest lmer
 #' @keywords internal
 #' fit the whole plot and subplot model if the data has single run
-fit_reduced_model_onerun = function(data) {
+fit_Group_model = function(data) {
   suppressMessages(try(lm(Abundance ~ 1 + Group, data = data), TRUE))
 }
 
+## fit subject model for repeated measures design
+#' @importFrom lmerTest lmer
+#' @keywords internal
+#' fit subject model if the data uses repeated measures design
+fit_Group_Sub_model = function(data) {
+  suppressMessages(try(
+    lmerTest::lmer(
+      Abundance ~ 1 + Group + (1|Subject),
+      data = data
+    ), TRUE
+  ))
+}
 
+
+#' perform statistical inference for single protein and single contrast
+#' @keywords internal
 .handleSingleContrastTMT = function(contrast, fit, single_protein, coefs, 
                                     protein, groups, s2_posterior, rho, vss,
                                     df_prior, s2_df) {
