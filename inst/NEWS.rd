@@ -2,6 +2,13 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 2.1.1 (2021-09-20)}{\itemize{
+\item Major change: extend groupComparisonTMT() function to cover repeated measures design
+\item Improve MSstatsTestSingleProteinTMT() by directly reading lmerTest output. This may make statistics slightly different due to different numeric accuracy
+\item fix bug when condition name contains 'group'
+\item change the x-axis order in profile plot
+}}
+
 \section{Changes in version 2.0.1 (2021-06-14)}{\itemize{
 \item update comments of PD converter function
 \item fix bug in proteinSummarization() function when MBimpute = F}}
