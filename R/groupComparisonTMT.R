@@ -185,7 +185,7 @@ MSstatsFitComparisonModelsTMT = function(input) {
     getOption("MSstatsTMTMsg")("INFO", msg)
     
     if(has_single_subject){
-        msg = paste0("Design: 1 biolofical subject per mixture and condition.")
+        msg = paste0("Design: 1 biological subject per mixture and condition.")
         getOption("MSstatsTMTLog")("INFO", msg)
         getOption("MSstatsTMTMsg")("INFO", msg)
     }
