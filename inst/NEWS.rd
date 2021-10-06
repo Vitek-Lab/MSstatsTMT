@@ -2,8 +2,14 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
-\section{Changes in version 2.1.1 (2021-09-20)}{\itemize{
+\section{Changes in version 2.2.3 (2021-10-06)}{\itemize{
+\item Minor change: fix the bug when df.prior is infinite
+}}
+
+\section{Changes in version 2.2.2 (2021-09-21)}{\itemize{
 \item Major change: extend groupComparisonTMT() function to cover repeated measures design
+\item Allow flexible order of condition in dataProcessPlotsTMT.
+\item Fix bug in Condition label in dataProcessPlotsTMT.
 \item Improve MSstatsTestSingleProteinTMT() by directly reading lmerTest output. This may make statistics slightly different due to different numeric accuracy
 \item fix bug when condition name contains 'group'
 \item change the x-axis order in profile plot

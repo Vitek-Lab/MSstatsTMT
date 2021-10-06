@@ -251,25 +251,21 @@ MSstatsModerateTTest = function(summarized, fitted_models, moderated) {
     
     variance_df <- variance <- Protein <- NULL
     
+    eb_input_s2 = fitted_models[variance_df != 0 & !is.na(variance_df),
+                                variance]
+    eb_input_df = fitted_models[variance_df != 0 & !is.na(variance_df),
+                                variance_df]
     if (moderated) {
-        eb_input_s2 = fitted_models[variance_df != 0 & !is.na(variance_df),
-                                    variance]
-        eb_input_df = fitted_models[variance_df != 0 & !is.na(variance_df),
-                                    variance_df]
         eb_fit = limma::squeezeVar(eb_input_s2, eb_input_df)
-        if (is.infinite(eb_fit$df.prior)) {
-            df_prior = 0
-            variance_prior = 0
-        } else{
-            df_prior = eb_fit$df.prior
-            variance_prior = eb_fit$var.prior
-        }
+        df_prior = eb_fit$df.prior
+        variance_prior = eb_fit$var.prior
     } else { ## ordinary t statistic
         variance_prior = 0
         df_prior = 0
     }
     fitted_models$df_prior = df_prior
     fitted_models$variance_prior = variance_prior
+    fitted_models$total_df <- sum(eb_input_df, na.rm=TRUE)
     result = lapply(split(fitted_models, fitted_models$protein), as.list)
     result = lapply(result, function(single_fitted_model) {
         protein = single_fitted_model$protein
@@ -324,11 +320,17 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
     fit = fitted_model[["fitted_model"]][[1]]
     s2_prior = fitted_model[["variance_prior"]]
     df_prior = fitted_model[["df_prior"]]
+    total_df = fitted_model[["total_df"]]
     protein = fitted_model[["protein"]]
     
     results = vector("list", nrow(contrast_matrix))
     if (!inherits(fit, "try-error")) {
-        s2_posterior = (s2_prior * df_prior + s2 * s2_df) / (df_prior + s2_df)
+        
+        if (is.infinite(df_prior)) {
+            s2_posterior <- s2_prior
+        } else{
+            s2_posterior = (s2_prior * df_prior + s2 * s2_df) / (df_prior + s2_df)
+        }
         
         for (row_id in seq_len(nrow(contrast_matrix))) {
             contrast = contrast_matrix[row_id, , drop = FALSE]
@@ -358,6 +360,7 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
                         df.post = 2*(se2)^2/denom + df_prior
                     }
                 }
+                df.post <- pmin(df.post, total_df)
                 
                 t = FC / sqrt(se2.post)
                 p = 2*pt(-abs(t), df = df.post)
