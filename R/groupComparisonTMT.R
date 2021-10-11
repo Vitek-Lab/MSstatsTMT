@@ -176,16 +176,16 @@ MSstatsFitComparisonModelsTMT = function(input) {
     getOption("MSstatsTMTLog")("INFO", msg)
     getOption("MSstatsTMTMsg")("INFO", msg)
     
-    if(has_Repeated_Measures){
-        msg = paste0("Design: repeated measures design (A biological subject is measured in multiple conditions).")
-    } else{
-        msg = paste0("Design: group comparison design (Different conditions contains different biological subjects).")
-    }
-    getOption("MSstatsTMTLog")("INFO", msg)
-    getOption("MSstatsTMTMsg")("INFO", msg)
-    
     if(has_single_subject){
-        msg = paste0("Design: 1 biological subject per mixture and condition.")
+        msg = paste0("Design: 1 subject per condition (No biological variation).")
+        getOption("MSstatsTMTLog")("INFO", msg)
+        getOption("MSstatsTMTMsg")("INFO", msg)
+    } else{
+        if(has_Repeated_Measures){
+            msg = paste0("Design: repeated measures design (A biological subject is measured in multiple conditions).")
+        } else{
+            msg = paste0("Design: group comparison design (Different conditions contains different biological subjects).")
+        }
         getOption("MSstatsTMTLog")("INFO", msg)
         getOption("MSstatsTMTMsg")("INFO", msg)
     }
