@@ -145,10 +145,50 @@ MSstatsPrepareForGroupComparisonTMT = function(input, remove_norm_channel,
 #' 
 MSstatsFitComparisonModelsTMT = function(input) {
     Abundance = Group = Protein = NULL
+    Channel = Mixture = Run = Subject = TechRepMixture = NULL
     
     all_proteins = as.character(unique(input$Protein))
     num_proteins = length(all_proteins)
     linear_models = vector("list", num_proteins)
+    
+    annotation = unique(input[, list(Run, Channel, Subject,
+                                     Group, Mixture, TechRepMixture)])
+    has_single_subject = .checkSingleSubject(annotation)
+    has_techreps = .checkTechReplicate(annotation)
+    has_biomixtures = .checkMulBioMixture(annotation)
+    has_single_run = .checkSingleRun(annotation)
+    has_Repeated_Measures <- .checkRepeatedMeasures(annotation)
+    
+    if(has_biomixtures){
+        msg = paste0("Design: ", length(unique(annotation$Mixture)), " mixtures.")
+    } else{
+        msg = paste0("Design: 1 mixture.")
+    }
+    getOption("MSstatsTMTLog")("INFO", msg)
+    getOption("MSstatsTMTMsg")("INFO", msg)
+    
+    if(has_techreps){
+        msg = paste0("Design: ", length(unique(annotation$TechRepMixture)), 
+                     " technical replicated MS runs per mixture.")
+    } else{
+        msg = paste0("Design: 1 MS run per mixture.")
+    }
+    getOption("MSstatsTMTLog")("INFO", msg)
+    getOption("MSstatsTMTMsg")("INFO", msg)
+    
+    if(has_single_subject){
+        msg = paste0("Design: 1 subject per condition (No biological variation).")
+        getOption("MSstatsTMTLog")("INFO", msg)
+        getOption("MSstatsTMTMsg")("INFO", msg)
+    } else{
+        if(has_Repeated_Measures){
+            msg = paste0("Design: repeated measures design (A biological subject is measured in multiple conditions).")
+        } else{
+            msg = paste0("Design: group comparison design (Different conditions contains different biological subjects).")
+        }
+        getOption("MSstatsTMTLog")("INFO", msg)
+        getOption("MSstatsTMTMsg")("INFO", msg)
+    }
     
     msg = paste0("Model fitting for ", num_proteins , " proteins.")
     getOption("MSstatsTMTLog")("INFO", msg)
@@ -187,9 +227,11 @@ MSstatsComparisonModelSingleTMT = function(single_protein, protein_name) {
     has_techreps = .checkTechReplicate(annotation)
     has_biomixtures = .checkMulBioMixture(annotation)
     has_single_run = .checkSingleRun(annotation)
+    has_Repeated_Measures <- .checkRepeatedMeasures(annotation)
     
     fitted_model = .fitModelTMT(single_protein, has_single_subject, 
-                                has_techreps, has_biomixtures, has_single_run)
+                                has_techreps, has_biomixtures, has_single_run, 
+                                has_Repeated_Measures)
     result = .addVarianceInformation(fitted_model, protein_name)
     result
 }
@@ -209,25 +251,21 @@ MSstatsModerateTTest = function(summarized, fitted_models, moderated) {
     
     variance_df <- variance <- Protein <- NULL
     
+    eb_input_s2 = fitted_models[variance_df != 0 & !is.na(variance_df),
+                                variance]
+    eb_input_df = fitted_models[variance_df != 0 & !is.na(variance_df),
+                                variance_df]
     if (moderated) {
-        eb_input_s2 = fitted_models[variance_df != 0 & !is.na(variance_df),
-                                    variance]
-        eb_input_df = fitted_models[variance_df != 0 & !is.na(variance_df),
-                                    variance_df]
         eb_fit = limma::squeezeVar(eb_input_s2, eb_input_df)
-        if (is.infinite(eb_fit$df.prior)) {
-            df_prior = 0
-            variance_prior = 0
-        } else{
-            df_prior = eb_fit$df.prior
-            variance_prior = eb_fit$var.prior
-        }
+        df_prior = eb_fit$df.prior
+        variance_prior = eb_fit$var.prior
     } else { ## ordinary t statistic
         variance_prior = 0
         df_prior = 0
     }
     fitted_models$df_prior = df_prior
     fitted_models$variance_prior = variance_prior
+    fitted_models$total_df <- sum(eb_input_df, na.rm=TRUE)
     result = lapply(split(fitted_models, fitted_models$protein), as.list)
     result = lapply(result, function(single_fitted_model) {
         protein = single_fitted_model$protein
@@ -282,18 +320,16 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
     fit = fitted_model[["fitted_model"]][[1]]
     s2_prior = fitted_model[["variance_prior"]]
     df_prior = fitted_model[["df_prior"]]
+    total_df = fitted_model[["total_df"]]
     protein = fitted_model[["protein"]]
     
     results = vector("list", nrow(contrast_matrix))
     if (!inherits(fit, "try-error")) {
-        s2_posterior = (s2_prior * df_prior + s2 * s2_df) / (df_prior + s2_df)
-        if (!inherits(fit, "lm")) { # prepare for df calculation
-            rho = list() # environment containing info about model
-            rho = suppressMessages(.rhoInit(rho, fit, TRUE)) # save lmer outcome in rho envir variable
-            vss = .vcovLThetaL(fit)
-        } else {
-            rho = NULL
-            vss = NULL
+        
+        if (is.infinite(df_prior)) {
+            s2_posterior <- s2_prior
+        } else{
+            s2_posterior = (s2_prior * df_prior + s2 * s2_df) / (df_prior + s2_df)
         }
         
         for (row_id in seq_len(nrow(contrast_matrix))) {
@@ -316,14 +352,15 @@ MSstatsTestSingleProteinTMT = function(fitted_model, contrast_matrix) {
                     vcov.post = fit@pp$unsc() * s2_posterior
                     se2.post = as.matrix(t(cm) %*% as.matrix(vcov.post) %*% cm)
                     ## calculate posterior df
-                    g = .mygrad(function(x)  vss(t(cm), x)$varcor, c(rho$thopt, rho$sigma))
-                    denom = try(t(g) %*% fit@vcov_varpar %*% g, silent=TRUE)
+                    g <- sapply(fit@Jac_list, function(gm) cm %*% gm %*% cm)
+                    denom <- try(t(g) %*% fit@vcov_varpar %*% g, silent=TRUE)
                     if (inherits(denom, "try-error")) {
                         df.post = s2_df + df_prior
                     } else{
                         df.post = 2*(se2)^2/denom + df_prior
                     }
                 }
+                df.post <- pmin(df.post, total_df)
                 
                 t = FC / sqrt(se2.post)
                 p = 2*pt(-abs(t), df = df.post)
