@@ -58,7 +58,7 @@
 #' @keywords internal
 .fitModelTMT = function(single_protein, has_single_subject, has_techreps, 
                         has_biomixtures, has_single_run, has_Repeated_Measures) {
-  if (has_single_subject) { # the data has no biological variation 
+  if (has_single_subject) { # no biological variation
     if (has_techreps & has_biomixtures) { # multiple mixtures and tech MS runs
       fit = fit_Mix_TechRep_Group_model(single_protein)
       if (inherits(fit, "try-error")) { # full model is not applicable 
@@ -82,6 +82,8 @@
     if(has_Repeated_Measures){ # time course design
       if (has_biomixtures) { # multiple mixtures
         if (has_techreps) { # multiple tech MS runs
+          
+          ####### TODO: need to double check the full model ######
           fit = fit_Mix_TechRep_Group_Sub_model(single_protein) # fit the full model with mixture, techrep, subject effects
           if (!inherits(fit, "try-error")) { # full model is not applicable, fit the model with run and subject effects
             fit = fit_Run_Group_Sub_model(single_protein) 
@@ -107,7 +109,7 @@
           if (inherits(fit, "try-error")) { # model not applicable - fit one-way anova model
             fit = fit_Group_model(single_protein) 
           }
-        } else { # single MS run per mixture
+        } else { # single MS run
           fit = fit_Group_Sub_model(single_protein) 
           if (inherits(fit, "try-error")) { # model not applicable - fit one-way anova model
             fit = fit_Group_model(single_protein) 
@@ -213,7 +215,7 @@
 .checkSingleSubject = function(annotation) {
   Subject <- NULL
   count_subjects = annotation[, .(NumSubjects = uniqueN(Subject)),
-                              by = c("Mixture", "Group")]
+                              by = c("Group")]
   all(count_subjects$NumSubjects <= 1)
 }
 
@@ -470,4 +472,3 @@ fit_Group_Sub_model = function(data) {
   contrast[condition] = new_values
   contrast
 }
-
