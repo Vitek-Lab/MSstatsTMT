@@ -173,6 +173,7 @@ dataProcessPlotsTMT = function(
             single_protein$PeptideSequence = factor(as.character(single_protein$PeptideSequence))
             single_protein$Charge = factor(as.character(single_protein$Charge))
             single_protein$PSM = factor(as.character(single_protein$PSM))
+            single_protein$censored = factor(as.character(single_protein$censored))
             if (all(is.na(single_protein$abundance)) | 
                 all(single_protein$abundance == 0)) {
                 next()
@@ -200,11 +201,12 @@ dataProcessPlotsTMT = function(
             ptemp = ggplot(aes_string(x = 'xorder', y = 'abundance',
                                       color = 'PSM', linetype = 'PSM'), data = single_protein) +
                 facet_grid(~Run) +
+                geom_point(data = single_protein, aes(shape=censored), size=dot.size.profile) +
                 geom_point(size=dot.size.profile) +
                 geom_line(size = 0.5) +
                 scale_colour_manual(values=cbp[s]) +
                 scale_linetype_manual(values = ss) +
-                scale_shape_manual(values = c(16)) +
+                scale_shape_manual(values = c(16, 1)) +
                 labs(title = unique(single_protein$Protein),
                      x = 'MS runs') +
                 scale_y_continuous(yaxis.name, limits = c(y.limdown, y.limup)) +
