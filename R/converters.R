@@ -366,7 +366,7 @@ PhilosophertoMSstatsTMTFormat = function(
                        handle_na = "keep", 
                        fill_value = NULL,
                        filter = TRUE, 
-                       drop_column = TRUE)
+                       drop_column = FALSE)
   probability_filter = list(score_column = "PeptideProphetProbability", 
                             score_threshold = PeptideProphet_prob_cutoff, 
                             direction = "greater",
@@ -374,7 +374,7 @@ PhilosophertoMSstatsTMTFormat = function(
                             handle_na = "keep", 
                             fill_value = NULL,
                             filter = TRUE, 
-                            drop_column = TRUE)
+                            drop_column = FALSE)
   oxidation_filter = list(col_name = "PeptideSequence",
                           pattern = "Oxidation", 
                           filter = rmPeptide_OxidationM, 

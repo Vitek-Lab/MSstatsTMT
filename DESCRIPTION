@@ -20,4 +20,4 @@ Encoding: UTF-8
 LazyData: true
 URL: http://msstats.org/msstatstmt/
 BugReports: https://groups.google.com/forum/#!forum/msstats
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
