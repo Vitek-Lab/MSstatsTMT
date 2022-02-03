@@ -354,11 +354,11 @@ PhilosophertoMSstatsTMTFormat = function(
                           list(annotation = annotation)), 
                         type = "MSstatsTMT",
                         tool = "Philosopher")
-  annotation = MSstatsMakeAnnotation(input, annotation)
   channels = unique(annotation[["Channel"]])
   input = MSstatsConvert::MSstatsClean(input, protein_id_col, peptide_id_col,
                                        channels, useUniquePeptide)
-  
+  annotation = MSstatsMakeAnnotation(input, annotation)
+
   purity_filter = list(score_column = "Purity", 
                        score_threshold = Purity_cutoff, 
                        direction = "greater",
