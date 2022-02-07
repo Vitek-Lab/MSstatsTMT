@@ -312,10 +312,11 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' @param input_path a path to the folder with all the Philosopher msstats csv files
 #' @param annotation annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
 #' BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column.
-#' @param which.proteinid Use 'Protein.Accessions'(default) column for protein name. 
+#' @param protein_id_col Use 'Protein.Accessions'(default) column for protein name. 
 #' 'Master.Protein.Accessions' can be used instead to get the protein name with single protein.
-#' @param which.sequence Use 'Peptide.Sequence'(default) column for peptide sequence.
+#' @param peptide_id_col Use 'Peptide.Sequence'(default) column for peptide sequence.
 #'  'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.
+#' @param channel_ids channels IDs if different from "Channel <channel ID>".
 #' @param Purity_cutoff Cutoff for purity. Default is 0.6
 #' @param PeptideProphet_prob_cutoff Cutoff for the peptide identification probability. Default is 0.7. 
 #' The probability is confidence score determined by PeptideProphet and higher values indicate greater confidence.
@@ -335,7 +336,7 @@ SpectroMinetoMSstatsTMTFormat <- function(
 
 PhilosophertoMSstatsTMTFormat = function(
   input_path, annotation, protein_id_col = "ProteinAccessions", 
-  peptide_id_col = "PeptideSequence", Purity_cutoff = 0.6,
+  peptide_id_col = "PeptideSequence", channel_ids = NULL, Purity_cutoff = 0.6,
   PeptideProphet_prob_cutoff = 0.7, useUniquePeptide = TRUE,
   rmPSM_withfewMea_withinRun = TRUE, rmPeptide_OxidationM = FALSE,
   rmProtein_with1Feature = FALSE, summaryforMultipleRows = sum,
@@ -349,13 +350,18 @@ PhilosophertoMSstatsTMTFormat = function(
                              full.names = TRUE)
   mixture_files = as.list(mixture_files)
   names(mixture_files) = paste0("Mixture", seq_along(mixture_files))
-  
+
   input = MSstatsImport(c(mixture_files,
                           list(annotation = annotation)), 
                         type = "MSstatsTMT",
                         tool = "Philosopher")
   annotation = MSstatsMakeAnnotation(input, annotation)
-  channels = unique(annotation[["Channel"]])
+  
+  if (is.null(channel_ids)) {
+    channels = channel_ids
+  } else {
+    channels = paste0("Channel", unique(annotation[["Channel"]]))
+  }
   input = MSstatsConvert::MSstatsClean(input, protein_id_col, peptide_id_col,
                                        channels, useUniquePeptide)
   
