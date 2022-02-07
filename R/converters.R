@@ -316,7 +316,6 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' 'Master.Protein.Accessions' can be used instead to get the protein name with single protein.
 #' @param peptide_id_col Use 'Peptide.Sequence'(default) column for peptide sequence.
 #'  'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.
-#' @param channel_ids channels IDs if different from "Channel <channel ID>".
 #' @param Purity_cutoff Cutoff for purity. Default is 0.6
 #' @param PeptideProphet_prob_cutoff Cutoff for the peptide identification probability. Default is 0.7. 
 #' The probability is confidence score determined by PeptideProphet and higher values indicate greater confidence.
@@ -355,13 +354,7 @@ PhilosophertoMSstatsTMTFormat = function(
                           list(annotation = annotation)), 
                         type = "MSstatsTMT",
                         tool = "Philosopher")
-  
-  if (!is.null(channel_ids)) {
-    channels = channel_ids
-  } else {
-    channels = paste0("Channel", unique(annotation[["Channel"]]))
-  }
-  
+  channels = unique(annotation[["Channel"]])
   input = MSstatsConvert::MSstatsClean(input, protein_id_col, peptide_id_col,
                                        channels, useUniquePeptide)
   annotation = MSstatsMakeAnnotation(input, annotation)
