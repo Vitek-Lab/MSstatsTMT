@@ -356,7 +356,7 @@ PhilosophertoMSstatsTMTFormat = function(
                         type = "MSstatsTMT",
                         tool = "Philosopher")
   
-  if (is.null(channel_ids)) {
+  if (!is.null(channel_ids)) {
     channels = channel_ids
   } else {
     channels = paste0("Channel", unique(annotation[["Channel"]]))
