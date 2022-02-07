@@ -355,7 +355,6 @@ PhilosophertoMSstatsTMTFormat = function(
                           list(annotation = annotation)), 
                         type = "MSstatsTMT",
                         tool = "Philosopher")
-  annotation = MSstatsMakeAnnotation(input, annotation)
   
   if (is.null(channel_ids)) {
     channels = channel_ids
