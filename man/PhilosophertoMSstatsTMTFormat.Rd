@@ -9,12 +9,11 @@ PhilosophertoMSstatsTMTFormat(
   annotation,
   protein_id_col = "ProteinAccessions",
   peptide_id_col = "PeptideSequence",
-  channel_ids = NULL,
   Purity_cutoff = 0.6,
   PeptideProphet_prob_cutoff = 0.7,
   useUniquePeptide = TRUE,
   rmPSM_withfewMea_withinRun = TRUE,
-  rmPeptide_OxidationM = FALSE,
+  rmPeptide_OxidationM = TRUE,
   rmProtein_with1Feature = FALSE,
   summaryforMultipleRows = sum,
   use_log_file = TRUE,
@@ -35,8 +34,6 @@ BioReplicate, Condition columns or a path to file. Refer to the example 'annotat
 
 \item{peptide_id_col}{Use 'Peptide.Sequence'(default) column for peptide sequence.
 'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.}
-
-\item{channel_ids}{channels IDs if different from "Channel <channel ID>".}
 
 \item{Purity_cutoff}{Cutoff for purity. Default is 0.6}
 

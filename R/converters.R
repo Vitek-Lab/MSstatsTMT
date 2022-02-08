@@ -335,9 +335,9 @@ SpectroMinetoMSstatsTMTFormat <- function(
 
 PhilosophertoMSstatsTMTFormat = function(
   input_path, annotation, protein_id_col = "ProteinAccessions", 
-  peptide_id_col = "PeptideSequence", channel_ids = NULL, Purity_cutoff = 0.6,
+  peptide_id_col = "PeptideSequence", Purity_cutoff = 0.6,
   PeptideProphet_prob_cutoff = 0.7, useUniquePeptide = TRUE,
-  rmPSM_withfewMea_withinRun = TRUE, rmPeptide_OxidationM = FALSE,
+  rmPSM_withfewMea_withinRun = TRUE, rmPeptide_OxidationM = TRUE,
   rmProtein_with1Feature = FALSE, summaryforMultipleRows = sum,
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL, ...
 ) {
