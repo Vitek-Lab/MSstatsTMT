@@ -309,11 +309,12 @@ SpectroMinetoMSstatsTMTFormat <- function(
 
 #' Convert Philosopher (Fragpipe) output to MSstatsTMT format.
 #' 
-#' @param input_path a path to the folder with all the Philosopher msstats csv files
+#' @param input_path a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.
 #' @param annotation annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
-#' BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column.
+#' BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be 
+#' consistent with the channel columns (Ignore the prefix "Channel ") in msstats.csv file. Run column should be consistent with the Spectrum.File columns in msstats.csv file.
 #' @param protein_id_col Use 'Protein.Accessions'(default) column for protein name. 
-#' 'Master.Protein.Accessions' can be used instead to get the protein name with single protein.
+#' 'Master.Protein.Accessions' can be used instead to get the protein ID with single protein.
 #' @param peptide_id_col Use 'Peptide.Sequence'(default) column for peptide sequence.
 #'  'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.
 #' @param Purity_cutoff Cutoff for purity. Default is 0.6

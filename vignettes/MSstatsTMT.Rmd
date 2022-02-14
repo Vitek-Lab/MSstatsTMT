@@ -36,7 +36,7 @@ This vignette summarizes the introduction and various options of all functionali
 
 MSstatsTMT includes the following three steps for statistical testing: 
 
-1. Converters for different peptide quantification tools to get the input with required format: `PDtoMSstatsTMTFormat`, `MaxQtoMSstatsTMTFormat`, `SpectroMinetoMSstatsTMTFormat` and `OpenMStoMSstatsTMTFormat`.
+1. Converters for different peptide quantification tools to get the input with required format: `PDtoMSstatsTMTFormat`, `MaxQtoMSstatsTMTFormat`, `SpectroMinetoMSstatsTMTFormat`, `OpenMStoMSstatsTMTFormat` and `PhilosophertoMSstatsTMTFormat`.
 2. Protein summarization based on peptide quantification data: `proteinSummarization`
 3. Group comparison on protein quantification data:  `groupComparisonTMT`
 
@@ -165,8 +165,8 @@ Preprocess MSstatsTMT report from OpenMS and convert into the required input for
 
 #### Arguments
 
-* `input`: data name of MSstatsTMT report from OpenMS. Read csv file.
-* `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
+* `input` : data name of MSstatsTMT report from OpenMS. Read csv file.
+* `useUniquePeptide` : TRUE(default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein. 
 * `rmPSM_withfewMea_withinRun` : only for rmPSM_withMissing_withinRun = FALSE. TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
 * `removeProtein_with1Peptide` : TRUE will remove the proteins which have only 1 peptide and charge. Default is FALSE.
 * `summaryforMultipleRows` : sum(default) or max - when there are multiple measurements for certain PSM in certain run, select the PSM with the largest summation or maximal value.
@@ -180,6 +180,31 @@ head(raw.om)
 # the function only requries one input file
 input.om <- OpenMStoMSstatsTMTFormat(raw.om)
 head(input.om)
+```
+
+### PhilosophertoMSstatsTMTFormat()
+
+Preprocess MSstats report from Philosopher of Fragpipe and convert into the required input format for MSstatsTMT.
+
+
+#### Arguments
+
+* `input_path`: a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.
+* `annotation` : annotation with Run, Fraction, TechRepMixture, Mixture, Channel, BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be consistent with the channel columns (Ignore the prefix "Channel ") in msstats.csv file. Run column should be consistent with the Spectrum.File columns in msstats.csv file.
+* `protein_id_col` : Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead to get the protein ID with single protein.
+* `peptide_id_col` : Use 'Peptide.Sequence'(default) column for peptide sequence. 'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.
+* `Purity_cutoff` : Cutoff for purity. Default is 0.6
+* `PeptideProphet_prob_cutoff` : Cutoff for the peptide identification probability. Default is 0.7. 
+* `useUniquePeptide` : logical, if TRUE (default) removes peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
+* `rmPSM_withfewMea_withinRun` : TRUE(default) will remove the features that have 1 or 2 measurements within each Run.
+* `rmPeptide_OxidationM` : TRUE (default) will remove the peptides including oxidation (M) sequence.
+* `removeProtein_with1Peptide` : TRUE will remove the proteins which have only 1 peptide and charge. Default is FALSE.
+* `summaryforMultipleRows` : sum(default) or max - when there are multiple measurements for certain PSM in certain run, select the PSM with the largest summation or maximal value.
+
+#### Example
+```{r}
+# Example code is skipped for Philosopher Converter 
+# since the input is a path to the folder with all the Philosopher msstats csv files
 ```
 
 ## 2. Protein summarization, normalization and visualization
@@ -219,8 +244,13 @@ quant.msstats <- proteinSummarization(input.pd,
                                       reference_norm=TRUE,
                                       remove_norm_channel = TRUE,
                                       remove_empty_channel = TRUE)
-head(quant.pd.msstats$ProteinLevelData)
+```
 
+```{r}
+head(quant.pd.msstats$ProteinLevelData)
+```
+
+```{r, message=F, warning=F, results='hide'}
 # use Median for protein summarization
 quant.median <- proteinSummarization(input.pd,
                                      method="Median",
@@ -228,7 +258,9 @@ quant.median <- proteinSummarization(input.pd,
                                      reference_norm=TRUE,
                                      remove_norm_channel = TRUE,
                                      remove_empty_channel = TRUE)
+```
 
+```{r}
 head(quant.median$ProteinLevelData)
 ```
 
@@ -269,7 +301,7 @@ The command address can help to specify where to store the file as well as how t
 If address=FALSE, plot will be not saved as pdf file but showed in window.
 
 #### Example
-```{r, message=F, warning=F}
+```{r, message=F, warning=F, results='hide'}
 ## Profile plot without norm channnels and empty channels
 dataProcessPlotsTMT(data=quant.msstats,
                      type = 'ProfilePlot',
@@ -280,7 +312,7 @@ dataProcessPlotsTMT(data=quant.msstats,
 There are two pdfs with all the proteins, first is profile plot and second plot is profile plot with summarized and normalized data. `XXX_ProfilePlot.pdf` shows each peptide ions across runs and channels, grouped per condition. Each panel represents one MS run and each dot within one panel is one channel within one Run. Each peptide has a different colour/type layout. The dots are linked with line per peptide ion If line is disconnected, that means there is no value (missing value). Profile plot is good visualization to check individual measurements. `XXX_ProfilePlot_wSummarization.pdf` shows the same peptide ions in grey, with the values as summarized by the model overlayed in red.
 
 Instead of making all profile plots for all proteins, we can make plot for individual protein. Here is the example of protein`P04406`
-```{r, message=F, warning=F}
+```{r, message=F, warning=F, results='hide'}
 dataProcessPlotsTMT(data=quant.msstats,
                     type='ProfilePlot', # choice of visualization
                     width = 21,
@@ -316,7 +348,9 @@ If you want to make all the pairwise comparison,`MSstatsTMT` has an easy option 
 ```{r, message=F, warning=F, results='hide'}
 # test for all the possible pairs of conditions
 test.pairwise <- groupComparisonTMT(quant.msstats, moderated = TRUE)
+```
 
+```{r}
 # Show test result
 # Label : which comparison is used
 # log2FC : estimated log2 fold change between two conditions (the contrast)
@@ -332,7 +366,7 @@ If you would like to compare some specific combination of conditions, you need t
 
 If you have multiple groups, you can assign any group comparisons you are interested in.
 
-```{r, message=F, warning=F, results='hide'}
+```{r}
 # Check the conditions in the protein level data
 levels(quant.msstats$ProteinLevelData$Condition)
 # Only compare condition 0.125 and 1
@@ -342,7 +376,12 @@ row.names(comparison)<-"1-0.125"
 # Set the column names
 colnames(comparison)<- c("0.125", "0.5", "0.667", "1")
 comparison
+```
 
+```{r, message=F, warning=F, results='hide'}
 test.contrast <- groupComparisonTMT(data = quant.msstats, contrast.matrix = comparison, moderated = TRUE)
+```
+
+```{r}
 head(test.contrast$ComparisonResult)
 ```
