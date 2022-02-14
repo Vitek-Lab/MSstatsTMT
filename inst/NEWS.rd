@@ -2,6 +2,10 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 2.2.6 (2022-02-14)}{\itemize{
+\item Major change: add PhilosophertoMSstatsTMTFormat function as converter for outputs from Philosopher
+}}
+
 \section{Changes in version 2.2.5 (2021-10-25)}{\itemize{
 \item Minor change: add different point shape to dataProcessPlotsTMT as indicator of imputed values
 }}
