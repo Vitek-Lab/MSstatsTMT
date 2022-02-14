@@ -3,6 +3,7 @@
 export(MaxQtoMSstatsTMTFormat)
 export(OpenMStoMSstatsTMTFormat)
 export(PDtoMSstatsTMTFormat)
+export(PhilosophertoMSstatsTMTFormat)
 export(SpectroMinetoMSstatsTMTFormat)
 export(dataProcessPlotsTMT)
 export(groupComparisonTMT)
