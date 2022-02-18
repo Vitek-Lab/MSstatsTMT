@@ -347,7 +347,7 @@ PhilosophertoMSstatsTMTFormat = function(
   MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
                                       log_file_path, 
                                       base = "MSstatsTMT_converter_log_")
-  checkmate::asertTrue(!is.null(folder_path) & !is.null(files_paths))
+  checkmate::assertTrue(!is.null(folder_path) & !is.null(files_paths))
   
   if (is.null(files_paths)) {
     mixture_files = list.files(folder_path, pattern = "msstats", 
