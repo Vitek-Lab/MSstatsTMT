@@ -415,7 +415,7 @@ PhilosophertoMSstatsTMTFormat = function(
     mixture_files = input
   } else {
     if (folder) {
-      mixture_files = list.files(folder_path, pattern = "msstats", 
+      mixture_files = list.files(path, pattern = "msstats", 
                                  full.names = TRUE)
     } else {
       mixture_files = path
