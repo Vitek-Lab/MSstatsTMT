@@ -189,7 +189,9 @@ Preprocess MSstats report from Philosopher of Fragpipe and convert into the requ
 
 #### Arguments
 
-* `input_path`: a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.
+*  `input` : list of tables exported by Philosopher. Fragpipe produces a csv file for each TMT mixture.
+* `path` : a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.
+* `folder` : logical, if TRUE, path parameter will be treated as folder path and all msstats*.csv files will be imported. If FALSE, path parameter will be treated as a vector of fixed file paths.
 * `annotation` : annotation with Run, Fraction, TechRepMixture, Mixture, Channel, BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be consistent with the channel columns (Ignore the prefix "Channel ") in msstats.csv file. Run column should be consistent with the Spectrum.File columns in msstats.csv file.
 * `protein_id_col` : Use 'Protein.Accessions'(default) column for protein name. 'Master.Protein.Accessions' can be used instead to get the protein ID with single protein.
 * `peptide_id_col` : Use 'Peptide.Sequence'(default) column for peptide sequence. 'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.

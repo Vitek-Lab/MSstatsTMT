@@ -309,7 +309,10 @@ SpectroMinetoMSstatsTMTFormat <- function(
 
 #' Convert Philosopher (Fragpipe) output to MSstatsTMT format.
 #' 
-#' @param input_path a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.
+#' @param input list of tables exported by Philosopher. Fragpipe produces a csv file for each TMT mixture.
+#' @param path a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.
+#' @param folder logical, if TRUE, path parameter will be treated as folder path and all msstats*.csv files will be imported. 
+#' If FALSE, path parameter will be treated as a vector of fixed file paths.
 #' @param annotation annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
 #' BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be 
 #' consistent with the channel columns (Ignore the prefix "Channel ") in msstats.csv file. Run column should be consistent with the Spectrum.File columns in msstats.csv file.
@@ -335,22 +338,20 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' @export
 
 PhilosophertoMSstatsTMTFormat = function(
-  input_path, annotation, protein_id_col = "ProteinAccessions", 
-  peptide_id_col = "PeptideSequence", Purity_cutoff = 0.6,
-  PeptideProphet_prob_cutoff = 0.7, useUniquePeptide = TRUE,
-  rmPSM_withfewMea_withinRun = TRUE, rmPeptide_OxidationM = TRUE,
-  rmProtein_with1Feature = FALSE, summaryforMultipleRows = sum,
-  use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL, ...
+  input = NULL, path = NULL, folder = TRUE, annotation, 
+  protein_id_col = "ProteinAccessions", peptide_id_col = "PeptideSequence", 
+  Purity_cutoff = 0.6, PeptideProphet_prob_cutoff = 0.7, 
+  useUniquePeptide = TRUE, rmPSM_withfewMea_withinRun = TRUE, 
+  rmPeptide_OxidationM = TRUE, rmProtein_with1Feature = FALSE, 
+  summaryforMultipleRows = sum, use_log_file = TRUE, append = FALSE, 
+  verbose = TRUE, log_file_path = NULL, ...
 ) {
   MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
                                       log_file_path, 
                                       base = "MSstatsTMT_converter_log_")
+  checkmate::assertTRUE(!is.null(input) | !is.null(path))
   
-  mixture_files = list.files(input_path, pattern = "msstats",
-                             full.names = TRUE)
-  mixture_files = as.list(mixture_files)
-  names(mixture_files) = paste0("Mixture", seq_along(mixture_files))
-
+  mixture_files = .getPhilosopherInput(input, path, folder)
   input = MSstatsImport(c(mixture_files,
                           list(annotation = annotation)), 
                         type = "MSstatsTMT",
@@ -404,3 +405,23 @@ PhilosophertoMSstatsTMTFormat = function(
   getOption("MSstatsLog")("INFO", "\n")
   input
 } 
+
+
+#' Convert Philosopher parameters to consistent format
+#' @inheritParams PhilosophertoMSstatsTMTFormat 
+#' @keywords internal
+.getPhilosopherInput = function(input, path, folder) {
+  if (!is.null(input)) {
+    mixture_files = input
+  } else {
+    if (folder) {
+      mixture_files = list.files(path, pattern = "msstats", 
+                                 full.names = TRUE)
+    } else {
+      mixture_files = path
+    }
+  }
+  mixture_files = as.list(mixture_files)
+  names(mixture_files) = paste0("Mixture", seq_along(mixture_files))    
+  mixture_files
+}
