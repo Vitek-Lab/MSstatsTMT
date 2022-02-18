@@ -2,6 +2,10 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 2.2.7 (2022-02-18)}{\itemize{
+\item Minor change: extend PhilosophertoMSstatsTMTFormat function to have multiple types of input
+}}
+
 \section{Changes in version 2.2.6 (2022-02-14)}{\itemize{
 \item Major change: add PhilosophertoMSstatsTMTFormat function as converter for outputs from Philosopher
 }}
