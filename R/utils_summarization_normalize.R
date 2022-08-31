@@ -117,7 +117,7 @@ MSstatsNormalizeTMT = function(input, type, normalize) {
 .getNormalizationAbundance = function(abundance, condition) {
   data = abundance[condition == "Norm"]
   if (all(is.na(data))) {
-    return(NA)
+    return(NA_real_)
   } else {
     return(mean(data, na.rm = TRUE))
   }
