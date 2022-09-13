@@ -2,6 +2,10 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 2.4.1 (2022-09-12)}{\itemize{
+\item Minor change: fix the bug of data table in performing local normalization
+}}
+
 \section{Changes in version 2.2.7 (2022-02-18)}{\itemize{
 \item Minor change: extend PhilosophertoMSstatsTMTFormat function to have multiple types of input
 }}
