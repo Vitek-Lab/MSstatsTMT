@@ -187,7 +187,7 @@ OpenMStoMSstatsTMTFormat = function(
 #' 
 PDtoMSstatsTMTFormat <- function(
   input, annotation, which.proteinid = 'Protein.Accessions', 
-  useNumProteinsColumn = TRUE, useUniquePeptide = TRUE, 
+  useNumProteinsColumn = FALSE, useUniquePeptide = TRUE, 
   rmPSM_withfewMea_withinRun = TRUE, rmProtein_with1Feature = FALSE, 
   summaryforMultipleRows = sum, 
   use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL, ...
