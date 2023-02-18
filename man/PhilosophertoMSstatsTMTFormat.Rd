@@ -7,8 +7,8 @@
 PhilosophertoMSstatsTMTFormat(
   input,
   annotation,
-  protein_id_col = "ProteinAccessions",
-  peptide_id_col = "PeptideSequence",
+  protein_id_col = "Protein",
+  peptide_id_col = "Peptide",
   Purity_cutoff = 0.6,
   PeptideProphet_prob_cutoff = 0.7,
   useUniquePeptide = TRUE,
@@ -30,10 +30,10 @@ PhilosophertoMSstatsTMTFormat(
 BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be 
 consistent with the channel columns (Ignore the prefix "Channel ") in msstats.csv file. Run column should be consistent with the Spectrum.File columns in msstats.csv file.}
 
-\item{protein_id_col}{Use 'Protein.Accessions'(default) column for protein name. 
+\item{protein_id_col}{Use 'Protein'(default) column for protein name. 
 'Master.Protein.Accessions' can be used instead to get the protein ID with single protein.}
 
-\item{peptide_id_col}{Use 'Peptide.Sequence'(default) column for peptide sequence.
+\item{peptide_id_col}{Use 'Peptide'(default) column for peptide sequence.
 'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.}
 
 \item{Purity_cutoff}{Cutoff for purity. Default is 0.6}
