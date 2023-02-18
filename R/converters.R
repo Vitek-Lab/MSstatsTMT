@@ -309,10 +309,7 @@ SpectroMinetoMSstatsTMTFormat <- function(
 
 #' Convert Philosopher (Fragpipe) output to MSstatsTMT format.
 #' 
-#' @param input list of tables exported by Philosopher. Fragpipe produces a csv file for each TMT mixture.
-#' @param path a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.
-#' @param folder logical, if TRUE, path parameter will be treated as folder path and all msstats*.csv files will be imported. 
-#' If FALSE, path parameter will be treated as a vector of fixed file paths.
+#' @param input data.frame of `msstats.csv` file produced by Philosopher
 #' @param annotation annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
 #' BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be 
 #' consistent with the channel columns (Ignore the prefix "Channel ") in msstats.csv file. Run column should be consistent with the Spectrum.File columns in msstats.csv file.
@@ -338,20 +335,19 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' @export
 
 PhilosophertoMSstatsTMTFormat = function(
-  input = NULL, path = NULL, folder = TRUE, annotation, 
-  protein_id_col = "ProteinAccessions", peptide_id_col = "PeptideSequence", 
-  Purity_cutoff = 0.6, PeptideProphet_prob_cutoff = 0.7, 
-  useUniquePeptide = TRUE, rmPSM_withfewMea_withinRun = TRUE, 
-  rmPeptide_OxidationM = TRUE, rmProtein_with1Feature = FALSE, 
-  summaryforMultipleRows = sum, use_log_file = TRUE, append = FALSE, 
-  verbose = TRUE, log_file_path = NULL, ...
+  input, annotation, protein_id_col = "ProteinAccessions", 
+  peptide_id_col = "PeptideSequence", Purity_cutoff = 0.6, 
+  PeptideProphet_prob_cutoff = 0.7, useUniquePeptide = TRUE, 
+  rmPSM_withfewMea_withinRun = TRUE, rmPeptide_OxidationM = TRUE, 
+  rmProtein_with1Feature = FALSE, summaryforMultipleRows = sum, 
+  use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL, ...
 ) {
   MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
                                       log_file_path, 
                                       base = "MSstatsTMT_converter_log_")
-  checkmate::assertTRUE(!is.null(input) | !is.null(path))
+  checkmate::assertTRUE(!is.null(input))
   
-  mixture_files = .getPhilosopherInput(input, path, folder)
+  mixture_files = list(Mixture1=data.table(input))
   input = MSstatsImport(c(mixture_files,
                           list(annotation = annotation)), 
                         type = "MSstatsTMT",
@@ -396,6 +392,7 @@ PhilosophertoMSstatsTMTFormat = function(
   )
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns,
                                                 fix_missing = "zero_to_na")
+  input = input[!is.na(input["BioReplicate"]),]
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   
   msg_final = paste("** Finished preprocessing. The dataset is ready",

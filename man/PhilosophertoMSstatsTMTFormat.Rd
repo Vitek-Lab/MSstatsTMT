@@ -5,9 +5,7 @@
 \title{Convert Philosopher (Fragpipe) output to MSstatsTMT format.}
 \usage{
 PhilosophertoMSstatsTMTFormat(
-  input = NULL,
-  path = NULL,
-  folder = TRUE,
+  input,
   annotation,
   protein_id_col = "ProteinAccessions",
   peptide_id_col = "PeptideSequence",
@@ -26,12 +24,7 @@ PhilosophertoMSstatsTMTFormat(
 )
 }
 \arguments{
-\item{input}{list of tables exported by Philosopher. Fragpipe produces a csv file for each TMT mixture.}
-
-\item{path}{a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.}
-
-\item{folder}{logical, if TRUE, path parameter will be treated as folder path and all msstats*.csv files will be imported. 
-If FALSE, path parameter will be treated as a vector of fixed file paths.}
+\item{input}{data.frame of `msstats.csv` file produced by Philosopher}
 
 \item{annotation}{annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
 BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be 

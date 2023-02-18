@@ -1,7 +1,7 @@
 Package: MSstatsTMT
 Title: Protein Significance Analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling
-Version: 2.3.7
-Date: 2022-02-18
+Version: 2.3.9
+Date: 2023-02-18
 Description: The package provides statistical tools for detecting differentially abundant proteins in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling. It provides multiple functionalities, including aata visualization, protein quantification and normalization, and statistical modeling and inference. Furthermore, it is inter-operable with other data processing tools, such as Proteome Discoverer, MaxQuant, OpenMS and SpectroMine.
 Authors@R: c(person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut","cre")),
 	person("Meena", "Choi", email = "mnchoi67@gmail.com", role="aut"),
@@ -20,4 +20,4 @@ Encoding: UTF-8
 LazyData: true
 URL: http://msstats.org/msstatstmt/
 BugReports: https://groups.google.com/forum/#!forum/msstats
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
