@@ -313,9 +313,9 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' @param annotation annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
 #' BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be 
 #' consistent with the channel columns (Ignore the prefix "Channel ") in msstats.csv file. Run column should be consistent with the Spectrum.File columns in msstats.csv file.
-#' @param protein_id_col Use 'Protein'(default) column for protein name. 
+#' @param protein_id_col Use 'Protein.Accessions'(default) column for protein name. 
 #' 'Master.Protein.Accessions' can be used instead to get the protein ID with single protein.
-#' @param peptide_id_col Use 'Peptide'(default) column for peptide sequence.
+#' @param peptide_id_col Use 'Peptide.Sequence'(default) column for peptide sequence.
 #'  'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.
 #' @param Purity_cutoff Cutoff for purity. Default is 0.6
 #' @param PeptideProphet_prob_cutoff Cutoff for the peptide identification probability. Default is 0.7. 
@@ -333,10 +333,9 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' @return `data.frame` of class `MSstatsTMT`
 #' 
 #' @export
-
 PhilosophertoMSstatsTMTFormat = function(
-  input, annotation, protein_id_col = "Protein", 
-  peptide_id_col = "Peptide", Purity_cutoff = 0.6, 
+  input, annotation, protein_id_col = "Protein.Accessions", 
+  peptide_id_col = "Peptide.Sequence", Purity_cutoff = 0.6, 
   PeptideProphet_prob_cutoff = 0.7, useUniquePeptide = TRUE, 
   rmPSM_withfewMea_withinRun = TRUE, rmPeptide_OxidationM = TRUE, 
   rmProtein_with1Feature = FALSE, summaryforMultipleRows = sum, 
@@ -347,8 +346,9 @@ PhilosophertoMSstatsTMTFormat = function(
                                       base = "MSstatsTMT_converter_log_")
   checkmate::assertTRUE(!is.null(input))
   
-  mixture_files = list(Mixture1=data.table(input))
-  input = MSstatsImport(c(mixture_files,
+  # mixture_files = list(Mixture1=data.table(input))
+  mixture_files = .getPhilosopherInput(NULL, input, FALSE)
+  input = MSstatsConvert::MSstatsImport(c(mixture_files,
                           list(annotation = annotation)), 
                         type = "MSstatsTMT",
                         tool = "Philosopher")
@@ -379,7 +379,7 @@ PhilosophertoMSstatsTMTFormat = function(
                           drop_column = FALSE)
   
   feature_columns = c("PeptideSequence", "PrecursorCharge") 
-  input = MSstatsConvert::MSstatsPreprocess(
+  input = MSstatsPreprocess(
     input, 
     annotation, 
     feature_columns,
@@ -392,7 +392,6 @@ PhilosophertoMSstatsTMTFormat = function(
   )
   input = MSstatsConvert::MSstatsBalancedDesign(input, feature_columns,
                                                 fix_missing = "zero_to_na")
-  input = input[!is.na(input["BioReplicate"]),]
   data.table::setnames(input, "PrecursorCharge", "Charge", skip_absent = TRUE)
   
   msg_final = paste("** Finished preprocessing. The dataset is ready",
