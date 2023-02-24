@@ -7,12 +7,7 @@
 .getPhilosopherInput(input, path, folder)
 }
 \arguments{
-\item{input}{list of tables exported by Philosopher. Fragpipe produces a csv file for each TMT mixture.}
-
-\item{path}{a path to the folder with all the Philosopher msstats csv files. Fragpipe produces a msstats.csv file for each TMT mixture.}
-
-\item{folder}{logical, if TRUE, path parameter will be treated as folder path and all msstats*.csv files will be imported. 
-If FALSE, path parameter will be treated as a vector of fixed file paths.}
+\item{input}{data.frame of `msstats.csv` file produced by Philosopher}
 }
 \description{
 Convert Philosopher parameters to consistent format
