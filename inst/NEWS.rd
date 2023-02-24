@@ -2,6 +2,31 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 2.2.7 (2022-02-18)}{\itemize{
+\item Minor change: extend PhilosophertoMSstatsTMTFormat function to have multiple types of input
+}}
+
+\section{Changes in version 2.2.6 (2022-02-14)}{\itemize{
+\item Major change: add PhilosophertoMSstatsTMTFormat function as converter for outputs from Philosopher
+}}
+
+\section{Changes in version 2.2.5 (2021-10-25)}{\itemize{
+\item Minor change: add different point shape to dataProcessPlotsTMT as indicator of imputed values
+}}
+
+\section{Changes in version 2.2.3 (2021-10-06)}{\itemize{
+\item Minor change: fix the bug when df.prior is infinite
+}}
+
+\section{Changes in version 2.2.0 (2021-09-21)}{\itemize{
+\item Major change: extend groupComparisonTMT() function to cover repeated measures design
+\item Allow flexible order of condition in dataProcessPlotsTMT.
+\item Fix bug in Condition label in dataProcessPlotsTMT.
+\item Improve MSstatsTestSingleProteinTMT() by directly reading lmerTest output. This may make statistics slightly different due to different numeric accuracy
+\item fix bug when condition name contains 'group'
+\item change the x-axis order in profile plot
+}}
+
 \section{Changes in version 2.0.1 (2021-06-14)}{\itemize{
 \item update comments of PD converter function
 \item fix bug in proteinSummarization() function when MBimpute = F}}
