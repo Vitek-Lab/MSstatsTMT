@@ -8,7 +8,7 @@ PhilosophertoMSstatsTMTFormat(
   input,
   annotation,
   protein_id_col = "Protein",
-  peptide_id_col = "Peptide",
+  peptide_id_col = "Peptide.Sequence",
   Purity_cutoff = 0.6,
   PeptideProphet_prob_cutoff = 0.7,
   useUniquePeptide = TRUE,
@@ -33,7 +33,7 @@ consistent with the channel columns (Ignore the prefix "Channel ") in msstats.cs
 \item{protein_id_col}{Use 'Protein'(default) column for protein name. 
 'Master.Protein.Accessions' can be used instead to get the protein ID with single protein.}
 
-\item{peptide_id_col}{Use 'Peptide'(default) column for peptide sequence.
+\item{peptide_id_col}{Use 'Peptide.Sequence'(default) column for peptide sequence.
 'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.}
 
 \item{Purity_cutoff}{Cutoff for purity. Default is 0.6}

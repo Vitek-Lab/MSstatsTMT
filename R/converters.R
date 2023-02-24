@@ -313,7 +313,7 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' @param annotation annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
 #' BioReplicate, Condition columns or a path to file. Refer to the example 'annotation' for the meaning of each column. Channel column should be 
 #' consistent with the channel columns (Ignore the prefix "Channel ") in msstats.csv file. Run column should be consistent with the Spectrum.File columns in msstats.csv file.
-#' @param protein_id_col Use 'Protein.Accessions'(default) column for protein name. 
+#' @param protein_id_col Use 'Protein'(default) column for protein name. 
 #' 'Master.Protein.Accessions' can be used instead to get the protein ID with single protein.
 #' @param peptide_id_col Use 'Peptide.Sequence'(default) column for peptide sequence.
 #'  'Modified.Peptide.Sequence' can be used instead to get the modified peptide sequence.
@@ -334,7 +334,7 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' 
 #' @export
 PhilosophertoMSstatsTMTFormat = function(
-  input, annotation, protein_id_col = "Protein.Accessions", 
+  input, annotation, protein_id_col = "Protein", 
   peptide_id_col = "Peptide.Sequence", Purity_cutoff = 0.6, 
   PeptideProphet_prob_cutoff = 0.7, useUniquePeptide = TRUE, 
   rmPSM_withfewMea_withinRun = TRUE, rmPeptide_OxidationM = TRUE, 
@@ -346,8 +346,9 @@ PhilosophertoMSstatsTMTFormat = function(
                                       base = "MSstatsTMT_converter_log_")
   checkmate::assertTRUE(!is.null(input))
   
-  # mixture_files = list(Mixture1=data.table(input))
-  mixture_files = .getPhilosopherInput(NULL, input, FALSE)
+  input[["Is.Unique"]] = as.logical(input[["Is.Unique"]])
+  mixture_files = list(Mixture1=data.table(input))
+
   input = MSstatsConvert::MSstatsImport(c(mixture_files,
                           list(annotation = annotation)), 
                         type = "MSstatsTMT",
