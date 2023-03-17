@@ -71,8 +71,10 @@ groupComparisonTMT = function(
     summarized = MSstatsPrepareForGroupComparisonTMT(data$ProteinLevelData, 
                                                      remove_norm_channel,
                                                      remove_empty_channel)
-    contrast_matrix = MSstats::MSstatsContrastMatrix(contrast.matrix,
-                                                        unique(summarized$Group))
+    conditions = unique(data[["ProteinLevelData"]][["Group"]])
+    conditions = setdiff(conditions, c("Empty", "Norm")[c(remove_empty_channel, remove_norm_channel)])
+
+    contrast_matrix = MSstats::MSstatsContrastMatrix(contrast.matrix, conditions)
     fitted_models = MSstatsFitComparisonModelsTMT(summarized)
     FittedModel <- fitted_models$fitted_model
     names(FittedModel) <- fitted_models$protein
