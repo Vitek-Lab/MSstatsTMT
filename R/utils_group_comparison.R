@@ -417,8 +417,8 @@ fit_Group_Sub_model = function(data) {
 #' @return a contrast vector
 .makeContrastSingleTMT = function(fit, contrast, single_protein, coefs) {
   sub_groups = as.character(unique(single_protein$Group))
-  positive = names(contrast)[contrast > 0]
-  negative = names(contrast)[contrast < 0]
+  positive = colnames(contrast)[contrast > 0]
+  negative = colnames(contrast)[contrast < 0]
   
   if (!(all(positive %in% sub_groups) & all(negative %in% sub_groups))) {
     contrast_updated = unname(contrast[, sub_groups])
