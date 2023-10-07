@@ -96,7 +96,7 @@ dataProcessPlotsTMT = function(
                         ncol.guide, width, height, which.Protein,
                         address)
     }
-    return(plot)
+    return(.convert.ggplot.plotly(plot))
 }
 
 #' @keywords internal
@@ -477,4 +477,21 @@ dataProcessPlotsTMT = function(
     groupline$xorder = groupline$cumGroupAxis - groupline$groupAxis / 2
     groupline$abundance = y.limup - 0.5
     groupline
+}
+
+#' converter for plots from ggplot to plotly
+#' @noRd
+.convert.ggplot.plotly = function(plot) {
+  converted_plot <- ggplotly(plot)
+  converted_plot <- converted_plot %>% 
+    plotly::layout(
+      width = 800,   # Set the width of the chart in pixels
+      height = 600,  # Set the height of the chart in pixels
+      legend = list(
+        x = 0.5,     # Set the x position of the legend
+        y = -0.2,    # Set the y position of the legend (negative value to move below the plot)
+        orientation = "h"  # Horizontal orientation
+      )
+    )
+  return(converted_plot)
 }
