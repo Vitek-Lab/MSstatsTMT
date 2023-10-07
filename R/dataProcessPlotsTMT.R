@@ -10,6 +10,8 @@
 #' @import ggplot2
 #' @importFrom graphics axis image legend mtext par plot.new title plot
 #' @importFrom grDevices dev.off hcl pdf
+#' @importFrom plotly ggplotly
+#' @importFrom magrittr %>%
 #' @param data the output of \code{\link{proteinSummarization}} function. It is a list with data frames `FeatureLevelData` and `ProteinLevelData`
 #' @param type choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 #' "QCPlot" represents box plots of log intensities across channels and MS runs.
@@ -80,7 +82,7 @@ dataProcessPlotsTMT = function(
     }
     
     if (toupper(type) == "PROFILEPLOT") {
-        .plotProfileTMT(processed, summarized, 
+        plot <- .plotProfileTMT(processed, summarized, 
                         ylimUp, ylimDown, x.axis.size, y.axis.size, 
                         text.size, text.angle, legend.size, dot.size.profile, 
                         ncol.guide, width, height, which.Protein, 
@@ -88,12 +90,13 @@ dataProcessPlotsTMT = function(
                         address)
     }
     if (toupper(type) == "QCPLOT") {
-        .plotQualityTMT(processed, 
+        plot <- .plotQualityTMT(processed, 
                         ylimUp, ylimDown, x.axis.size, y.axis.size, 
                         text.size, text.angle, legend.size, dot.size.profile, 
                         ncol.guide, width, height, which.Protein,
                         address)
     }
+    return(plot)
 }
 
 #' @keywords internal
@@ -235,8 +238,8 @@ dataProcessPlotsTMT = function(
                                                default.unit = 'inch',
                                                ncol = ncol.guide))
             
-            print(ptemp)
             setTxtProgressBar(pb, i)
+            return(ptemp)
         }
         close(pb)
         if (address != FALSE) {
@@ -323,8 +326,8 @@ dataProcessPlotsTMT = function(
                 geom_point(data = final, 
                            aes(x = xorder, y = abundance, 
                                size = analysis, color = analysis))
-            print(ptempall)
             setTxtProgressBar(pb, i)
+            return(ptempall)
             
         } # end-loop for each protein
         close(pb)
@@ -392,7 +395,7 @@ dataProcessPlotsTMT = function(
                           legend_size = NULL) +
             theme(axis.ticks.x = element_blank(),
                   axis.text.x = element_blank())
-        print(ptemp)
+        return(ptemp)
     }
     
     if (which.Protein != "allonly") {
@@ -440,8 +443,9 @@ dataProcessPlotsTMT = function(
                               legend_size = NULL) +
                 theme(axis.ticks.x = element_blank(),
                       axis.text.x = element_blank())
-            print(ptemp)
+            
             setTxtProgressBar(pb, i)
+            return(ptemp)
         }
         close(pb)
     }

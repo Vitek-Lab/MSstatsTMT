@@ -10,7 +10,7 @@ Authors@R: c(person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut
 	person("Olga", "Vitek", email = "o.vitek@northeastern.edu", role = "aut"))
 License: Artistic-2.0
 Depends: R (>= 4.2)
-Imports: limma, lme4, lmerTest, methods, data.table, 
+Imports: limma, lme4, lmerTest, methods, data.table, plotly,magrittr,
          stats, utils, ggplot2, grDevices, graphics, MSstats,
          MSstatsConvert, checkmate
 Suggests: BiocStyle, knitr, rmarkdown, testthat
