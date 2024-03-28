@@ -10,6 +10,7 @@
 #' @import ggplot2
 #' @importFrom graphics axis image legend mtext par plot.new title plot
 #' @importFrom grDevices dev.off hcl pdf
+#' @importFrom plotly ggplotly style add_trace plot_ly subplot
 #' @param data the output of \code{\link{proteinSummarization}} function. It is a list with data frames `FeatureLevelData` and `ProteinLevelData`
 #' @param type choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 #' "QCPlot" represents box plots of log intensities across channels and MS runs.
@@ -34,6 +35,9 @@
 #' An output pdf file is automatically created with the default name of "ProfilePlot.pdf" or "QCplot.pdf".
 #' The command address can help to specify where to store the file as well as how to modify the beginning of the file name.
 #' If address=FALSE, plot will be not saved as pdf file but showed in window.
+#' @param isPlotly Parameter to use Plotly or ggplot2. If set to TRUE, MSstats 
+#' will save Plotly plots as HTML files. If set to FALSE MSstats will save ggplot2 plots
+#' as PDF files
 #' @return plot or pdf
 #' @examples
 #' data(input.pd)
@@ -59,7 +63,7 @@ dataProcessPlotsTMT = function(
     x.axis.size = 10, y.axis.size = 10, text.size = 4, text.angle = 90,
     legend.size = 7, dot.size.profile = 2, ncol.guide = 5, width = 10,
     height = 10, which.Protein = "all", originalPlot = TRUE, summaryPlot = TRUE,
-    address = ""
+    address = "", isPlotly = FALSE
 ) {
     data.peptide <- data$FeatureLevelData
     data.summarization <- data$ProteinLevelData
@@ -78,6 +82,12 @@ dataProcessPlotsTMT = function(
                        "Please set one protein at a time."))
         }
     }
+    warning("Avoid plotting all proteins as it can take a large amount of time 
+            to download the files")
+    if(isPlotly & address != FALSE) {
+      print("Plots will be saved as .HTML file as plotly is selected, set isPlotly = FALSE, if 
+            you want to generate PDF using ggplot2")
+    }
     
     if (toupper(type) == "PROFILEPLOT") {
         .plotProfileTMT(processed, summarized, 
@@ -88,11 +98,32 @@ dataProcessPlotsTMT = function(
                         address)
     }
     if (toupper(type) == "QCPLOT") {
-        .plotQualityTMT(processed, 
+        plots <- .plotQualityTMT(processed, 
                         ylimUp, ylimDown, x.axis.size, y.axis.size, 
                         text.size, text.angle, legend.size, dot.size.profile, 
                         ncol.guide, width, height, which.Protein,
-                        address)
+                        address, isPlotly)
+        plotly_plots = list()
+        if(isPlotly) {
+          for(i in seq_along(plots)) {
+            plot <- plots[[i]]
+            plotly_plot <- .convertGgplot2Plotly(plot)
+            plotly_plots[[i]] = list(plotly_plot)
+          }
+          if(address != FALSE) {
+            .savePlotlyPlotHTML(plotly_plots,address,"QCPlot" ,width, height)
+          }
+          plotly_plots <- unlist(plotly_plots, recursive = FALSE)
+          plotly_plots
+        }
+        # # print(plots[[1]])
+        # plotly_plots[[1]] <- list(.convertGgplot2Plotly(plots[[1]]))
+        # plot<- .convertGgplot2Plotly(plots[[1]])
+        # # df <- data.frame(id = seq_along(plot$x$data), legend_entries = unlist(lapply(plot$x$data, `[[`, "name")))
+        # # print(plot$x$data)
+        # .savePlotlyPlotHTML(plotly_plots,address,"QCPlot" ,width, height)
+        # plot
+        # 
     }
 }
 
@@ -340,13 +371,11 @@ dataProcessPlotsTMT = function(
                            ylimUp, ylimDown, x.axis.size, y.axis.size, 
                            text.size, text.angle, legend.size, dot.size.profile, 
                            ncol.guide, width, height, which.Protein,
-                           address) {
+                           address, isPlotly) {
     
     Condition <- cumGroupAxis <- xorder <- abundance <- Protein <- NULL
     
     yaxis.name = 'Log2-intensities'
-    savePlot(address, "QCPlot", width, height)
-    
     if (is.numeric(ylimUp)) {
         y.limup = ylimUp
     } else {
@@ -364,6 +393,10 @@ dataProcessPlotsTMT = function(
     groupline.all = groupline
     groupline = groupline[!(Condition %in% levels(Condition)[nlevels(Condition)])]
     
+    if (!isPlotly) {
+      savePlot(address, "QCPlot", width, height)
+    }
+    plots <- vector("list", length(unique(processed$Protein)) + 1) # +1 for all/allonly plot
     if (which.Protein == "all" | which.Protein == "allonly") {
         message("Drew the Quality Contol plot(boxplot) over all proteins.")
         groupline.tmp = data.frame(groupline,
@@ -375,7 +408,7 @@ dataProcessPlotsTMT = function(
         processed$xorder = factor(processed$xorder) # for boxplot x-axis
         
         ptemp = ggplot(aes_string(x = "xorder", y = "abundance"), data = processed) +
-            facet_grid(~Run) +
+            facet_grid(~Mixture) +
             geom_boxplot(aes_string(fill = "Condition"), outlier.shape = 1, outlier.size = 1.5) +
             labs(title = "All proteins",
                  x = "MS runs") +
@@ -393,6 +426,7 @@ dataProcessPlotsTMT = function(
             theme(axis.ticks.x = element_blank(),
                   axis.text.x = element_blank())
         print(ptemp)
+        plots[[1]] = ptemp
     }
     
     if (which.Protein != "allonly") {
@@ -421,9 +455,8 @@ dataProcessPlotsTMT = function(
                                            "PSM" = unique(single_protein$PSM)[1],
                                            "PeptideSequence" = unique(single_protein$PeptideSequence)[1])
             single_protein$xorder = factor(single_protein$xorder) # for boxplot, x-axis, xorder should be factor
-            
             ptemp = ggplot(aes_string(x = 'xorder', y = 'abundance'), data = single_protein) +
-                facet_grid(~Run) +
+                facet_grid(~Mixture) +
                 geom_boxplot(aes_string(fill = 'Condition'), outlier.shape = 1, outlier.size = 1.5) +
                 labs(title = unique(single_protein$Protein),
                      x = 'MS runs') +
@@ -439,8 +472,12 @@ dataProcessPlotsTMT = function(
                 theme_msstats("QCPLOT", x.axis.size, y.axis.size,
                               legend_size = NULL) +
                 theme(axis.ticks.x = element_blank(),
-                      axis.text.x = element_blank())
+                      axis.text.x = element_blank()
+                      # ,strip.text.x = element_text(
+                      #   size = 5, color = "dark green",angle = 45)
+                      )
             print(ptemp)
+            plots[[i+1]] = ptemp # to accomodate all proteins
             setTxtProgressBar(pb, i)
         }
         close(pb)
@@ -448,6 +485,113 @@ dataProcessPlotsTMT = function(
     if (address != FALSE) {
         dev.off()
     }
+    if (isPlotly) {
+      plots <- Filter(function(x) !is.null(x), plots) # remove if protein was not "all"
+      plots
+    }
+}
+
+facet_strip_bigger <- function(gp){
+  
+  # n_facets should be the number of facets x2
+  n_facets <- c(1:length(gp[["x"]][["layout"]][["shapes"]]))
+  
+  for(i in n_facets){
+    if(n_facets[i] %% 2 == 0){
+      gp[["x"]][["layout"]][["shapes"]][[i]][["y0"]] <- + 80 # increase as needed
+      gp[["x"]][["layout"]][["shapes"]][[i]][["y1"]] <- 0
+    }
+  }
+  
+  return(gp)
+}
+
+#' converter for plots from ggplot to plotly
+#' @noRd
+.convertGgplot2Plotly = function(plot, tips = "all") {
+  converted_plot <- ggplotly(plot,tooltip = tips)
+  converted_plot <- plotly::layout(
+    converted_plot,
+    width = 1800,   # Set the width of the chart in pixels
+    height = 600,  # Set the height of the chart in pixels
+    title = list(
+      font = list(
+        size = 18
+      )
+    ),
+    xaxis = list(
+      titlefont = list(
+        size = 15  # Set the font size for the x-axis label
+      )
+    ),
+    legend = list(
+      x = 0,     # Set the x position of the legend
+      y = -0.25,    # Set the y position of the legend (negative value to move below the plot)
+      orientation = "h",  # Horizontal orientation
+      font = list(
+        size = 12  # Set the font size for legend item labels
+      ),
+      title = list(
+        font = list(
+          size = 12  # Set the font size for the legend title
+        )
+      )
+    )
+  ) 
+  # converted_plot <- facet_strip_bigger(converted_plot)
+  converted_plot
+}
+
+.savePlotlyPlotHTML = function(plots, address, file_name, width, height) {
+  print("Saving plots as HTML")
+  pb <- txtProgressBar(min = 0, max = 4, style = 3)
+  
+  setTxtProgressBar(pb, 1)
+  file_name = getFileName(address, file_name, width, height)
+  file_name = paste0(file_name,".html")
+  
+  setTxtProgressBar(pb, 2)
+  doc <- .getPlotlyPlotHTML(plots, width, height)
+  
+  setTxtProgressBar(pb, 3)
+  htmltools::save_html(html = doc, file = file_name) # works but lib same folder
+  
+  setTxtProgressBar(pb, 4)
+  zip(paste0(gsub("\\.html$", "", file_name),".zip"), c(file_name, "lib"))
+  unlink(file_name)
+  unlink("lib",recursive = T)
+  
+  close(pb)
+}
+
+.getPlotlyPlotHTML = function(plots, width, height) {
+  doc <- htmltools::tagList(lapply(plots,function(x) htmltools::div(x, style = "float:left;width:100%;")))
+  # Set a specific width for each plot
+  plot_width <- 800
+  plot_height <- 600
+  
+  # Create a div for each plot with style settings
+  divs <- lapply(plots, function(x) {
+    htmltools::div(x, style = paste0("width:", plot_width, "px; height:", plot_height, "px; margin: 10px;"))
+  })
+  
+  # Combine the divs into a tagList
+  doc <- htmltools::tagList(divs)
+  doc
+}
+
+getFileName = function(name_base, file_name, width, height) {
+  all_files = list.files(".")
+  if(file_name == 'ProfilePlot'){
+    num_same_name = sum(grepl(paste0("^", name_base, file_name, "_[0-9]?"), all_files))
+  } else {
+    num_same_name = sum(grepl(paste0("^", name_base, file_name, "[0-9]?"), all_files))
+  }
+  if (num_same_name > 0) {
+    file_name = paste(file_name, num_same_name + 1, sep = "_")
+  }
+  file_path = paste0(name_base, file_name)
+  return(file_path)
 }
 
 #' @keywords internal
