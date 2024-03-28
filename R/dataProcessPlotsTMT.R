@@ -408,23 +408,24 @@ dataProcessPlotsTMT = function(
         processed$xorder = factor(processed$xorder) # for boxplot x-axis
         
         ptemp = ggplot(aes_string(x = "xorder", y = "abundance"), data = processed) +
-            facet_grid(~Mixture) +
-            geom_boxplot(aes_string(fill = "Condition"), outlier.shape = 1, outlier.size = 1.5) +
-            labs(title = "All proteins",
-                 x = "MS runs") +
-            scale_y_continuous(yaxis.name, limits = c(y.limdown, y.limup)) +
-            geom_vline(data = groupline.tmp,
-                       aes(xintercept = cumGroupAxis),
-                       colour = "grey", linetype = "longdash") +
-            geom_text(data = groupline.all.tmp,
-                      aes(x = xorder, y = abundance, label = Condition),
-                      size = text.size,
-                      angle = text.angle,
-                      color = "black") +
-            theme_msstats("QCPLOT", x.axis.size, y.axis.size,
-                          legend_size = NULL) +
-            theme(axis.ticks.x = element_blank(),
-                  axis.text.x = element_blank())
+          facet_grid(~Mixture) +
+          geom_boxplot(aes_string(fill = "Condition"), outlier.shape = 1, outlier.size = 1.5) +
+          labs(title = "All proteins",
+               x = "MS runs") +
+          scale_y_continuous(yaxis.name, limits = c(y.limdown, y.limup)) +
+          geom_vline(data = groupline.tmp,
+                     aes(xintercept = cumGroupAxis),
+                     colour = "grey", linetype = "longdash") +
+          geom_text(data = groupline.all.tmp,
+                    aes(x = xorder, y = abundance, label = Condition),
+                    size = text.size,
+                    angle = text.angle,
+                    color = "black") +
+          theme_msstats("QCPLOT", x.axis.size, y.axis.size,
+                        legend_size = NULL) +
+          theme(axis.ticks.x = element_blank(),
+                axis.text.x = element_blank())
+        
         print(ptemp)
         plots[[1]] = ptemp
     }
@@ -454,6 +455,7 @@ dataProcessPlotsTMT = function(
             groupline.all.tmp = data.frame(groupline.all,
                                            "PSM" = unique(single_protein$PSM)[1],
                                            "PeptideSequence" = unique(single_protein$PeptideSequence)[1])
+            print(groupline.all.tmp)
             single_protein$xorder = factor(single_protein$xorder) # for boxplot, x-axis, xorder should be factor
             ptemp = ggplot(aes_string(x = 'xorder', y = 'abundance'), data = single_protein) +
                 facet_grid(~Mixture) +
@@ -512,7 +514,7 @@ facet_strip_bigger <- function(gp){
   converted_plot <- ggplotly(plot,tooltip = tips)
   converted_plot <- plotly::layout(
     converted_plot,
-    width = 1800,   # Set the width of the chart in pixels
+    width = 1100,   # Set the width of the chart in pixels
     height = 600,  # Set the height of the chart in pixels
     title = list(
       font = list(
@@ -521,7 +523,7 @@ facet_strip_bigger <- function(gp){
     ),
     xaxis = list(
       titlefont = list(
-        size = 15  # Set the font size for the x-axis label
+        size = 15,  # Set the font size for the x-axis label
       )
     ),
     legend = list(
@@ -539,6 +541,15 @@ facet_strip_bigger <- function(gp){
     )
   ) 
   # converted_plot <- facet_strip_bigger(converted_plot)
+  # converted_plot <- converted_plot %>% layout(xaxis = list(tickangle = -170))
+  print(converted_plot$x$data)
+  print(converted_plot$x$data[[30]]$text)
+  # for (i in seq_along(converted_plot$x$data)) {
+  #   if (converted_plot$x$data[[i]]$mode == "text") { # Make sure to only adjust text annotations
+  #     converted_plot$x$data[[i]]$textfont$angle <- -90 # Set your desired angle here
+  #   }
+  # }
+  
   converted_plot
 }
 
