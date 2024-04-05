@@ -60,7 +60,7 @@
 #'                     
 dataProcessPlotsTMT = function(
     data, type, ylimUp = FALSE, ylimDown = FALSE,
-    x.axis.size = 10, y.axis.size = 10, text.size = 4, text.angle = 90,
+    x.axis.size = 10, y.axis.size = 10, text.size = 2, text.angle = 90,
     legend.size = 7, dot.size.profile = 2, ncol.guide = 5, width = 10,
     height = 10, which.Protein = "all", originalPlot = TRUE, summaryPlot = TRUE,
     address = "", isPlotly = FALSE
@@ -116,14 +116,6 @@ dataProcessPlotsTMT = function(
           plotly_plots <- unlist(plotly_plots, recursive = FALSE)
           plotly_plots
         }
-        # # print(plots[[1]])
-        # plotly_plots[[1]] <- list(.convertGgplot2Plotly(plots[[1]]))
-        # plot<- .convertGgplot2Plotly(plots[[1]])
-        # # df <- data.frame(id = seq_along(plot$x$data), legend_entries = unlist(lapply(plot$x$data, `[[`, "name")))
-        # # print(plot$x$data)
-        # .savePlotlyPlotHTML(plotly_plots,address,"QCPlot" ,width, height)
-        # plot
-        # 
     }
 }
 
@@ -408,7 +400,7 @@ dataProcessPlotsTMT = function(
         processed$xorder = factor(processed$xorder) # for boxplot x-axis
         
         ptemp = ggplot(aes_string(x = "xorder", y = "abundance"), data = processed) +
-          facet_grid(~Mixture) +
+          facet_grid(~Run) +
           geom_boxplot(aes_string(fill = "Condition"), outlier.shape = 1, outlier.size = 1.5) +
           labs(title = "All proteins",
                x = "MS runs") +
@@ -424,7 +416,8 @@ dataProcessPlotsTMT = function(
           theme_msstats("QCPLOT", x.axis.size, y.axis.size,
                         legend_size = NULL) +
           theme(axis.ticks.x = element_blank(),
-                axis.text.x = element_blank())
+                axis.text.x = element_blank(),strip.text.x = element_text(
+                  size = 5, color = "black",angle = 15))
         
         print(ptemp)
         plots[[1]] = ptemp
@@ -455,10 +448,9 @@ dataProcessPlotsTMT = function(
             groupline.all.tmp = data.frame(groupline.all,
                                            "PSM" = unique(single_protein$PSM)[1],
                                            "PeptideSequence" = unique(single_protein$PeptideSequence)[1])
-            print(groupline.all.tmp)
             single_protein$xorder = factor(single_protein$xorder) # for boxplot, x-axis, xorder should be factor
             ptemp = ggplot(aes_string(x = 'xorder', y = 'abundance'), data = single_protein) +
-                facet_grid(~Mixture) +
+                facet_grid(~Run) +
                 geom_boxplot(aes_string(fill = 'Condition'), outlier.shape = 1, outlier.size = 1.5) +
                 labs(title = unique(single_protein$Protein),
                      x = 'MS runs') +
@@ -475,9 +467,9 @@ dataProcessPlotsTMT = function(
                               legend_size = NULL) +
                 theme(axis.ticks.x = element_blank(),
                       axis.text.x = element_blank()
-                      # ,strip.text.x = element_text(
-                      #   size = 5, color = "dark green",angle = 45)
-                      )
+                      ,strip.text.x = element_text(
+                        size = 5, color = "black",angle = 15)
+                      ) 
             print(ptemp)
             plots[[i+1]] = ptemp # to accomodate all proteins
             setTxtProgressBar(pb, i)
@@ -497,13 +489,23 @@ facet_strip_bigger <- function(gp){
   
   # n_facets should be the number of facets x2
   n_facets <- c(1:length(gp[["x"]][["layout"]][["shapes"]]))
-  
-  for(i in n_facets){
-    if(n_facets[i] %% 2 == 0){
-      gp[["x"]][["layout"]][["shapes"]][[i]][["y0"]] <- + 80 # increase as needed
-      gp[["x"]][["layout"]][["shapes"]][[i]][["y1"]] <- 0
+  print("=====")
+  print(gp[["x"]][["layout"]][["annotations"]][[2]])
+  print("===")
+  if (!is.null(gp$x$layout$annotations)) {
+    for (i in seq_along(gp$x$layout$annotations)) {
+      gp$x$layout$annotations[[i]]$font$size <- 7
+      # gp$x$layout$annotations[[i]]$xanchor <- "center"
+      gp$x$layout$annotations[[i]]$xshift <- 50
     }
   }
+  # for(i in n_facets){
+  #   if(n_facets[i] %% 2 == 0){
+  #     gp[["x"]][["layout"]][["shapes"]][[i]][["y0"]] <- + 80 # increase as needed
+  #     # gp[["x"]][["layout"]][["shapes"]][[i]][["x1"]] <- +50
+  # 
+  #   }
+  # }
   
   return(gp)
 }
@@ -514,16 +516,11 @@ facet_strip_bigger <- function(gp){
   converted_plot <- ggplotly(plot,tooltip = tips)
   converted_plot <- plotly::layout(
     converted_plot,
-    width = 1100,   # Set the width of the chart in pixels
+    width = 1800,   # Set the width of the chart in pixels
     height = 600,  # Set the height of the chart in pixels
     title = list(
       font = list(
         size = 18
-      )
-    ),
-    xaxis = list(
-      titlefont = list(
-        size = 15,  # Set the font size for the x-axis label
       )
     ),
     legend = list(
@@ -540,10 +537,10 @@ facet_strip_bigger <- function(gp){
       )
     )
   ) 
-  # converted_plot <- facet_strip_bigger(converted_plot)
+  converted_plot <- facet_strip_bigger(converted_plot)
   # converted_plot <- converted_plot %>% layout(xaxis = list(tickangle = -170))
-  print(converted_plot$x$data)
-  print(converted_plot$x$data[[30]]$text)
+  # print(converted_plot$x$data)
+  # print(converted_plot$x$data[[30]]$text)
   # for (i in seq_along(converted_plot$x$data)) {
   #   if (converted_plot$x$data[[i]]$mode == "text") { # Make sure to only adjust text annotations
   #     converted_plot$x$data[[i]]$textfont$angle <- -90 # Set your desired angle here
@@ -578,7 +575,7 @@ facet_strip_bigger <- function(gp){
 .getPlotlyPlotHTML = function(plots, width, height) {
   doc <- htmltools::tagList(lapply(plots,function(x) htmltools::div(x, style = "float:left;width:100%;")))
   # Set a specific width for each plot
-  plot_width <- 800
+  plot_width <- 2000
   plot_height <- 600
   
   # Create a div for each plot with style settings
