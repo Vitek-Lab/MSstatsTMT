@@ -90,12 +90,47 @@ dataProcessPlotsTMT = function(
     }
     
     if (toupper(type) == "PROFILEPLOT") {
-        .plotProfileTMT(processed, summarized, 
+        plots <- .plotProfileTMT(processed, summarized, 
                         ylimUp, ylimDown, x.axis.size, y.axis.size, 
                         text.size, text.angle, legend.size, dot.size.profile, 
                         ncol.guide, width, height, which.Protein, 
                         originalPlot, summaryPlot,
-                        address)
+                        address, isPlotly)
+        plotly_plots = list()
+        if(isPlotly) {
+          og_plotly_plot = NULL
+          summ_plotly_plot = NULL
+          if("original_plot" %in% names(plots)) {
+            for(i in seq_along(plots[["original_plot"]])) {
+              plot_i <- plots[["original_plot"]][[paste("plot",i)]]
+              og_plotly_plot <- .convertGgplot2Plotly(plot_i)
+              og_plotly_plot = .fixLegendPlotlyPlotsDataprocess(og_plotly_plot, "OriginalPlot")
+              # og_plotly_plot = .fixCensoredPointsLegendProfilePlotsPlotly(og_plotly_plot)
+              # 
+              # if(toupper(featureName) == "NA") {
+              #   og_plotly_plot = .retainCensoredDataPoints(og_plotly_plot)
+              # }
+              plotly_plots = c(plotly_plots, list(og_plotly_plot))
+            }
+          }
+          if("summary_plot" %in% names(plots)) {
+            for(i in seq_along(plots[["summary_plot"]])) {
+              plot_i <- plots[["summary_plot"]][[paste("plot",i)]]
+              summ_plotly_plot <- .convertGgplot2Plotly(plot_i)
+              summ_plotly_plot = .fixLegendPlotlyPlotsDataprocess(summ_plotly_plot, "SummaryPlot")
+              # summ_plotly_plot = .fixCensoredPointsLegendProfilePlotsPlotly(summ_plotly_plot)
+              # if(toupper(featureName) == "NA") {
+              #   summ_plotly_plot = .retainCensoredDataPoints(summ_plotly_plot)
+              # }
+              plotly_plots = c(plotly_plots, list(summ_plotly_plot))
+            }
+          }
+          
+          if(address != FALSE) {
+            .savePlotlyPlotHTML(plotly_plots,address,"ProfilePlot" ,width, height)
+          }
+          plotly_plots
+        }
     }
     if (toupper(type) == "QCPLOT") {
         plots <- .plotQualityTMT(processed, 
@@ -143,7 +178,7 @@ dataProcessPlotsTMT = function(
                            text.size, text.angle, legend.size, dot.size.profile, 
                            ncol.guide, width, height, which.Protein, 
                            originalPlot, summaryPlot,
-                           address) {
+                           address, isPlotly) {
     
     Protein <- Condition <- xorder <- Run <- NULL
     Channel <- PeptideSequence <- PSM <- cumGroupAxis <- NULL
@@ -186,9 +221,13 @@ dataProcessPlotsTMT = function(
                          c("Run", "Abundance"))
     summarized = merge(summarized, tempGroupName, by = c("Run", "Channel"))
     
-    
+    output_plots <- list()
+    output_plots[["original_plot"]] = list()
+    output_plots[["summary_plot"]] = list()
     if (originalPlot) {
-        savePlot(address, "ProfilePlot", width, height)
+        if(!isPlotly) {
+          savePlot(address, "ProfilePlot", width, height)
+        }
         message(paste0("Drew the Profile plot for ", length(all_proteins), " proteins."))
         pb = txtProgressBar(max = length(all_proteins), style=3)
         for (i in seq_along(all_proteins)) {
@@ -244,7 +283,8 @@ dataProcessPlotsTMT = function(
                           color = "black") +
                 theme_msstats("PROFILEPLOT", x.axis.size, y.axis.size, legend.size) +
                 theme(axis.ticks.x = element_blank(),
-                      axis.text.x = element_blank())+
+                      axis.text.x = element_blank(),strip.text.x = element_text(
+                        size = 5, color = "black",angle = 15))+
                 guides(color = guide_legend(title = paste("# peptide:", nlevels(single_protein$PeptideSequence)),
                                             title.theme = element_text(size = 13, angle = 0),
                                             keywidth = 0.4,
@@ -259,16 +299,19 @@ dataProcessPlotsTMT = function(
                                                ncol = ncol.guide))
             
             print(ptemp)
+            output_plots[["original_plot"]][[paste("plot",i)]] <- ptemp
             setTxtProgressBar(pb, i)
         }
         close(pb)
-        if (address != FALSE) {
-            dev.off()
-        }
+        if (address != FALSE & !isPlotly) {
+          dev.off()
+        } 
     }
     
     if (summaryPlot) {
-        savePlot(address, "ProfilePlot_wSummarization", width, height)
+        if(!isPlotly) {
+          savePlot(address, "ProfilePlot_wSummarization", width, height)
+        }
         message(paste0("Drew the Profile plot with summarization for ", length(all_proteins), " proteins."))
         pb = txtProgressBar(max = length(all_proteins), style=3)
         for (i in seq_along(all_proteins)) {
@@ -336,7 +379,8 @@ dataProcessPlotsTMT = function(
                 theme_msstats("PROFILEPLOT", x.axis.size, y.axis.size, 
                               legend.size, legend.title = element_blank()) +
                 theme(axis.ticks.x = element_blank(),
-                      axis.text.x = element_blank())+
+                      axis.text.x = element_blank(),strip.text.x = element_text(
+                        size = 5, color = "black",angle = 15))+
                 guides(color = guide_legend(order = 1,
                                             title = NULL,
                                             label.theme = element_text(size = 10, angle = 0)))
@@ -347,13 +391,17 @@ dataProcessPlotsTMT = function(
                            aes(x = xorder, y = abundance, 
                                size = analysis, color = analysis))
             print(ptempall)
+            output_plots[["summary_plot"]][[paste("plot",i)]] <- ptempall
             setTxtProgressBar(pb, i)
             
         } # end-loop for each protein
         close(pb)
-        if (address!=FALSE) {
-            dev.off()
-        }
+        if (address != FALSE & !isPlotly) {
+          dev.off()
+        } 
+    }
+    if(isPlotly) {
+      output_plots
     }
 }
 
@@ -489,9 +537,6 @@ facet_strip_bigger <- function(gp){
   
   # n_facets should be the number of facets x2
   n_facets <- c(1:length(gp[["x"]][["layout"]][["shapes"]]))
-  print("=====")
-  print(gp[["x"]][["layout"]][["annotations"]][[2]])
-  print("===")
   if (!is.null(gp$x$layout$annotations)) {
     for (i in seq_along(gp$x$layout$annotations)) {
       gp$x$layout$annotations[[i]]$font$size <- 7
@@ -586,6 +631,30 @@ facet_strip_bigger <- function(gp){
   # Combine the divs into a tagList
   doc <- htmltools::tagList(divs)
   doc
+}
+
+.fixLegendPlotlyPlotsDataprocess = function(plot, type) {
+  df <- data.frame(id = seq_along(plot$x$data), legend_entries = unlist(lapply(plot$x$data, `[[`, "name")))
+  df$legend_group <- gsub("^\\((.*?),.*", "\\1", df$legend_entries)
+  df$is_first <- !duplicated(df$legend_group)
+  df$is_bool <- ifelse(grepl("TRUE|FALSE", df$legend_group), TRUE, FALSE)
+  df$is_valid_column <- ifelse(grepl("Processed feature-level data|Run summary", df$legend_entries), TRUE, FALSE)
+  # df[nrow(df), "is_first"] <- FALSE 
+  plot$x$data[[nrow(df)]]$showlegend <- FALSE # remove text legend
+  for (i in df$id) {
+    is_first <- df$is_first[[i]]
+    is_bool <- df$is_bool[[i]]
+    plot$x$data[[i]]$name <- df$legend_group[[i]]
+    plot$x$data[[i]]$legendgroup <- plot$x$data[[i]]$name
+    if (!is_first) plot$x$data[[i]]$showlegend <- FALSE
+    if(type == "SummaryPlot") {
+      is_valid_column <- df$is_valid_column[[i]]
+      if (!is_valid_column) plot$x$data[[i]]$showlegend <- FALSE
+    }
+    if(is_bool) plot$x$data[[i]]$showlegend <- FALSE
+  }
+  plot
+  
 }
 
 getFileName = function(name_base, file_name, width, height) {
