@@ -4,4 +4,4 @@
 .Ruserdata
 *.log
 ./*.txt
-
+*.Rproj
