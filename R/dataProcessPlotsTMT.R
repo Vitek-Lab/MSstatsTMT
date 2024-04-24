@@ -8,6 +8,7 @@
 #'
 #' @export
 #' @import ggplot2
+#' @importFrom htmltools save_html tagList div
 #' @importFrom graphics axis image legend mtext par plot.new title plot
 #' @importFrom grDevices dev.off hcl pdf
 #' @importFrom plotly ggplotly style add_trace plot_ly subplot
@@ -105,7 +106,7 @@ dataProcessPlotsTMT = function(
               plot_i <- plots[["original_plot"]][[paste("plot",i)]]
               og_plotly_plot <- .convertGgplot2Plotly(plot_i)
               og_plotly_plot = .fixLegendPlotlyPlotsDataprocess(og_plotly_plot, "OriginalPlot")
-              # og_plotly_plot = .fixCensoredPointsLegendProfilePlotsPlotly(og_plotly_plot)
+              og_plotly_plot = .fixCensoredPointsLegendProfilePlotsPlotly(og_plotly_plot)
               # 
               # if(toupper(featureName) == "NA") {
               #   og_plotly_plot = .retainCensoredDataPoints(og_plotly_plot)
@@ -132,7 +133,7 @@ dataProcessPlotsTMT = function(
           plotly_plots
         }
     }
-    if (toupper(type) == "QCPLOT") {
+    else if (toupper(type) == "QCPLOT") {
         plots <- .plotQualityTMT(processed, 
                         ylimUp, ylimDown, x.axis.size, y.axis.size, 
                         text.size, text.angle, legend.size, dot.size.profile, 
@@ -259,16 +260,18 @@ dataProcessPlotsTMT = function(
             if ( check.length > 0 ){
                 cbp = rep(cbp, times=check.length + 1)
             }
-            
+            # ptemp = ggplot(single_protein, aes(x = xorder, y = abundance, shape = censored)) +
+            #   geom_point(size = dot.size.profile) +
+            #   scale_shape_manual(values = c(16, 1))
             ptemp = ggplot(aes_string(x = 'xorder', y = 'abundance',
                                       color = 'PSM', linetype = 'PSM'), data = single_protein) +
                 facet_grid(~Run) +
                 geom_point(data = single_protein, aes(shape=censored), size=dot.size.profile) +
-                geom_point(size=dot.size.profile) +
+                # geom_point(size=dot.size.profile) +
                 geom_line(size = 0.5) +
                 scale_colour_manual(values=cbp[s]) +
                 scale_linetype_manual(values = ss) +
-                scale_shape_manual(values = c(16, 1)) +
+                scale_shape_manual(values = c(16, 1),labels = c("Detected data", "Censored missing data")) +
                 labs(title = unique(single_protein$Protein),
                      x = 'MS runs') +
                 scale_y_continuous(yaxis.name, limits = c(y.limdown, y.limup)) +
@@ -297,7 +300,7 @@ dataProcessPlotsTMT = function(
                                                keyheight = 0.1,
                                                default.unit = 'inch',
                                                ncol = ncol.guide))
-            
+
             print(ptemp)
             output_plots[["original_plot"]][[paste("plot",i)]] <- ptemp
             setTxtProgressBar(pb, i)
@@ -607,7 +610,7 @@ facet_strip_bigger <- function(gp){
   doc <- .getPlotlyPlotHTML(plots, width, height)
   
   setTxtProgressBar(pb, 3)
-  htmltools::save_html(html = doc, file = file_name) # works but lib same folder
+  save_html(html = doc, file = file_name) # works but lib same folder
   
   setTxtProgressBar(pb, 4)
   zip(paste0(gsub("\\.html$", "", file_name),".zip"), c(file_name, "lib"))
@@ -618,18 +621,18 @@ facet_strip_bigger <- function(gp){
 }
 
 .getPlotlyPlotHTML = function(plots, width, height) {
-  doc <- htmltools::tagList(lapply(plots,function(x) htmltools::div(x, style = "float:left;width:100%;")))
+  doc <- tagList(lapply(plots,function(x) div(x, style = "float:left;width:100%;")))
   # Set a specific width for each plot
   plot_width <- 2000
   plot_height <- 600
   
   # Create a div for each plot with style settings
   divs <- lapply(plots, function(x) {
-    htmltools::div(x, style = paste0("width:", plot_width, "px; height:", plot_height, "px; margin: 10px;"))
+    div(x, style = paste0("width:", plot_width, "px; height:", plot_height, "px; margin: 10px;"))
   })
   
   # Combine the divs into a tagList
-  doc <- htmltools::tagList(divs)
+  doc <- tagList(divs)
   doc
 }
 
@@ -638,23 +641,23 @@ facet_strip_bigger <- function(gp){
   df$legend_group <- gsub("^\\((.*?),.*", "\\1", df$legend_entries)
   df$is_first <- !duplicated(df$legend_group)
   df$is_bool <- ifelse(grepl("TRUE|FALSE", df$legend_group), TRUE, FALSE)
-  df$is_valid_column <- ifelse(grepl("Processed feature-level data|Run summary", df$legend_entries), TRUE, FALSE)
   # df[nrow(df), "is_first"] <- FALSE 
+  df$is_valid_column <- ifelse(grepl("Processed feature-level data|Run summary", df$legend_entries), TRUE, FALSE)
   plot$x$data[[nrow(df)]]$showlegend <- FALSE # remove text legend
+  
   for (i in df$id) {
     is_first <- df$is_first[[i]]
     is_bool <- df$is_bool[[i]]
     plot$x$data[[i]]$name <- df$legend_group[[i]]
     plot$x$data[[i]]$legendgroup <- plot$x$data[[i]]$name
     if (!is_first) plot$x$data[[i]]$showlegend <- FALSE
-    if(type == "SummaryPlot") {
-      is_valid_column <- df$is_valid_column[[i]]
-      if (!is_valid_column) plot$x$data[[i]]$showlegend <- FALSE
-    }
+      if(type == "SummaryPlot") {
+        is_valid_column <- df$is_valid_column[[i]]
+        if (!is_valid_column) plot$x$data[[i]]$showlegend <- FALSE
+      }
     if(is_bool) plot$x$data[[i]]$showlegend <- FALSE
   }
   plot
-  
 }
 
 getFileName = function(name_base, file_name, width, height) {
@@ -669,6 +672,41 @@ getFileName = function(name_base, file_name, width, height) {
   }
   file_path = paste0(name_base, file_name)
   return(file_path)
+}
+
+.fixCensoredPointsLegendProfilePlotsPlotly = function(plot) {
+  # df <- data.frame(id = seq_along(plot$x$data), legend_entries = unlist(lapply(plot$x$data, `[[`, "name")))
+  # bool_values <- sapply(df$legend_entries, function(x) {
+  #   split_string <- strsplit(x, ",")[[1]]
+  #   as.logical(gsub("[)]", "", split_string[2]))
+  # })
+  # 
+  # # Finding the index of the first occurrence of TRUE
+  # first_true_index <- which(bool_values == TRUE)[1]
+  # 
+  # # Finding the index of the first occurrence of FALSE
+  # first_false_index <- which(bool_values == FALSE)[1]
+  # print(paste("First TRUE index:", first_true_index))
+  # print(paste("First FALSE index:", first_false_index))
+  # 
+  # # Update plot data for the first occurrence of "FALSE"
+  # if (!is.na(first_false_index)) {
+  #   plot$x$data[[first_false_index]]$name <- "Detected data"
+  #   plot$x$data[[first_false_index]]$showlegend <- TRUE
+  # }
+  # 
+  # # Update plot data for the first occurrence of "TRUE"
+  # if (!is.na(first_true_index)) {
+  #   plot$x$data[[first_true_index]]$name <- "Censored missing data"
+  #   plot$x$data[[first_true_index]]$showlegend <- TRUE
+  # }
+  # # plot$x$data <- lapply(plot$x$data, function(item) {
+  # #   if (!is.null(item$marker$symbol) && item$marker$symbol == "circle-open") {
+  # #     item$showlegend <- TRUE  # Set showlegend to TRUE
+  # #   }
+  # #   return(item)  # Return the modified or unmodified item
+  # # })
+  plot
 }
 
 #' @keywords internal

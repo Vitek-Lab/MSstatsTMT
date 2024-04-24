@@ -11,7 +11,7 @@ dataProcessPlotsTMT(
   ylimDown = FALSE,
   x.axis.size = 10,
   y.axis.size = 10,
-  text.size = 4,
+  text.size = 2,
   text.angle = 90,
   legend.size = 7,
   dot.size.profile = 2,
