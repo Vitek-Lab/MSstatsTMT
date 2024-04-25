@@ -107,10 +107,6 @@ dataProcessPlotsTMT = function(
               og_plotly_plot <- .convertGgplot2Plotly(plot_i)
               og_plotly_plot = .fixLegendPlotlyPlotsDataprocess(og_plotly_plot, "OriginalPlot")
               og_plotly_plot = .fixCensoredPointsLegendProfilePlotsPlotly(og_plotly_plot)
-              # 
-              # if(toupper(featureName) == "NA") {
-              #   og_plotly_plot = .retainCensoredDataPoints(og_plotly_plot)
-              # }
               plotly_plots = c(plotly_plots, list(og_plotly_plot))
             }
           }
@@ -119,10 +115,6 @@ dataProcessPlotsTMT = function(
               plot_i <- plots[["summary_plot"]][[paste("plot",i)]]
               summ_plotly_plot <- .convertGgplot2Plotly(plot_i)
               summ_plotly_plot = .fixLegendPlotlyPlotsDataprocess(summ_plotly_plot, "SummaryPlot")
-              # summ_plotly_plot = .fixCensoredPointsLegendProfilePlotsPlotly(summ_plotly_plot)
-              # if(toupper(featureName) == "NA") {
-              #   summ_plotly_plot = .retainCensoredDataPoints(summ_plotly_plot)
-              # }
               plotly_plots = c(plotly_plots, list(summ_plotly_plot))
             }
           }
@@ -284,10 +276,10 @@ dataProcessPlotsTMT = function(
                           size = text.size,
                           angle = text.angle,
                           color = "black") +
-                theme_msstats("PROFILEPLOT", x.axis.size, y.axis.size, legend.size) +
-                theme(axis.ticks.x = element_blank(),
-                      axis.text.x = element_blank(),strip.text.x = element_text(
-                        size = 5, color = "black",angle = 15))+
+              theme_msstats("PROFILEPLOT", x.axis.size, y.axis.size, legend.size) +
+              theme(axis.ticks.x = element_blank(),axis.title.x = element_text(size=14),axis.title.y = element_text(size=14),
+                    axis.text.x = element_blank(),strip.text.x = element_text(
+                      size = 5, color = "black",angle = 15))
                 guides(color = guide_legend(title = paste("# peptide:", nlevels(single_protein$PeptideSequence)),
                                             title.theme = element_text(size = 13, angle = 0),
                                             keywidth = 0.4,
@@ -383,7 +375,7 @@ dataProcessPlotsTMT = function(
                               legend.size, legend.title = element_blank()) +
                 theme(axis.ticks.x = element_blank(),
                       axis.text.x = element_blank(),strip.text.x = element_text(
-                        size = 5, color = "black",angle = 15))+
+                        size = 5, color = "black",angle = 15),axis.title.x = element_text(size=14),axis.title.y = element_text(size=14))+
                 guides(color = guide_legend(order = 1,
                                             title = NULL,
                                             label.theme = element_text(size = 10, angle = 0)))
@@ -537,24 +529,15 @@ dataProcessPlotsTMT = function(
 }
 
 facet_strip_bigger <- function(gp){
-  
-  # n_facets should be the number of facets x2
-  n_facets <- c(1:length(gp[["x"]][["layout"]][["shapes"]]))
   if (!is.null(gp$x$layout$annotations)) {
     for (i in seq_along(gp$x$layout$annotations)) {
-      gp$x$layout$annotations[[i]]$font$size <- 7
-      # gp$x$layout$annotations[[i]]$xanchor <- "center"
-      gp$x$layout$annotations[[i]]$xshift <- 50
+      if(gp$x$layout$annotations[[i]]$text != "Log2-intensities" && gp$x$layout$annotations[[i]]$text != "MS runs") {
+        gp$x$layout$annotations[[i]]$font$size <- 7
+        # gp$x$layout$annotations[[i]]$xanchor <- "center"
+        gp$x$layout$annotations[[i]]$xshift <- 50
+      }
     }
   }
-  # for(i in n_facets){
-  #   if(n_facets[i] %% 2 == 0){
-  #     gp[["x"]][["layout"]][["shapes"]][[i]][["y0"]] <- + 80 # increase as needed
-  #     # gp[["x"]][["layout"]][["shapes"]][[i]][["x1"]] <- +50
-  # 
-  #   }
-  # }
-  
   return(gp)
 }
 
