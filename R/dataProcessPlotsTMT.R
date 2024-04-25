@@ -104,9 +104,8 @@ dataProcessPlotsTMT = function(
           if("original_plot" %in% names(plots)) {
             for(i in seq_along(plots[["original_plot"]])) {
               plot_i <- plots[["original_plot"]][[paste("plot",i)]]
-              og_plotly_plot <- .convertGgplot2Plotly(plot_i)
+              og_plotly_plot <- .convertGgplot2Plotly(plot_i, tips=c("PSM","xorder","abundance","censored"))
               og_plotly_plot = .fixLegendPlotlyPlotsDataprocess(og_plotly_plot, "OriginalPlot")
-              og_plotly_plot = .fixCensoredPointsLegendProfilePlotsPlotly(og_plotly_plot)
               plotly_plots = c(plotly_plots, list(og_plotly_plot))
             }
           }
@@ -252,9 +251,6 @@ dataProcessPlotsTMT = function(
             if ( check.length > 0 ){
                 cbp = rep(cbp, times=check.length + 1)
             }
-            # ptemp = ggplot(single_protein, aes(x = xorder, y = abundance, shape = censored)) +
-            #   geom_point(size = dot.size.profile) +
-            #   scale_shape_manual(values = c(16, 1))
             ptemp = ggplot(aes_string(x = 'xorder', y = 'abundance',
                                       color = 'PSM', linetype = 'PSM'), data = single_protein) +
                 facet_grid(~Run) +
@@ -279,7 +275,7 @@ dataProcessPlotsTMT = function(
               theme_msstats("PROFILEPLOT", x.axis.size, y.axis.size, legend.size) +
               theme(axis.ticks.x = element_blank(),axis.title.x = element_text(size=14),axis.title.y = element_text(size=14),
                     axis.text.x = element_blank(),strip.text.x = element_text(
-                      size = 5, color = "black",angle = 15))
+                      size = 5, color = "black",angle = 15)) +
                 guides(color = guide_legend(title = paste("# peptide:", nlevels(single_protein$PeptideSequence)),
                                             title.theme = element_text(size = 13, angle = 0),
                                             keywidth = 0.4,
@@ -569,15 +565,6 @@ facet_strip_bigger <- function(gp){
     )
   ) 
   converted_plot <- facet_strip_bigger(converted_plot)
-  # converted_plot <- converted_plot %>% layout(xaxis = list(tickangle = -170))
-  # print(converted_plot$x$data)
-  # print(converted_plot$x$data[[30]]$text)
-  # for (i in seq_along(converted_plot$x$data)) {
-  #   if (converted_plot$x$data[[i]]$mode == "text") { # Make sure to only adjust text annotations
-  #     converted_plot$x$data[[i]]$textfont$angle <- -90 # Set your desired angle here
-  #   }
-  # }
-  
   converted_plot
 }
 
@@ -655,41 +642,6 @@ getFileName = function(name_base, file_name, width, height) {
   }
   file_path = paste0(name_base, file_name)
   return(file_path)
-}
-
-.fixCensoredPointsLegendProfilePlotsPlotly = function(plot) {
-  # df <- data.frame(id = seq_along(plot$x$data), legend_entries = unlist(lapply(plot$x$data, `[[`, "name")))
-  # bool_values <- sapply(df$legend_entries, function(x) {
-  #   split_string <- strsplit(x, ",")[[1]]
-  #   as.logical(gsub("[)]", "", split_string[2]))
-  # })
-  # 
-  # # Finding the index of the first occurrence of TRUE
-  # first_true_index <- which(bool_values == TRUE)[1]
-  # 
-  # # Finding the index of the first occurrence of FALSE
-  # first_false_index <- which(bool_values == FALSE)[1]
-  # print(paste("First TRUE index:", first_true_index))
-  # print(paste("First FALSE index:", first_false_index))
-  # 
-  # # Update plot data for the first occurrence of "FALSE"
-  # if (!is.na(first_false_index)) {
-  #   plot$x$data[[first_false_index]]$name <- "Detected data"
-  #   plot$x$data[[first_false_index]]$showlegend <- TRUE
-  # }
-  # 
-  # # Update plot data for the first occurrence of "TRUE"
-  # if (!is.na(first_true_index)) {
-  #   plot$x$data[[first_true_index]]$name <- "Censored missing data"
-  #   plot$x$data[[first_true_index]]$showlegend <- TRUE
-  # }
-  # # plot$x$data <- lapply(plot$x$data, function(item) {
-  # #   if (!is.null(item$marker$symbol) && item$marker$symbol == "circle-open") {
-  # #     item$showlegend <- TRUE  # Set showlegend to TRUE
-  # #   }
-  # #   return(item)  # Return the modified or unmodified item
-  # # })
-  plot
 }
 
 #' @keywords internal
