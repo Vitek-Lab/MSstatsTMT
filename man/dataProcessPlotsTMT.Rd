@@ -7,6 +7,7 @@
 dataProcessPlotsTMT(
   data,
   type,
+  featureName = "Transition",
   ylimUp = FALSE,
   ylimDown = FALSE,
   x.axis.size = 10,
@@ -31,8 +32,12 @@ dataProcessPlotsTMT(
 \item{type}{choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 "QCPlot" represents box plots of log intensities across channels and MS runs.}
 
-\item{ylimUp}{upper limit for y-axis in the log scale.
+\item{featureName}{for "ProfilePlot" only, "Transition" (default) means 
+printing feature legend in transition-level; "Peptide" means printing feature 
+legend in peptide-level; "NA" means no feature legend printing.
 FALSE(Default) for Profile Plot and QC Plot uses the upper limit as rounded off maximum of log2(intensities) after normalization + 3..}
+
+\item{ylimUp}{upper limit for y-axis in the log scale.}
 
 \item{ylimDown}{lower limit for y-axis in the log scale. FALSE(Default) for Profile Plot and QC Plot uses 0..}
 

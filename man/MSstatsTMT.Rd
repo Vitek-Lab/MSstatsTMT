@@ -30,10 +30,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Ting Huang \email{thuang0703@gmail.com}
+\strong{Maintainer}: Devon Kohler \email{kohler.d@northeastern.edu}
 
 Authors:
 \itemize{
+  \item Ting Huang \email{thuang0703@gmail.com}
   \item Meena Choi \email{mnchoi67@gmail.com}
   \item Mateusz Staniak \email{mtst@mstaniak.pl}
   \item Sicheng Hao \email{hao.sic@husky.neu.edu}
