@@ -16,6 +16,9 @@
 #' @param type choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 #' "QCPlot" represents box plots of log intensities across channels and MS runs.
 #' @param ylimUp upper limit for y-axis in the log scale.
+#' @param featureName for "ProfilePlot" only, "Transition" (default) means 
+#' printing feature legend in transition-level; "Peptide" means printing feature 
+#' legend in peptide-level; "NA" means no feature legend printing.
 #' FALSE(Default) for Profile Plot and QC Plot uses the upper limit as rounded off maximum of log2(intensities) after normalization + 3..
 #' @param ylimDown lower limit for y-axis in the log scale. FALSE(Default) for Profile Plot and QC Plot uses 0..
 #' @param x.axis.size size of x-axis labeling for "Run" and "channel in Profile Plot and QC Plot.
@@ -60,7 +63,7 @@
 #'                     # height = 7)
 #'                     
 dataProcessPlotsTMT = function(
-    data, type, ylimUp = FALSE, ylimDown = FALSE,
+    data, type,featureName = "Transition", ylimUp = FALSE, ylimDown = FALSE,
     x.axis.size = 10, y.axis.size = 10, text.size = 2, text.angle = 90,
     legend.size = 7, dot.size.profile = 2, ncol.guide = 5, width = 10,
     height = 10, which.Protein = "all", originalPlot = TRUE, summaryPlot = TRUE,
@@ -91,7 +94,7 @@ dataProcessPlotsTMT = function(
     }
     
     if (toupper(type) == "PROFILEPLOT") {
-        plots <- .plotProfileTMT(processed, summarized, 
+        plots <- .plotProfileTMT(processed, summarized, featureName,
                         ylimUp, ylimDown, x.axis.size, y.axis.size, 
                         text.size, text.angle, legend.size, dot.size.profile, 
                         ncol.guide, width, height, which.Protein, 
@@ -106,6 +109,9 @@ dataProcessPlotsTMT = function(
               plot_i <- plots[["original_plot"]][[paste("plot",i)]]
               og_plotly_plot <- .convertGgplot2Plotly(plot_i, tips=c("PSM","xorder","abundance","censored"))
               og_plotly_plot = .fixLegendPlotlyPlotsDataprocess(og_plotly_plot, "OriginalPlot")
+              if(toupper(featureName) == "NA") {
+                og_plotly_plot = .removeLegendFeatureNameNA(og_plotly_plot)
+              }
               plotly_plots = c(plotly_plots, list(og_plotly_plot))
             }
           }
@@ -114,6 +120,9 @@ dataProcessPlotsTMT = function(
               plot_i <- plots[["summary_plot"]][[paste("plot",i)]]
               summ_plotly_plot <- .convertGgplot2Plotly(plot_i)
               summ_plotly_plot = .fixLegendPlotlyPlotsDataprocess(summ_plotly_plot, "SummaryPlot")
+              if(toupper(featureName) == "NA") {
+                og_plotly_plot = .removeLegendFeatureNameNA(og_plotly_plot)
+              }
               plotly_plots = c(plotly_plots, list(summ_plotly_plot))
             }
           }
@@ -165,7 +174,7 @@ dataProcessPlotsTMT = function(
 
 #' @importFrom MSstats theme_msstats savePlot
 #' @keywords internal
-.plotProfileTMT = function(processed, summarized, 
+.plotProfileTMT = function(processed, summarized, featureName,
                            ylimUp, ylimDown, x.axis.size, y.axis.size, 
                            text.size, text.angle, legend.size, dot.size.profile, 
                            ncol.guide, width, height, which.Protein, 
@@ -251,8 +260,16 @@ dataProcessPlotsTMT = function(
             if ( check.length > 0 ){
                 cbp = rep(cbp, times=check.length + 1)
             }
+            
+            featureName = toupper(featureName)
+            if (featureName == "TRANSITION") {
+              feature_type = "PSM"
+            } else {
+              feature_type = "PeptideSequence"
+            }
+            
             ptemp = ggplot(aes_string(x = 'xorder', y = 'abundance',
-                                      color = 'PSM', linetype = 'PSM'), data = single_protein) +
+                                      color = feature_type, linetype = 'PSM'), data = single_protein) +
                 facet_grid(~Run) +
                 geom_point(data = single_protein, aes(shape=censored), size=dot.size.profile) +
                 # geom_point(size=dot.size.profile) +
@@ -626,6 +643,14 @@ facet_strip_bigger <- function(gp){
         if (!is_valid_column) plot$x$data[[i]]$showlegend <- FALSE
       }
     if(is_bool) plot$x$data[[i]]$showlegend <- FALSE
+  }
+  plot
+}
+
+.removeLegendFeatureNameNA = function(plot) {
+  df <- data.frame(id = seq_along(plot$x$data), legend_entries = unlist(lapply(plot$x$data, `[[`, "name")))
+  for (i in seq_along(plot$x$data)) {
+      plot$x$data[[i]]$showlegend <- FALSE
   }
   plot
 }
