@@ -13,7 +13,7 @@ License: Artistic-2.0
 Depends: R (>= 4.2)
 Imports: limma, lme4, lmerTest, methods, data.table, 
          stats, utils, ggplot2, grDevices, graphics, MSstats,
-         MSstatsConvert, checkmate
+         MSstatsConvert, checkmate, plotly
 Suggests: BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 biocViews: ImmunoOncology, MassSpectrometry, Proteomics, Software

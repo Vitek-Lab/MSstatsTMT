@@ -13,7 +13,7 @@
 #'   \item \code{\link{groupComparisonTMT}} : tests for significant changes in protein abundance across conditions.
 #' }
 #'
-#' @docType _PACKAGE
+#' @docType package
 #' @name MSstatsTMT
 NULL
 

@@ -40,54 +40,27 @@
 #'                                         global_norm=TRUE,
 #'                                         reference_norm=TRUE)
 #' 
-#' test.pairwise = groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
+#' test.pairwise = groupComparisonTMT(quant.pd.msstats, save_fitted_models = TRUE)
 #' head(test.pairwise$ComparisonResult)
-#' 
-#' # Only compare condition 0.125 and 1
-#' levels(quant.pd.msstats$ProteinLevelData$Condition)
-#' 
-#' # Compare condition 1 and 0.125
-#' comparison=matrix(c(-1,0,0,1),nrow=1)
-#' 
-#' # Set the nafmes of each row
-#' row.names(comparison)="1-0.125"
-#' 
-#' # Set the column names
-#' colnames(comparison)= c("0.125", "0.5", "0.667", "1")
-#' test.contrast = groupComparisonTMT(data = quant.pd.msstats,
-#'                                    contrast.matrix = comparison,
-#'                                    moderated = TRUE)
-#' head(test.contrast$ComparisonResult)
 #' 
 #' ## Calculate sample size for future experiments:
 #' #(1) Minimal number of biological replicates per condition
-#' designSampleSizeTMT(data=test.contrast$FittedModel, numSample=TRUE,
+#' designSampleSizeTMT(data=test.pairwise$FittedModel, numSample=TRUE,
 #'                  desiredFC=c(1.25,1.75), FDR=0.05, power=0.8)
 #' #(2) Power calculation
-#' designSampleSizeTMT(data=test.contrast$FittedModel, numSample=2,
+#' designSampleSizeTMT(data=test.pairwise$FittedModel, numSample=2,
 #'                  desiredFC=c(1.25,1.75), FDR=0.05, power=TRUE)
 #'           
 designSampleSizeTMT = function(
     data, desiredFC, FDR = 0.05, numSample = TRUE, power = 0.9,
     use_log_file = TRUE, append = FALSE, verbose = TRUE, log_file_path = NULL
 ) {
-
-  # MSstatsConvert::MSstatsLogsSettings(use_log_file, append, verbose, 
-  #                                     log_file_path, "MSstats_sampleSize_log_")
-  # getOption("MSstatsLog")("INFO", "** MSstats - designSampleSize function")
-  # getOption("MSstatsLog")("INFO", paste0("Desired fold change = ", 
-  #                                        paste(desiredFC, collapse=" - ")))
-  # getOption("MSstatsLog")("INFO", paste0("FDR = ", FDR))
-  # getOption("MSstatsLog")("INFO", paste0("Power = ", power))
   
   var_component = .getVarComponentTMT(data)
 
   median_sigma_error = median(var_component[["Error"]], na.rm = TRUE)
   median_sigma_subject = .getMedianSigmaSubject(var_component)
   median_sigma_run = .getMedianSigmaRun(var_component)
-  getOption("MSstatsLog")("INFO", "Calculated variance component. - okay")
-  
-  
   
   ## power calculation
   if (isTRUE(power)) {
@@ -98,13 +71,13 @@ designSampleSizeTMT = function(
                                    numSample)        
     var_comp = (median_sigma_error / numSample + median_sigma_subject / numSample + median_sigma_run / numSample)
     CV = round( (2 * var_comp) / desiredFC, 3)
-    getOption("MSstatsLog")("INFO", "Power is calculated. - okay")
     sample_size = data.frame(desiredFC, numSample, FDR, 
                              power = power_output, CV)
   }	
   
   if (is.numeric(power)) {
-    delta = log2(seq(desiredFC[1], desiredFC[2], 0.025))
+    # delta = log2(seq(desiredFC[1], desiredFC[2], 0.025))
+    delta = log2(seq(desiredFC[1], desiredFC[2], 0.001))
     desiredFC = 2 ^ delta
     ## Large portion of proteins are not changing
     m0_m1 = 99 ## it means m0/m1=99, m0/(m0+m1)=0.99
@@ -115,13 +88,11 @@ designSampleSizeTMT = function(
                                 median_sigma_run)
       var_comp = (median_sigma_error / numSample + median_sigma_subject / numSample + median_sigma_run / numSample)
       CV = round(2 * var_comp / desiredFC, 3)
-      getOption("MSstatsLog")("INFO", "The number of sample is calculated. - okay")
       sample_size = data.frame(desiredFC, numSample, FDR, power, CV)
     }
   } 
   sample_size
 }
-
 
 #' Get variances from models fitted by the groupComparison function
 #' @param fitted_models FittedModels element of groupComparison output
@@ -178,7 +149,6 @@ designSampleSizeTMT = function(
   result
 }
 
-
 #' Get median per subject or group by subject
 #' @param var_component data.frame, output of .getVarComponent
 #' @importFrom stats median
@@ -213,7 +183,6 @@ designSampleSizeTMT = function(
   median_sigma_subject
 }
 
-
 #' Power calculation
 #' @inheritParams designSampleSizeTMT
 #' @param delta difference between means (?)
@@ -234,7 +203,6 @@ designSampleSizeTMT = function(
   }
   power
 }
-
 
 #' Get sample size
 #' @inheritParams designSampleSizeTMT

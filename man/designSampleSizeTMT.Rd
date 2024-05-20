@@ -72,31 +72,15 @@ quant.pd.msstats = proteinSummarization(input.pd,
                                         global_norm=TRUE,
                                         reference_norm=TRUE)
 
-test.pairwise = groupComparisonTMT(quant.pd.msstats, moderated = TRUE)
+test.pairwise = groupComparisonTMT(quant.pd.msstats, save_fitted_models = TRUE)
 head(test.pairwise$ComparisonResult)
-
-# Only compare condition 0.125 and 1
-levels(quant.pd.msstats$ProteinLevelData$Condition)
-
-# Compare condition 1 and 0.125
-comparison=matrix(c(-1,0,0,1),nrow=1)
-
-# Set the nafmes of each row
-row.names(comparison)="1-0.125"
-
-# Set the column names
-colnames(comparison)= c("0.125", "0.5", "0.667", "1")
-test.contrast = groupComparisonTMT(data = quant.pd.msstats,
-                                   contrast.matrix = comparison,
-                                   moderated = TRUE)
-head(test.contrast$ComparisonResult)
 
 ## Calculate sample size for future experiments:
 #(1) Minimal number of biological replicates per condition
-designSampleSizeTMT(data=test.contrast$FittedModel, numSample=TRUE,
+designSampleSizeTMT(data=test.pairwise$FittedModel, numSample=TRUE,
                  desiredFC=c(1.25,1.75), FDR=0.05, power=0.8)
 #(2) Power calculation
-designSampleSizeTMT(data=test.contrast$FittedModel, numSample=2,
+designSampleSizeTMT(data=test.pairwise$FittedModel, numSample=2,
                  desiredFC=c(1.25,1.75), FDR=0.05, power=TRUE)
           
 }
