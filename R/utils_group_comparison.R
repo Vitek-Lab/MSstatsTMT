@@ -85,7 +85,7 @@
           
           ####### TODO: need to double check the full model ######
           fit = fit_Mix_TechRep_Group_Sub_model(single_protein) # fit the full model with mixture, techrep, subject effects
-          if (!inherits(fit, "try-error")) { # full model is not applicable, fit the model with run and subject effects
+          if (inherits(fit, "try-error")) { # full model is not applicable, fit the model with run and subject effects
             fit = fit_Run_Group_Sub_model(single_protein) 
           }
           if (inherits(fit, "try-error")) { # second model not applicable - fit model with only subject effect
@@ -120,7 +120,7 @@
       if (has_biomixtures) { # multiple mixtures
         if (has_techreps) { # multiple tech MS runs
           fit = fit_Mix_TechRep_Group_Sub_model(single_protein) # fit the full model with mixture, techrep, subject effects
-          if (!inherits(fit, "try-error")) { # full model is not applicable
+          if (inherits(fit, "try-error")) { # full model is not applicable
             fit = fit_Run_Group_Sub_model(single_protein) # fit the reduced model with run and subject effects
           }
           if (inherits(fit, "try-error")) { # full model not applicable - fit model with only run effect
