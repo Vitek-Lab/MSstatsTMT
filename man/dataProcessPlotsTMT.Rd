@@ -7,11 +7,12 @@
 dataProcessPlotsTMT(
   data,
   type,
+  featureName = "Transition",
   ylimUp = FALSE,
   ylimDown = FALSE,
   x.axis.size = 10,
   y.axis.size = 10,
-  text.size = 4,
+  text.size = 2,
   text.angle = 90,
   legend.size = 7,
   dot.size.profile = 2,
@@ -21,7 +22,8 @@ dataProcessPlotsTMT(
   which.Protein = "all",
   originalPlot = TRUE,
   summaryPlot = TRUE,
-  address = ""
+  address = "",
+  isPlotly = FALSE
 )
 }
 \arguments{
@@ -30,8 +32,12 @@ dataProcessPlotsTMT(
 \item{type}{choice of visualization. "ProfilePlot" represents profile plot of log intensities across MS runs.
 "QCPlot" represents box plots of log intensities across channels and MS runs.}
 
-\item{ylimUp}{upper limit for y-axis in the log scale.
+\item{featureName}{for "ProfilePlot" only, "Transition" (default) means 
+printing feature legend in transition-level; "Peptide" means printing feature 
+legend in peptide-level; "NA" means no feature legend printing.
 FALSE(Default) for Profile Plot and QC Plot uses the upper limit as rounded off maximum of log2(intensities) after normalization + 3..}
+
+\item{ylimUp}{upper limit for y-axis in the log scale.}
 
 \item{ylimDown}{lower limit for y-axis in the log scale. FALSE(Default) for Profile Plot and QC Plot uses 0..}
 
@@ -65,6 +71,10 @@ The other assigned folder has to be existed under the current working directory.
 An output pdf file is automatically created with the default name of "ProfilePlot.pdf" or "QCplot.pdf".
 The command address can help to specify where to store the file as well as how to modify the beginning of the file name.
 If address=FALSE, plot will be not saved as pdf file but showed in window.}
+
+\item{isPlotly}{Parameter to use Plotly or ggplot2. If set to TRUE, MSstats 
+will save Plotly plots as HTML files. If set to FALSE MSstats will save ggplot2 plots
+as PDF files}
 }
 \value{
 plot or pdf
