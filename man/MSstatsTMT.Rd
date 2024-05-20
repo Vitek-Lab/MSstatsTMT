@@ -2,6 +2,7 @@
 % Please edit documentation in R/utils_MSstatsTMT.R
 \docType{package}
 \name{MSstatsTMT}
+\alias{MSstatsTMT-package}
 \alias{MSstatsTMT}
 \title{MSstatsTMT: A package for protein significance analysis in shotgun mass spectrometry-based proteomic experiments with tandem mass tag (TMT) labeling}
 \description{
@@ -20,3 +21,24 @@ A set of tools for detecting differentially abundant peptides and proteins in sh
 }
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{http://msstats.org/msstatstmt/}
+  \item Report bugs at \url{https://groups.google.com/forum/#!forum/msstats}
+}
+
+}
+\author{
+\strong{Maintainer}: Devon Kohler \email{kohler.d@northeastern.edu}
+
+Authors:
+\itemize{
+  \item Ting Huang \email{thuang0703@gmail.com}
+  \item Meena Choi \email{mnchoi67@gmail.com}
+  \item Mateusz Staniak \email{mtst@mstaniak.pl}
+  \item Sicheng Hao \email{hao.sic@husky.neu.edu}
+  \item Olga Vitek \email{o.vitek@northeastern.edu}
+}
+
+}
