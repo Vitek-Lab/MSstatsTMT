@@ -9,7 +9,7 @@
 #' @param global_norm  Global median normalization on peptide level data (equalizing the medians across all the channels and MS runs). Default is TRUE. 
 #' It will be performed before protein-level summarization.
 #' @param reference_norm Reference channel based normalization between MS runs on protein level data. 
-#' TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condtion column. 
+#' TRUE(default) needs at least one reference channel in each MS run, annotated by 'Norm' in Condition column. 
 #' It will be performed after protein-level summarization. FALSE will not perform this normalization step. 
 #' If data only has one run, then reference_norm=FALSE.
 #' @param MBimpute only for method="msstats". TRUE (default) imputes missing values by Accelated failure model. 
