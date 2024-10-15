@@ -2,6 +2,11 @@
 \title{MSstatsTMT News}
 \encoding{UTF-8}
 
+\section{Changes in version 2.14.1 (2024-10-30) }{\itemize{
+  \item Added interactive plotting functions using Plotly.
+  \item Integrated support for ProteinProspector data conversion via MSstatsConvert.
+}}
+
 \section{Changes in version 2.6.1 (2023-02-26) }{\itemize{
   \item Minor change: update PhilosophertoMSstatsTMTFormat function
   normalization
