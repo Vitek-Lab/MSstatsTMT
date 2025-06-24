@@ -1,0 +1,42 @@
+---
+title: "MSstatsTMT : Handling Designs with Covariates in TMT Experiments"
+author: "Anthony Wu (<wu.anthon@northeastern.edu>), Olga Vitek(<o.vitek@northeastern.edu>)"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{MSstatsTMT with Covariates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(MSstatsTMT)
+```
+
+This dataset is from this [paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC5417827/) and reanalyzed in this [paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC8015007/).
+
+In this investigation, 20 biological replicates were allocated to 3 TMT mixtures in an unbalanced design.
+
+Experimental design: Plubell et al. (21) subjected twenty mice to either low-fat or high-fat diets for either a short (8 weeks) or long (18 weeks) duration. Five mice were subjected to each combination of low (LF) or high fat (HF) and short or long-term diet. Samples from epididymal adipose tissue of the mice were randomly allocated to three TMT 10-plex mixtures. Each mixture included two reference channels with pooled samples, containing a proportion of peptides from each sample. Some channels were unused and resulted in an unbalanced design.
+
+Data acquisition and processing: Each TMT mixture was separated into eight fractions and profiled using SPS, producing a total of 27 MS runs. Raw data were downloaded from ProteomeXchange (identifier PXD005953) and re-analyzed for this study with Mascot Server 2.6.2 and Proteome Discoverer 2.2.0.388. All the post-processing steps were the same as in the Human-3mix-balanced data set. The PSM report from Proteome Discoverer contained 5823 proteins. 730 protein groups containing multiple proteins were filtered out, such that the final data set consisted of 4713 proteins.
+
+Pairwise comparisons: We evaluated the ability of the statistical approaches to detect changes in abundance between pairs of conditions across the mixtures. The four conditions were labeled Long_HF, Long_LF, Short_HF, and Short_LF. The pairwise comparisons were Long_HF-Long_LF, Short_HF-Short_LF, Long_HF-Short_HF, and Long_LF-Short_LF. Because the data set is a biological investigation, the true positives were unknown.
+
+```{r}
+input = data.table::fread("ftp://massive-ftp.ucsd.edu/x01/RMSV000000264/2020-06-07_huang704_f0b49403/quant/181017_Plubell_mouse_sh_lo_LF_HF_diet_adipocytes_3TMT10_HpH_Fusion_PD22_multi_01_PSMs.txt")
+annotation = data.table::fread("ftp://massive-ftp.ucsd.edu/x01/RMSV000000264/2020-06-07_huang704_f0b49403/metadata/mouse3mix_PD_annotation.csv")
+```
+
+```{r}
+msstatstmt_format = PDtoMSstatsTMTFormat(input, annotation)
+QuantData = proteinSummarization(msstatstmt_format)
+model = groupComparisonTMT(QuantData)
+```
