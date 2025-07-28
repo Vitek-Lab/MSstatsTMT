@@ -26,3 +26,16 @@ test_that("SpectroMinetoMSstatsTMTFormat works", {
                                         summaryforMultipleRows = average)) # wrong argument value
 
 })
+
+test_that("PhilosophertoMSstatsTMTFormat works", {
+  
+  input_file_path = system.file("raw_data/Philosopher/msstats.csv",
+                       package = "MSstatsTMT")
+  annotation_file_path = system.file("raw_data/Philosopher/MSstatsTMT_annotation.csv",
+                      package = "MSstatsTMT")
+  input = data.table::fread(input_file_path)
+  annotation = data.table::fread(annotation_file_path)
+  msstats_format = PhilosophertoMSstatsTMTFormat(input, annotation)
+  expect_equal(nrow(msstats_format), 550)
+  
+})

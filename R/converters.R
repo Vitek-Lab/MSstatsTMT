@@ -332,6 +332,16 @@ SpectroMinetoMSstatsTMTFormat <- function(
 #' 
 #' @return `data.frame` of class `MSstatsTMT`
 #' 
+#' @examples
+#' input_file_path = system.file("raw_data/Philosopher/msstats.csv", 
+#'                      package = "MSstatsTMT")
+#' annotation_file_path = system.file("raw_data/Philosopher/MSstatsTMT_annotation.csv", 
+#'                     package = "MSstatsTMT")
+#' input = data.table::fread(input_file_path)
+#' annotation = data.table::fread(annotation_file_path)
+#' msstats_format = PhilosophertoMSstatsTMTFormat(input, annotation)
+#' head(msstats_format)
+#' 
 #' @export
 PhilosophertoMSstatsTMTFormat = function(
   input, annotation, protein_id_col = "Protein", 
