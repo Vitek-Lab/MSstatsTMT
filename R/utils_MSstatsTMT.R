@@ -13,9 +13,9 @@
 #'   \item \code{\link{groupComparisonTMT}} : tests for significant changes in protein abundance across conditions.
 #' }
 #'
-#' @docType package
 #' @name MSstatsTMT
-NULL
+#' @keywords internal
+"_PACKAGE"
 
 
 #' Example of output from Proteome Discoverer 2.2 for TMT-10plex experiments.

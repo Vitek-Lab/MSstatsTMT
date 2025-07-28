@@ -37,8 +37,11 @@ Authors:
   \item Ting Huang \email{thuang0703@gmail.com}
   \item Meena Choi \email{mnchoi67@gmail.com}
   \item Mateusz Staniak \email{mtst@mstaniak.pl}
+  \item Tony Wu \email{wu.anthon@northeastern.edu}
+  \item Deril Raju \email{raju.d@northeastern.edu}
   \item Sicheng Hao \email{hao.sic@husky.neu.edu}
   \item Olga Vitek \email{o.vitek@northeastern.edu}
 }
 
 }
+\keyword{internal}

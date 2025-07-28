@@ -75,3 +75,14 @@ If `append = TRUE`, has to be a valid path to a file.}
 \description{
 Convert Philosopher (Fragpipe) output to MSstatsTMT format.
 }
+\examples{
+input_file_path = system.file("raw_data/Philosopher/msstats.csv", 
+                     package = "MSstatsTMT")
+annotation_file_path = system.file("raw_data/Philosopher/MSstatsTMT_annotation.csv", 
+                    package = "MSstatsTMT")
+input = data.table::fread(input_file_path)
+annotation = data.table::fread(annotation_file_path)
+msstats_format = PhilosophertoMSstatsTMTFormat(input, annotation)
+head(msstats_format)
+
+}
