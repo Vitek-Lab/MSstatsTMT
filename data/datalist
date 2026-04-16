@@ -1,11 +1,3 @@
-annotatio.mine
-annotation.mq
-annotation.pd
-evidence
-proteinGroups
-raw.mine
-raw.pd
-raw.om
+test.pairwise
 input.pd
 quant.pd.msstats
-test.pairwise
