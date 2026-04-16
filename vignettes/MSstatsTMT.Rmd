@@ -47,6 +47,11 @@ MSstatsTMT includes the following three steps for statistical testing:
 , identify and quantify peptide ions. The preferred structure of data for use in MSstatsTMT is a .csv file in a *long* format with at least 9 columns representing the following variables: **ProteinName**, **PeptideSequence**, **Charge**, **PSM**, **Channel**, **Condition**, **BioReplicate**, **Mixture**, **Intensity**. The variable names are fixed, but are case-insensitive.
 
 ```{r, eval=T, echo=F, warning=F}
+raw.pd = data.table::fread(system.file("tinytest/raw_data/PDTMT/pdtmt_input.csv",
+                                       package = "MSstatsConvert"))
+annotation.pd = data.table::fread(system.file("tinytest/raw_data/PDTMT/pd_annotation.csv",
+                                              package = "MSstatsConvert"))
+input.pd = PDtoMSstatsTMTFormat(raw.pd, annotation.pd)
 head(input.pd)
 ```
 
@@ -71,15 +76,19 @@ Preprocess PSM data from Proteome Discoverer and convert into the required input
 ```{r}
 # read in PD PSM sheet
 # raw.pd <- read.delim("161117_SILAC_HeLa_UPS1_TMT10_5Mixtures_3TechRep_UPSdB_Multiconsensus_PD22_Intensity_PSMs.txt")
+raw.pd = data.table::fread(system.file("tinytest/raw_data/PDTMT/pdtmt_input.csv",
+                                       package = "MSstatsConvert"))
 head(raw.pd)
 
 # Read in annotation including condition and biological replicates per run and channel.
 # Users should make this annotation file. It is not the output from Proteome Discoverer.
 # annotation.pd <- read.csv(file="PD_Annotation.csv", header=TRUE)
+annotation.pd = data.table::fread(system.file("tinytest/raw_data/PDTMT/pd_annotation.csv",
+                                              package = "MSstatsConvert"))
 head(annotation.pd)
 
 # use Protein.Accessions as protein name
-input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd, 
+input.pd <- PDtoMSstatsTMTFormat(raw.pd, annotation.pd,
                                  which.proteinid = "Protein.Accessions")
 head(input.pd)
 
@@ -119,11 +128,16 @@ Preprocess PSM-level data from MaxQuant and convert into the required input form
 ```{r}
 # Read in MaxQuant files
 # proteinGroups <- read.table("proteinGroups.txt", sep="\t", header=TRUE)
-
 # evidence <- read.table("evidence.txt", sep="\t", header=TRUE)
+evidence = data.table::fread(system.file("tinytest/raw_data/MaxQuantTMT/mq_ev.csv",
+                                         package = "MSstatsConvert"))
+proteinGroups = data.table::fread(system.file("tinytest/raw_data/MaxQuantTMT/mq_pg.csv",
+                                              package = "MSstatsConvert"))
 
 # Users should make this annotation file. It is not the output from MaxQuant.
 # annotation.mq <- read.csv(file="MQ_Annotation.csv", header=TRUE)
+annotation.mq = data.table::fread(system.file("tinytest/raw_data/MaxQuantTMT/mq_annotation.csv",
+                                              package = "MSstatsConvert"))
 
 input.mq <- MaxQtoMSstatsTMTFormat(evidence, proteinGroups, annotation.mq)
 head(input.mq)
@@ -150,9 +164,13 @@ Preprocess PSM data from SpectroMine and convert into the required input format 
 ```{r}
 # Read in SpectroMine PSM report
 # raw.mine <- read.csv('20180831_095547_CID-OT-MS3-Short_PSM Report_20180831_103118.xls', sep="\t")
+raw.mine = data.table::fread(system.file("tinytest/raw_data/SpectroMine/spectromine_input.csv",
+                                         package = "MSstatsConvert"))
 
 # Users should make this annotation file. It is not the output from SpectroMine
 # annotation.mine <- read.csv(file="Mine_Annotation.csv", header=TRUE)
+annotation.mine = data.table::fread(system.file("tinytest/raw_data/SpectroMine/spectromine_annotation.csv",
+                                                package = "MSstatsConvert"))
 
 input.mine <- SpectroMinetoMSstatsTMTFormat(raw.mine, annotation.mine)
 head(input.mine)
@@ -175,6 +193,8 @@ Preprocess MSstatsTMT report from OpenMS and convert into the required input for
 ```{r}
 # read in MSstatsTMT report from OpenMS
 # raw.om <- read.csv("OpenMS_20200222/20200225_MSstatsTMT_OpenMS_Export.csv")
+raw.om = data.table::fread(system.file("tinytest/raw_data/OpenMSTMT/openmstmt_input.csv",
+                                       package = "MSstatsConvert"))
 head(raw.om)
 
 # the function only requries one input file
@@ -205,8 +225,15 @@ Preprocess MSstats report from Philosopher of Fragpipe and convert into the requ
 
 #### Example
 ```{r}
-# Example code is skipped for Philosopher Converter 
-# since the input is a path to the folder with all the Philosopher msstats csv files
+input_file_path = system.file("tinytest/raw_data/Philosopher/msstats.csv",
+                               package = "MSstatsConvert")
+annotation_file_path = system.file("tinytest/raw_data/Philosopher/MSstatsTMT_annotation.csv",
+                                   package = "MSstatsConvert")
+input = data.table::fread(input_file_path)
+annotation = data.table::fread(annotation_file_path)
+
+input.philosopher <- PhilosophertoMSstatsTMTFormat(input, annotation)
+head(input.philosopher)
 ```
 
 ## 2. Protein summarization, normalization and visualization
@@ -249,7 +276,7 @@ quant.msstats <- proteinSummarization(input.pd,
 ```
 
 ```{r}
-head(quant.pd.msstats$ProteinLevelData)
+head(quant.msstats$ProteinLevelData)
 ```
 
 ```{r, message=F, warning=F, results='hide'}
@@ -313,13 +340,13 @@ dataProcessPlotsTMT(data=quant.msstats,
 
 There are two pdfs with all the proteins, first is profile plot and second plot is profile plot with summarized and normalized data. `XXX_ProfilePlot.pdf` shows each peptide ions across runs and channels, grouped per condition. Each panel represents one MS run and each dot within one panel is one channel within one Run. Each peptide has a different colour/type layout. The dots are linked with line per peptide ion If line is disconnected, that means there is no value (missing value). Profile plot is good visualization to check individual measurements. `XXX_ProfilePlot_wSummarization.pdf` shows the same peptide ions in grey, with the values as summarized by the model overlayed in red.
 
-Instead of making all profile plots for all proteins, we can make plot for individual protein. Here is the example of protein`P04406`
+Instead of making all profile plots for all proteins, we can make plot for individual protein. Here is the example of protein`O75947`
 ```{r, message=F, warning=F, results='hide'}
 dataProcessPlotsTMT(data=quant.msstats,
                     type='ProfilePlot', # choice of visualization
                     width = 21,
                     height = 7,
-                    which.Protein = 'P04406') 
+                    which.Protein = 'O75947') 
 ```
 
 ```{r}
