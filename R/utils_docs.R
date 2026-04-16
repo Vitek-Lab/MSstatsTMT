@@ -15,12 +15,6 @@
 #' 
 #' @return NULL.
 #' @keywords internal
-.documentFunction = function(fewMeasurements, 
-                             useUniquePeptide,
-                             summaryforMultipleRows, 
-                             removeProtein_with1Feature,
-                             removeProtein_with1Protein,
-                             removeOxidationMpeptides,
-                             removeMpeptides) {
+.documentFunction = function() {
   NULL
 }

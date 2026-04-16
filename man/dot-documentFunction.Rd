@@ -4,15 +4,7 @@
 \alias{.documentFunction}
 \title{A dummy function to store shared documentation items.}
 \usage{
-.documentFunction(
-  fewMeasurements,
-  useUniquePeptide,
-  summaryforMultipleRows,
-  removeProtein_with1Feature,
-  removeProtein_with1Protein,
-  removeOxidationMpeptides,
-  removeMpeptides
-)
+.documentFunction()
 }
 \arguments{
 \item{use_log_file}{logical. If TRUE, information about data processing

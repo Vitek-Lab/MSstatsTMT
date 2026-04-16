@@ -17,10 +17,8 @@
 #' @keywords internal
 "_PACKAGE"
 
-#' Example of output from PDtoMSstatsTMTFormat function
+#' Example dataset in MSstatsTMT format.
 #'
-#' It is made from \code{\link{raw.pd}} and \code{\link{annotation.pd}},
-#' which is the output of PDtoMSstatsTMTFormat function.
 #' It should include the required columns as below.
 #'
 #' \itemize{
