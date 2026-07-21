@@ -38,7 +38,7 @@ BiocManager::install("MSstatsTMT")
 The development version can be installed directly from this repository:
 
 ```r
-BiocManager::install("Vitek-Lab/MSstatsTMT", ref = "devel")
+remotes::install_github("Vitek-Lab/MSstatsTMT")
 ```
 
 ## Quick Start
